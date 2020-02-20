@@ -53,9 +53,7 @@ entity TASTE is
       reset_n  : in  std_logic;         -- System RST
       -- APB interface
       apbi     : in  apb_slv_in_type;
-      apbo     : out apb_slv_out_type;
-      led_complete      : out std_logic;
-      led_start         : out std_logic
+      apbo     : out apb_slv_out_type
     );
 end TASTE;
 
@@ -69,14 +67,7 @@ architecture arch of TASTE is
     -- Signals for start/finish
 %(startStopSignals)s
 
-    -- Debug signals --
-    signal led_start_reg		: std_logic;
-    signal led_complete_reg		: std_logic;
-
 begin
-
-    led_complete	<= led_complete_reg;
-    led_start		<= led_start_reg;
 
     -- Implement register write
     process (reset_n, clk_i)
@@ -84,10 +75,8 @@ begin
         if (reset_n='0') then
             -- Signals for reset
 %(reset)s
-            led_start_reg               <= '0';
-            led_complete_reg            <= '0';
         elsif (clk_i'event and clk_i='1') then
-%(updateStartCompleteLedRegs)s
+
             -- Update start-stop pulses
 %(updateStartStopPulses)s
             if (apbi.pwrite='1' and apbi.psel= '1' and apbi.penable = '1') then
@@ -209,7 +198,7 @@ project = createProject(dir)
 
 project.setVariantName('NG-MEDIUM')
 
-project.setTopCellName('top_lib', 'rdhc_bb')
+project.setTopCellName('top_lib', 'rdhc_ebb')
 
 project.addFiles('leon2ft', [
 '../src/leon2ft_2015.3_nomeiko/leon/amba.vhd',
@@ -328,10 +317,11 @@ project.addFiles('spwrmap', [
 '../src/rmap_core_v1_00_enduser_release/src/vhdl//mem/pa3_table_32x8.vhd',
 '../src/rmap_core_v1_00_enduser_release/src/vhdl/mem/transaction_table.vhd',
 '../src/rmap_core_v1_00_enduser_release/src/vhdl/top/rmap_codec_ip.vhd',
-'rmap_amba.vhd'])
+'../src/misc/rmap_amba.vhd'])
 
-project.addFiles('bravecomp', ['clkgen_bm.vhd'])
-project.addFiles('top_lib', ['rdhc_bb.vhd'])
+project.addFiles('bravecomp', ['../src/misc/clkgen_bm.vhd'])
+project.addFiles('bravecomp', ['../src/misc/pads_bm.vhd'])
+project.addFiles('top_lib', ['rdhc_ebb.vhd'])
 
 project.setOptions({'UseNxLibrary': 'Yes',
 		    'MergeRegisterToPad': 'Always',
@@ -346,14 +336,19 @@ project.addMappingDirective('getModels(.*regfile_3p.*)', 'RAM', 'RF')
 # Defining the clock periods
 project.createClock('getClockNet(clk25)', 'clk25', 40000, 0, 20000) # Period = 40000 ps, # first rising edge at 20000 ps -- 25 MHz
 project.createClock('getClockNet(txclk)', 'txclk', 20000, 0, 10000) # Period = 20000 ps, # first rising edge at 10000 ps -- 50 MHz
-project.createClock('getClockNet(spw.swloop[0].spw|rmap_codec_ip_1|spwrlinkwrap_1|spwrlink_1|RX_CLK)', 'rxclk', 20000, 0, 10000) # Period = 20000 ps, # first rising edge at 10000 ps -- 50 MHz
+project.createClock('getClockNet(spw.swloop[0].spw|rmap_codec_ip_1|spwrlinkwrap_1|spwrlink_1|RX_CLK)', 'rxclk0', 20000, 0, 10000)
+project.createClock('getClockNet(spw.swloop[1].spw|rmap_codec_ip_1|spwrlinkwrap_1|spwrlink_1|RX_CLK)', 'rxclk1', 20000, 0, 10000)
 
 project.setClockGroup('getClock(clk25)', 'getClock(txclk)', 'asynchronous')
 project.setClockGroup('getClock(txclk)', 'getClock(clk25)', 'asynchronous')
-project.setClockGroup('getClock(rxclk)', 'getClock(txclk)', 'asynchronous')
-project.setClockGroup('getClock(txclk)', 'getClock(rxclk)', 'asynchronous')
-project.setClockGroup('getClock(clk25)', 'getClock(rxclk)', 'asynchronous')
-project.setClockGroup('getClock(rxclk)', 'getClock(clk25)', 'asynchronous')
+project.setClockGroup('getClock(rxclk0)', 'getClock(txclk)', 'asynchronous')
+project.setClockGroup('getClock(txclk)', 'getClock(rxclk0)', 'asynchronous')
+project.setClockGroup('getClock(clk25)', 'getClock(rxclk0)', 'asynchronous')
+project.setClockGroup('getClock(rxclk0)', 'getClock(clk25)', 'asynchronous')
+project.setClockGroup('getClock(rxclk1)', 'getClock(txclk)', 'asynchronous')
+project.setClockGroup('getClock(txclk)', 'getClock(rxclk1)', 'asynchronous')
+project.setClockGroup('getClock(clk25)', 'getClock(rxclk1)', 'asynchronous')
+project.setClockGroup('getClock(rxclk1)', 'getClock(clk25)', 'asynchronous')
 #=======================================================================================================
 
 if path.exists(dir + '/pads.py'):
