@@ -578,12 +578,12 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                 self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation + "_wrapper"))
 
         else:
-            self.C_HeaderFile.write("void Execute_%s();\n" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
+            self.C_HeaderFile.write("void Execute_%s(void);\n" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
             if maybeFVname != "":
-                self.C_HeaderFile.write("void init_%s();\n" % (self.CleanNameAsADAWants(maybeFVname)))
+                self.C_HeaderFile.write("void init_%s(void);\n" % (self.CleanNameAsADAWants(maybeFVname)))
                 self.C_HeaderFile.write("void %s_%s(" % (self.CleanNameAsADAWants(maybeFVname), self.CleanNameAsADAWants(sp._id)))
             else:  # pragma: no cover
-                self.C_HeaderFile.write("void %s_init();\n" % self.CleanNameAsADAWants(sp._id))  # pragma: no cover
+                self.C_HeaderFile.write("void %s_init(void);\n" % self.CleanNameAsADAWants(sp._id))  # pragma: no cover
                 self.C_HeaderFile.write("void %s(" % self.CleanNameAsADAWants(sp._id))  # pragma: no cover
             for param in sp._params:
                 if param._id != sp._params[0]._id:
@@ -600,9 +600,9 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
             self.C_SourceFile.write("}\n\n")
 
             if maybeFVname != "":
-                self.C_SourceFile.write("void init_%s()\n" % self.CleanNameAsADAWants(maybeFVname))
+                self.C_SourceFile.write("void init_%s(void)\n" % self.CleanNameAsADAWants(maybeFVname))
             else:  # pragma: no cover
-                self.C_SourceFile.write("void %s_init()\n" % self.CleanNameAsADAWants(sp._id))  # pragma: no cover
+                self.C_SourceFile.write("void %s_init(void)\n" % self.CleanNameAsADAWants(sp._id))  # pragma: no cover
             self.C_SourceFile.write("{\n")
             self.InitializeBlock(modelingLanguage, asnFile, sp, subProgramImplementation, maybeFVname)
             # self.C_SourceFile.write("    extern void InitializeGlue();\n")
