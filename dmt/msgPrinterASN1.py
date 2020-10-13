@@ -95,6 +95,7 @@ class Printer(RecursiveMapper):
         lines = []
         lines.append("switch(%s) {" % srcCVariable)
         for d in node._members:
+            lines.append("// coverity[mixed_enum_type]")
             lines.append("case %s:" % d[1])
             lines.append("    printf(\"%s\");" % d[0])
             lines.append("    break;")
