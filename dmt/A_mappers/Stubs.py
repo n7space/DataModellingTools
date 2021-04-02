@@ -24,7 +24,7 @@ import os
 import re
 import copy
 import sys
-import DV_Types  # pylint: disable=import-error
+from . import DV_Types  # pylint: disable=import-error
 from ctypes import (
     cdll, c_void_p, c_ubyte, c_double, c_uint,
     c_longlong, c_bool, c_int, c_long, c_char
@@ -387,19 +387,19 @@ grep for the errorcode value inside ASN1SCC generated headers."""
         self.Reset()
 
     def GetPyString(self):
-        if sys.version_info > (3,):
-            retval = b""
-            strLength = self.GetLength(False)
-            self._Caccessor += "_iDx"
-            accessPath = self._accessPath
-            for idx in range(0, strLength):
-                self._params.append(idx)
-                self._accessPath = accessPath + "[" + str(idx) + "]"
-                retval += bytes([self.Get(reset=False)])
-                self._params.pop()
-            self.Reset()
-            return retval.decode("utf-8")
-        else:
+        # if sys.version_info > (3,):
+        #     retval = b""
+        #     strLength = self.GetLength(False)
+        #     self._Caccessor += "_iDx"
+        #     accessPath = self._accessPath
+        #     for idx in range(0, strLength):
+        #         self._params.append(idx)
+        #         self._accessPath = accessPath + "[" + str(idx) + "]"
+        #         retval += bytes([self.Get(reset=False)])
+        #         self._params.pop()
+        #     self.Reset()
+        #     return retval.decode("utf-8")
+        # else:
             retval = ""
             strLength = self.GetLength(False)
             self._Caccessor += "_iDx"

@@ -44,7 +44,7 @@ def OneTimeOnly(
     g_PyDataModel = open(outputDir + 'datamodel.py', 'w')
     g_PyDataModel.write('''#!/usr/bin/python
 
-import DV
+import .DV
 
 FVname = "{fvname}"
 
@@ -163,8 +163,8 @@ except ImportError:
     # Python3
     import queue as Queue
 import datamodel
-import DV
-import Stubs
+from . import DV
+from . import Stubs
 try:
     import vn
     import asn1_python

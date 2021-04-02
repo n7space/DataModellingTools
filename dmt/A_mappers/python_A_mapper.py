@@ -64,8 +64,8 @@ def OnStartup(unused_modelingLanguage: str, asnFile: str, outputDir: str, badTyp
     global g_outputFile
     g_outputFile = open(outputDir + outputFilename, 'w')
     g_outputFile.write("from functools import partial\n\n")
-    g_outputFile.write("import DV\n\n")
-    g_outputFile.write("from Stubs import (\n")
+    g_outputFile.write("from . import DV\n\n")
+    g_outputFile.write("from .Stubs import (\n")
     g_outputFile.write(
         "    myassert, Clean, DataStream, COMMON)\n\n")
     global g_outputGetSetH
@@ -109,11 +109,10 @@ def OnStartup(unused_modelingLanguage: str, asnFile: str, outputDir: str, badTyp
     g_outputGetSetC.write('BitStream *CreateStream(size_t bufferSize) {\n')
     g_outputGetSetC.write('    BitStream *pBitStrm = malloc(sizeof(BitStream));\n')
     g_outputGetSetC.write('    assert(pBitStrm);\n')
-    g_outputGetSetC.write('    pBitStrm->buf = malloc(bufferSize);\n')
-    g_outputGetSetC.write('    assert(pBitStrm->buf);\n')
-    g_outputGetSetC.write('    pBitStrm->count = bufferSize;\n')
-    g_outputGetSetC.write('    memset(pBitStrm->buf, 0x0, bufferSize);\n')
-    g_outputGetSetC.write('    ResetStream(pBitStrm);\n')
+    g_outputGetSetC.write('    unsigned char* buf = malloc(bufferSize);\n')
+    g_outputGetSetC.write('    assert(buf);\n')
+    g_outputGetSetC.write('    memset(buf, 0x0, bufferSize);\n')
+    g_outputGetSetC.write('    BitStream_Init(pBitStrm, buf, bufferSize);\n')
     g_outputGetSetC.write('    return pBitStrm;\n')
     g_outputGetSetC.write('}\n\n')
     g_outputGetSetC.write('void DestroyStream(BitStream *pBitStrm) {\n')

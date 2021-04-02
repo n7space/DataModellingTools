@@ -553,11 +553,11 @@ from sqlalchemy import (Column, Integer, String, Boolean, Float,
                         ForeignKey, CheckConstraint, UniqueConstraint)
 from sqlalchemy.orm import relationship
 
-from {d_cleaned} import (
+from .{d_cleaned} import (
     {types}
 )
 
-import DV
+from . import DV
 
 '''.format(d=d, d_cleaned=CleanName(d),
            types=", ".join(
