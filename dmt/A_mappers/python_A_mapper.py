@@ -169,10 +169,10 @@ $(BDIR)/DV.py:       $(GRAMMAR).asn $(BDIR)/$(GRAMMAR).h
 %(tab)spython learn_CHOICE_enums.py %(base)s >> $@ || rm $@
 
 $(BDIR)/%%.o:       $(BDIR)/%%.c $(BDIR)/$(GRAMMAR).h
-%(tab)sgcc -g -fPIC -c `python-config --includes` -o $@ $<
+%(tab)sgcc -g -fPIC -c -o $@ $<
 
 $(BDIR)/$(BASEGRAMMAR)_getset.so:	${OBJ}
-%(tab)sgcc -g -fPIC -shared `python-config --ldflags` -o $@ $^
+%(tab)sgcc -g -fPIC -shared -o $@ $^
 
 clean:
 %(tab)srm -f $(BDIR)/asn1crt*  $(BDIR)/$(GRAMMAR).?
