@@ -22,18 +22,30 @@ ___dmt_A_mappers_%.py,cover:	../A_mappers/%.py DataTypesSimulink.asn
 	rm -rf output/*
 	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel 2>/dev/null || echo -n
 	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output 2>/dev/null || echo -n
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -toRTDS DataTypesSimulink.asn >/dev/null
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -toQGenAda DataTypesSimulink.asn >/dev/null
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -toQGenC DataTypesSimulink.asn >/dev/null
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toSIMULINK DataTypesSimulink.asn >/dev/null
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -toOG DataTypesSimulink.asn
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -toAda DataTypesSimulink.asn
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -toC DataTypesSimulink.asn >/dev/null
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -toSMP2 DataTypesSimulink.asn >/dev/null
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -toPython DataTypesSimulink.asn >/dev/null
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -toSCADE6 DataTypesSimulink.asn >/dev/null
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -toSQL DataTypesSimulink.asn >/dev/null
-	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -toSqlalchemy DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toRTDS       DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toQGenAda    DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toQGenC      DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toSIMULINK   DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toOG         DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toAda        DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toC          DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toSMP2       DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toPython     DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toSCADE6     DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toSQL        DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toSqlalchemy DataTypesSimulink.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toRTDS       robots.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toQGenAda    robots.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toQGenC      robots.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toSIMULINK   robots.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toOG         robots.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toAda        robots.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toC          robots.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toSMP2       robots.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toPython     robots.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toSCADE6     robots.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toSQL        robots.asn >/dev/null
+	LANG=C LC_ALL=C python3 -m coverage run -a -m dmt.asn2dataModel -o output -verbose -toSqlalchemy robots.asn >/dev/null
 	LANG=C LC_ALL=C python3 -m coverage annotate -d . ../dmt/asn2dataModel.py ../dmt/A_mappers/*.py ../dmt/commonPy/*.py
 
 check:

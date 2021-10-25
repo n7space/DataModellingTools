@@ -227,8 +227,6 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                 param: Param,
                 leafTypeDict: AST_Leaftypes,
                 names: AST_Lookup) -> None:
-        global fpgaSuffix
-
         if encoding.lower() not in self.supportedEncodings:
             panic(str(self.__class__) + ": in (%s), encoding can be one of %s (not '%s')" % (  # pragma: no cover
                 subProgram._id + "." + subProgramImplementation, self.supportedEncodings, encoding))  # pragma: no cover
@@ -403,7 +401,6 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                 param: Param,
                 leafTypeDict: AST_Leaftypes,
                 names: AST_Lookup) -> None:
-        global fpgaSuffix
 
         tmpSpName = "Convert_From_%s_To_%s_In_%s_%s" % \
             (encoding.lower(),
@@ -613,10 +610,6 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
         self.Common(nodeTypename, node, subProgram, subProgramImplementation, param, leafTypeDict, names)
 
     def OnShutdown(self, modelingLanguage: str, asnFile: str, sp: ApLevelContainer, subProgramImplementation: str, maybeFVname: str) -> None:
-        global genFpgaDevDrv
-        global fpgaSuffix
-        global dispatcherSuffix
-
         if modelingLanguage == "QGenAda":
             self.ADA_HeaderFile.write("    procedure Execute_%s (" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
             self.ADA_SourceFile.write("    procedure Execute_%s (" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))

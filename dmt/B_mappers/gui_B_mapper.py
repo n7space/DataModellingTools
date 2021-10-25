@@ -212,8 +212,7 @@ def OneTimeOnly(
         outputDir: str,
         maybeFVname: str,
         unused_useOSS: bool) -> None:
-    for typename in asnParser.g_names:
-        node = asnParser.g_names[typename]
+    for node in asnParser.g_names.values():
         VerifySingleFieldEnums(node)
 
     global g_outputDir

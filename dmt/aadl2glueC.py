@@ -199,7 +199,7 @@ of each SUBPROGRAM param.'''
                     klass = commonPy
                     for step in python2className.split('.')[1:]:
                         klass = getattr(klass, step)
-                    o.__class__ = klass
+                    o.__class__ = klass  # pylint: disable=invalid-class-object
             except Exception:
                 pass
 
@@ -365,12 +365,11 @@ def ProcessAsync(  # pylint: disable=dangerous-default-value
         leafTypeDict = commonPy.asnParser.g_leafTypeDict
 
         inform("This param uses definitions from %s", asnFile)
-        for nodeTypename in names:
+        for nodeTypename, node in names.items():
             # Check if this type must be skipped
             if nodeTypename in badTypes:
                 continue
 
-            node = names[nodeTypename]
             inform("ASN.1 node is %s", nodeTypename)
 
             # First, make sure we know what leaf type this node is
@@ -500,7 +499,7 @@ def main() -> None:
     if "-pdb" in sys.argv:
         sys.argv.remove("-pdb")  # pragma: no cover
         import pdb  # pragma: no cover pylint: disable=wrong-import-position,wrong-import-order
-        pdb.set_trace()  # pragma: no cover
+        pdb.set_trace()  # pragma: no cover pylint: disable=forgotten-debug-statement
 
     use_ASN1SCC_allboards_support = "-allboards" in sys.argv
     if use_ASN1SCC_allboards_support:
