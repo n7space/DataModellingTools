@@ -192,7 +192,7 @@ def main() -> None:
             continue  # bug in coverage.py...  # pragma: no cover
 
         # Work on each ASN.1 file's types
-        for asnFile in uniqueASNfiles:
+        for asnFile in uniqueASNfiles:  # pylint: disable=consider-using-dict-items
             if 'OnStartup' in dir(backend):
                 backend.OnStartup(modelingLanguage, asnFile, configMT.outputDir, badTypes)
 

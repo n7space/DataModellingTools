@@ -348,7 +348,7 @@ def IsInvalidType(name: str) -> bool:
     return \
         (name.lower() in g_invalidKeywords) or \
         (name.lower() in lotokens) or \
-        any([name.lower().endswith(x) for x in ["-buffer", "-buffer-max"]])
+        any(name.lower().endswith(x) for x in ["-buffer", "-buffer-max"])
 
 
 def CheckForInvalidKeywords(node_or_str: Union[str, AsnNode]) -> None:
@@ -553,7 +553,7 @@ def GetAttrCertainly(node: Element, attrName: str) -> Any:
     return node._attrs[attrName]
 
 
-def GetChild(node: Element, childName: str) -> Element:
+def GetChild(node: Element, childName: str) -> Element:  # pylint: disable=inconsistent-return-statements
     for x in node._children:
         if x._name == childName:
             return x
@@ -930,7 +930,7 @@ def PrintType(f: IO[Any], xmlType: Element, indent: str, nameCleaner: Callable[[
         f.write(' (%s .. %s)' % (mmin, mmax))
     elif realType._name == "BitStringType":
         utility.panic("BIT STRINGs are not supported, use SEQUENCE OF BOOLEAN")  # pragma: no cover
-    elif realType._name == "OctetStringType" or realType._name == "IA5StringType" or realType._name == "NumericStringType":
+    elif realType._name in ["OctetStringType", "IA5StringType", "NumericStringType"]:
         f.write('OCTET STRING')
         mmin = GetAttrCertainly(realType, "Min")
         mmax = GetAttrCertainly(realType, "Max")
@@ -949,7 +949,7 @@ def PrintType(f: IO[Any], xmlType: Element, indent: str, nameCleaner: Callable[[
             for otherOptions in options[1:]:
                 f.write(',\n' + indent + '    ' + nameCleaner(GetAttrCertainly(otherOptions, "StringValue")) + "(" + GetAttrCertainly(otherOptions, "IntValue") + ")")
         f.write('\n' + indent + '}')
-    elif realType._name == "SequenceType" or realType._name == "SetType":
+    elif realType._name in ["SequenceType", "SetType"]:
         if realType._name == "SequenceType":
             f.write('SEQUENCE {\n')
         else:
