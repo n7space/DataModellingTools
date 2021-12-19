@@ -10,8 +10,8 @@ configure:
 	./configure
 
 install:	configure
-	pip3 uninstall -y dmt || exit 0  # Uninstall if there, but don't abort if not installed
-	pip3 install --user .
+	python3 -m pip uninstall -y dmt || exit 0  # Uninstall if there, but don't abort if not installed
+	python3 -m pip install --user .
 
 flake8:
 	@echo Performing syntax checks via flake8...
@@ -31,7 +31,7 @@ coverage:
 
 testDB:
 	@echo Installing DMT for local user...
-	@pip3 install .
+	@python3 -m pip install .
 	@echo Performing database tests...
 	@$(MAKE) -C tests-sqlalchemy  || exit 1
 
