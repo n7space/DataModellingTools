@@ -265,16 +265,16 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
             self.C_HeaderFile.write(
                 "int %s%s(void *pBuffer);\n" % (tmpSpName, fpgaSuffix))
             self.ADA_HeaderFile.write(
-                "procedure Ada_%s(pBuffer : in Interfaces.C.char_array);\n" % tmpSpName)
+                "procedure Ada_%s(pBuffer : in Interfaces.C.char_array; bytesWritten : out Integer);\n" % tmpSpName)
             self.ADA_SourceFile.write(
-                "procedure Ada_%s(pBuffer : in Interfaces.C.char_array) is\n" % tmpSpName)
+                "procedure Ada_%s(pBuffer : in Interfaces.C.char_array; bytesWritten : out Integer) is\n" % tmpSpName)
             self.ADA_SourceFile.write(
                 "    function C_%s(pBuffer : Interfaces.C.char_array) return Integer;\n" % tmpSpName)
             self.ADA_SourceFile.write(
                 '    pragma Import(C, C_%s, "%s");\n' % (tmpSpName, tmpSpName))
             self.ADA_SourceFile.write(
                 'begin\n'
-                '    C_%s(pBuffer);\n' % tmpSpName)
+                '    bytesWritten := C_%s(pBuffer);\n' % tmpSpName)
             self.ADA_SourceFile.write(
                 "end Ada_%s;\n\n" % tmpSpName)
             self.C_SourceFile.write(
