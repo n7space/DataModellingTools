@@ -105,6 +105,7 @@ from .B_mappers import vhdl_B_mapper
 from .B_mappers import zestSC1_B_mapper
 from .B_mappers import brave_B_mapper           # Specific CoRA B-mapper for BRAVE
 from .B_mappers import zynqzc706_B_mapper       # Specific CoRA-ZynQ B-mapper for the ZynQ ZC706
+from .B_mappers import brave_large_B_mapper
 
 from .B_mappers.module_protos import Sync_B_Mapper, Async_B_Mapper
 
@@ -255,6 +256,8 @@ def getSyncBackend(modelingLanguage: str) -> Sync_B_Mapper:
             return cast(Sync_B_Mapper, zestSC1_B_mapper)  # pragma: no cover
         elif commonPy.configMT.fpga_mapper == "ZYNQZC706":
             return cast(Sync_B_Mapper, zynqzc706_B_mapper)  # pragma: no cover
+        elif commonPy.configMT.fpga_mapper == "NGLARGE":
+                return cast(Sync_B_Mapper, brave_large_B_mapper)  # pragma: no cover
     return cast(Sync_B_Mapper, g_sync_mappers[modelingLanguage])
 
 
@@ -422,6 +425,8 @@ def ProcessCustomBackends(
                 return [cast(Sync_B_Mapper, zestSC1_B_mapper)]  # pragma: no cover
             elif commonPy.configMT.fpga_mapper == "ZYNQZC706":
                 return [cast(Sync_B_Mapper, zynqzc706_B_mapper)]  # pragma: no cover
+            elif commonPy.configMT.fpga_mapper == "NGLARGE":
+                return [cast(Sync_B_Mapper, brave_large_B_mapper)]  # pragma: no cover
             else:
                 return [cast(Sync_B_Mapper, vhdl_B_mapper)]  # pragma: no cover
         else:
@@ -538,7 +543,7 @@ def main() -> None:
         try:
             commonPy.configMT.outputDir = os.path.normpath(sys.argv[idx + 1]) + os.sep
         except:  # pragma: no cover
-            panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
+            panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
         del sys.argv[idx]
         del sys.argv[idx]
         if not os.path.isdir(commonPy.configMT.outputDir):
@@ -558,15 +563,15 @@ def main() -> None:
         try:
             commonPy.configMT.fpga_mapper = os.path.normpath(sys.argv[idx + 1])
         except:  # pragma: no cover
-            panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
-        if commonPy.configMT.fpga_mapper == '' or commonPy.configMT.fpga_mapper not in ['BRAVE', 'ZESTSC1', 'ZYNQZC706']:
-            panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
+            panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
+        if commonPy.configMT.fpga_mapper == '' or commonPy.configMT.fpga_mapper not in ['BRAVE', 'ZESTSC1', 'ZYNQZC706', 'NGLARGE']:
+            panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
         del sys.argv[idx]
         del sys.argv[idx]
 
     # No other options must remain in the cmd line...
     if len(sys.argv) < 2:
-        panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
+        panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
     commonPy.configMT.showCode = True
     for f in sys.argv[1:]:
         if not os.path.isfile(f):
