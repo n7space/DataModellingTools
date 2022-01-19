@@ -809,7 +809,7 @@ def GenericFactory(newModule: Module, xmlType: Element) -> AsnNode:
         utility.panic("GenericFactory: No children for Type (%s, %s)" %  # pragma: no cover
                       (newModule._asnFilename, lineNo))  # pragma: no cover
     xmlContainedType = xmlType._children[0]
-    if xmlContainedType._name not in list(Factories.keys()):
+    if xmlContainedType._name not in list(Factories.keys()):  # pylint: disable=consider-iterating-dictionary
         utility.panic("Unsupported XML type node: '%s' (%s, %s)" %  # pragma: no cover
                       (xmlContainedType._name, newModule._asnFilename, lineNo))  # pragma: no cover
     maker = Factories[xmlContainedType._name]
