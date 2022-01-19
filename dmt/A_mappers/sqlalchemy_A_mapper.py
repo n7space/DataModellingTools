@@ -36,7 +36,6 @@ from ..commonPy.cleanupNodes import SetOfBadTypenames
 
 g_sqlalchemyOutput: IO[Any]
 g_innerTypes = {}  # type: Dict[str, int]
-g_uniqueStringOfASN1files = ""
 g_outputDir = "."
 g_asnFiles: Union[str, List[str]]
 
@@ -155,17 +154,6 @@ def OnStartup(unused_modelingLanguage: str, asnFiles: Union[str, List[str]], out
 
     We do this AST "fixup" via a call to FixupAstForSQLAlchemy
     '''
-    global g_uniqueStringOfASN1files
-    if isinstance(asnFiles, str):
-        g_uniqueStringOfASN1files = \
-            CleanName(
-                asnFiles.lower().replace(".asn1", "").replace(".asn", ""))
-    else:
-        g_uniqueStringOfASN1files = \
-            "_".join(
-                CleanName(
-                    x.lower().replace(".asn1", "").replace(".asn", ""))
-                for x in asnFiles)  # pragma: no cover
     global g_bStartupRun  # pragma: no cover
     if g_bStartupRun:
         # Must run only once, no more.
@@ -534,7 +522,7 @@ def OnShutdown(badTypes: SetOfBadTypenames) -> None:
 
     global g_sqlalchemyOutput
     g_sqlalchemyOutput = open(
-        g_outputDir + os.sep + g_uniqueStringOfASN1files + "_model.py", 'w')
+        g_outputDir + os.sep + "db_model.py", 'w')
     d = g_asnFiles if isinstance(g_asnFiles, str) else '","'.join(g_asnFiles)  # type: str
     typenameList = []  # type: List[str]
     for nodeTypename in sorted(list(g_innerTypes.keys()) + list(g_names.keys())):
