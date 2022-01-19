@@ -9,9 +9,9 @@ import unittest
 from sqlalchemy import create_engine
 
 from commonTests import AllTests
-from lotsofdatatypes_model import Base
+from db_model import Base
 
-from lotsofdatatypes_model import My2ndInt_SQL
+from db_model import My2ndInt_SQL
 from LotsOfDataTypes_asn import My2ndInt
 
 logging.basicConfig(filename="sql.log")
