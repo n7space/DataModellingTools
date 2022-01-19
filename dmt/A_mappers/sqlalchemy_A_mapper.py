@@ -547,7 +547,7 @@ from {d_cleaned} import (
 
 import DV
 
-'''.format(d=d, d_cleaned=CleanName(d),
+'''.format(d=d, d_cleaned=CleanName(os.path.basename(d)),
            types=", ".join(
                CleanName(x)
                for x in typenameList
