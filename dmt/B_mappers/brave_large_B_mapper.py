@@ -635,12 +635,16 @@ g_placeholders = {
     "circuits": '',
     "inputregdefaults": '',
     "ioregisterindex": '',
-    "registersignals": '',
+    "iregistersignals": '',
+    "oregistersignals": '',
+    "internalstartdone": '',
+    'internaloutputs': '',
     "internalassignments": '',
     "apbwriteregs": '',
     "apbreadregs": '',
     "regresets": '',
     "regclocked": '',
+    "finstateoutputs": '',
     "reset": '',
     "updateStartCompleteLedRegs": '',
     "updateStartStopPulses": '',
@@ -739,19 +743,24 @@ def OnFinal() -> None:
     assert vhdlBackend is not None
 
     circuitMapper = MapASN1ToVHDLCircuit()
-    ioRegisterMapper = MapASN1ToVHDLregisters()
+    iRegisterMapper = MapASN1ToVHDLinputRegisters()
+    oRegisterMapper = MapASN1ToVHDLoutputRegisters()
     internalOutputsMapper = MapASN1ToVHDLinternalOutputSignals() # To be implemented
     ioRegisterIndexMapper = MapASN1ToVHDLregisterIndex()
     ioRegisterDefaultMapper = MapASN1ToVHDLregisterDefaults()
-    connectionsToIPMapper = MapASN1ToIPconnections()
+    iConnectionsToIPMapper = MapASN1ToVHDLinputIPconnections()
+    oConnectionsToIPMapper = MapASN1ToVHDLoutputIPconnections()
     registerAPBwriteMapper = MapASN1ToVHDLregisterAPBwrites()
     registerAPBreadMapper = MapASN1ToVHDLregisterAPBreads()
+
+    finStateOutputMapper = MapASN1ToVHDLfinStateOutputs()
+
     registerResetValuesMapper = MapASN1ToVHDLregisterResets()
     registerClockedValuesMapper = MapASN1ToVHDLregisterClocked()
 
     # inputDeclarationMapper = MapASN1ToVHDLinput()
     # inputAssignMapper = MapASN1ToVHDLinputassign()
-    internalSignalsMapper = MapASN1ToVHDLinternalsignals()
+    internalSignalsMapper = MapASN1ToVHDLinternalSignals()
     readinputdataMapper = MapASN1ToVHDLreadinputdata()
     writeoutputdataMapper = MapASN1ToVHDLwriteoutputdata()
     outputsMapper = MapASN1ToOutputs()
@@ -770,25 +779,32 @@ def OnFinal() -> None:
     for c in VHDL_Circuit.allCircuits:
         circuitLines = []
 
-        ioregisterLines = []
         ioRegisterIndexLines = []
+        iRegisterLines = []
+        oRegisterLines = []
+
+        ioInternalOutputLines = []
+        internalSignalsLines = []
+        
+        iConnectionsToIPLines = []
+        oConnectionsToIPLines = []
+        
         iRegisterDefaultLines = []
         oRegisterDefaultLines = []
 
         registerAPBwriteLines = []
         registerAPBreadLines = []
 
+        finOutputLines = []
+
+
         registerResetLines = []
         registerClockedLines = []
 
-        # inputdeclarationLines = []
-        # inputassignLines = []
-        internalsignalsLines = []
 
         readinputdataLines = []
 
-        iConnectionsToIPLines = []
-        oConnectionsToIPLines = []
+        
 
         counter = cast(List[int], [0x0300 + c._offset + 4])  # type: List[int]  # pylint: disable=invalid-sequence-index
         for p in c._sp._params:
@@ -801,10 +817,6 @@ def OnFinal() -> None:
 
             ioRegisterIndexLines.extend(
                 ioRegisterIndexMapper.Map(
-                    direction, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
-
-            ioregisterLines.extend(
-                ioRegisterMapper.Map(
                     direction, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
 
             iRegisterDefaultLines.extend(
@@ -834,8 +846,12 @@ def OnFinal() -> None:
                         counter, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
 
                 iConnectionsToIPLines.extend(
-                    connectionsToIPMapper.Map(
-                        direction, c._spCleanName + '_' + p._id, p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
+                    iConnectionsToIPMapper.Map(
+                        c._spCleanName + '_' + p._id, p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
+
+                iRegisterLines.extend(
+                    iRegisterMapper.Map(
+                        direction, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
 
                 # inputdeclarationLines.extend(
                 #     inputDeclarationMapper.Map(
@@ -845,14 +861,26 @@ def OnFinal() -> None:
                 #     inputAssignMapper.Map(
                 #         direction, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
 
-                internalsignalsLines.extend(
+                internalSignalsLines.extend(
                     internalSignalsMapper.Map(
                         direction, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
 
             else:
-                oConnectionsToIPLines.extend(
+                oRegisterLines.extend(
+                    oRegisterMapper.Map(
+                        direction, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
+
+                ioInternalOutputLines.extend(
                     internalOutputsMapper.Map(
-                        c._spCleanName + '_' + p._id, p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names, direction))
+                        c._spCleanName + '_' + p._id, p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
+
+                oConnectionsToIPLines.extend(
+                    oConnectionsToIPMapper.Map(
+                        c._spCleanName + '_' + p._id, p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
+
+                finOutputLines.extend(
+                    finStateOutputMapper.Map(
+                        c._spCleanName + '_' + p._id, p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
 
                 outputs.extend([c._spCleanName + '_' + x for x in outputsMapper.Map(p._id, 1, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names)])
 
@@ -905,14 +933,16 @@ def OnFinal() -> None:
         AddToStr('ioregisterindex', '\n'.join(['' + x + str(idx+2) + ';' for idx, x in enumerate(ioRegisterIndexLines)] ) + '\n')
         
         # Register signals (Used for I/O) - MapASN1ToVHDLregisters()
-        AddToStr('registersignals', '\n'.join(['    ' + x for x in ioregisterLines]) + '\n\n')
+        AddToStr('iregistersignals', '\n'.join(['' + x for x in iRegisterLines]) + '\n\n')
+        AddToStr('oregistersignals', '\n'.join(['' + x for x in oRegisterLines]) + '\n\n')
 
         # Signals used internally for assignments
         AddToStr('internalstartdone', "signal int_%(pi)s_start  : std_logic;\n" % {'pi': c._spCleanName})
         AddToStr('internalstartdone', "signal int_%(pi)s_done   : std_logic;\n" % {'pi': c._spCleanName})
 
         # Signals for internal output assignments
-        AddToStr('internaloutputs', "signal int_%(pi)s_outp : std_logic_vector(63 downto 0);\n" % {'pi': c._spCleanName})
+        # AddToStr('internaloutputs', "signal int_%(pi)s_outp : std_logic_vector(63 downto 0);\n" % {'pi': c._spCleanName})
+        AddToStr('internaloutputs', '\n'.join(['' + x for x in ioInternalOutputLines]) + '\n')
 
         # Internal signals, common to all implementations
         AddToStr('internalsignals', "signal start_reg : std_logic; -- Register for incoming start signal\n")
@@ -924,7 +954,8 @@ def OnFinal() -> None:
         # IP instantiation
         AddToStr('connectionsToIP', '\n   bambu_inst : entity work.%s_bambu\n' % (c._spCleanName))
         AddToStr('connectionsToIP', '        port map (\n')
-        AddToStr('connectionsToIP', ',\n'.join(['            ' + x for x in connectionsToIPLines]) + ',\n')
+        AddToStr('connectionsToIP', ',\n'.join(['            ' + x for x in iConnectionsToIPLines]) + ',\n')
+        AddToStr('connectionsToIP', ',\n'.join(['            ' + x for x in oConnectionsToIPLines]) + ',\n')
         AddToStr('connectionsToIP', '            start_%s => int_%s_start,\n' % (c._spCleanName, c._spCleanName))
         AddToStr('connectionsToIP', '            finish_%s => int_%s_done,\n' % (c._spCleanName, c._spCleanName))
         AddToStr('connectionsToIP', '            clock_%s => pclk,\n' % c._spCleanName)
@@ -945,6 +976,8 @@ def OnFinal() -> None:
         AddToStr('intipdone', 'int_%(pi)s_done' % {'pi': c._spCleanName})
         AddToStr('intipoutp', 'int_%(pi)s_outp' % {'pi': c._spCleanName})
         AddToStr('ipoutpregd', 'int_%(pi)s_start')
+
+        AddToStr('finstateoutputs', '\n'.join([x for x in finOutputLines]) + ';' + '\n' )
 
         # Register reset values
         AddToStr('regresets', '\n'.join([x for x in registerResetLines]) + '\n')
