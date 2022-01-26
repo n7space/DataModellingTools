@@ -67,7 +67,7 @@ vhdlBackend = None
 
 
 def Version() -> None:
-    print("Code generator: " + "$Id: zynqzc706_B_mapper.py 2019-2020 tmsj@gmv $")  # pragma: no cover
+    print("Code generator: " + "$Id: brave_large_B_mapper.py 2019-2020 tmsj@gmv $")  # pragma: no cover
 
 
 def CleanName(name: str) -> str:
@@ -174,9 +174,9 @@ class FromVHDLToASN1SCC(RecursiveMapperGeneric[List[int], str]):  # pylint: disa
         lines.append("    unsigned int i;\n")
         lines.append("    asn1SccSint val = 0;\n")
         lines.append("    for(i=0; i<sizeof(asn1SccSint)/4; i++) {\n")
-        lines.append("        //axi_read(R_AXI_BASEADR + %s + (i*4), &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("        tmp = io_read(AXI_BANK_IP + %s + (i*4));\n" % hex(register))
-        lines.append("        //tmp >>= 32; // ?\n")
+        # lines.append("        //axi_read(R_AXI_BASEADR + %s + (i*4), &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
+        lines.append("        tmp = io_read(IP_BASE_ADDR + 0x%s + (i*4));\n" % hex(register).lstrip("0x").upper())
+        # lines.append("        //tmp >>= 32; // \n")
         lines.append("        val |= (tmp << (32*i));\n")
         lines.append("    }\n")
         lines.append("    %s = val;\n" % destVar)
@@ -192,7 +192,7 @@ class FromVHDLToASN1SCC(RecursiveMapperGeneric[List[int], str]):  # pylint: disa
         lines.append("    unsigned int i;\n")
         lines.append("    asn1SccSint val = 0;\n")
         lines.append("    for(i=0; i<sizeof(asn1Real)/4; i++) {\n")
-        lines.append("        tmp = io_read(AXI_BANK_IP + %s + (i*4));\n" % hex(register))
+        lines.append("        tmp = io_read(IP_BASE_ADDR + %s + (i*4));\n" % hex(register))
         lines.append("        val |= (tmp << (32*i));\n")
         lines.append("    }\n")
         lines.append("    %s = val;\n" % destVar)
@@ -206,7 +206,7 @@ class FromVHDLToASN1SCC(RecursiveMapperGeneric[List[int], str]):  # pylint: disa
         lines.append("{\n")
         lines.append("    unsigned int tmp = 0;\n")
         lines.append("    //axi_read(R_AXI_BASEADR + %s, &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("    tmp = io_read(AXI_BANK_IP + %s);\n" % hex(register))
+        lines.append("    tmp = io_read(IP_BASE_ADDR + %s);\n" % hex(register))
         lines.append("    %s = (asn1SccUint) tmp;\n" % destVar)
         lines.append("}\n")
         srcVHDL[0] += 4
@@ -230,7 +230,7 @@ class FromVHDLToASN1SCC(RecursiveMapperGeneric[List[int], str]):  # pylint: disa
         lines.append("    for(i=0; i<%d; i++) {\n" % int(node._range[-1] / 4))
         lines.append("        tmp = 0;\n")
         lines.append("        //axi_read(R_AXI_BASEADR + %s + (i*4), &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("        tmp = io_read(AXI_BANK_IP + %s + (i*4));\n" % hex(register))
+        lines.append("        tmp = io_read(IP_BASE_ADDR + %s + (i*4));\n" % hex(register))
         lines.append("        memcpy(%s.arr + (i*4), (unsigned char*)&tmp, sizeof(unsigned int));\n" % destVar)
         lines.append("    }\n")
         lines.append("}\n")
@@ -244,7 +244,7 @@ class FromVHDLToASN1SCC(RecursiveMapperGeneric[List[int], str]):  # pylint: disa
         lines.append("{\n")
         lines.append("    unsigned int tmp;\n")
         lines.append("    //axi_read(R_AXI_BASEADR + %s, &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("    tmp = io_read(AXI_BANK_IP + %s);\n" % hex(register))
+        lines.append("    tmp = io_read(IP_BASE_ADDR + %s);\n" % hex(register))
         lines.append("    %s = tmp;\n" % destVar)
         lines.append("}\n")
         srcVHDL[0] += 4
@@ -315,6 +315,7 @@ class FromVHDLToASN1SCC(RecursiveMapperGeneric[List[int], str]):  # pylint: disa
 
 
 # pylint: disable=no-self-use
+# For INPUT registers
 class FromASN1SCCtoVHDL(RecursiveMapperGeneric[str, List[int]]):  # pylint: disable=invalid-sequence-index
     def MapInteger(self, srcVar: str, dstVHDL: List[int], _: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         register = dstVHDL[0] + dstVHDL[1]
@@ -324,8 +325,8 @@ class FromASN1SCCtoVHDL(RecursiveMapperGeneric[str, List[int]]):  # pylint: disa
         lines.append("    asn1SccSint val = %s;\n" % srcVar)
         lines.append("    for(i=0; i<sizeof(asn1SccSint)/4; i++) {\n")
         lines.append("        tmp = val & 0xFFFFFFFF;\n")
-        lines.append("        //axi_write(R_AXI_BASEADR + %s + (i*4), &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("        io_write(AXI_BANK_IP  + %s + (i*4), tmp);\n" % hex(register))
+        # lines.append("        //axi_write(R_AXI_BASEADR + %s + (i*4), &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
+        lines.append("        io_write(IP_BASE_ADDR + 0x%s + (i*4), tmp);\n" % hex(register).lstrip("0x").upper())
         lines.append("        val >>= 32;\n")
         lines.append("    }\n")
         lines.append("}\n")
@@ -341,7 +342,7 @@ class FromASN1SCCtoVHDL(RecursiveMapperGeneric[str, List[int]]):  # pylint: disa
         lines.append("    asn1Real val = %s;\n" % srcVar)
         lines.append("    for(i=0; i<sizeof(asn1Real)/4; i++) {\n")
         lines.append("        tmp = val & 0xFFFFFFFF;\n")
-        lines.append("        io_write(AXI_BANK_IP  + %s + (i*4), tmp);\n" % hex(register))
+        lines.append("        io_write(IP_BASE_ADDR  + %s + (i*4), tmp);\n" % hex(register))
         lines.append("        val >>= 32;\n")
         lines.append("    }\n")
         lines.append("}\n")
@@ -354,7 +355,7 @@ class FromASN1SCCtoVHDL(RecursiveMapperGeneric[str, List[int]]):  # pylint: disa
         lines.append("{\n")
         lines.append("    unsigned int tmp = (unsigned int)%s;\n" % srcVar)
         lines.append("    //axi_write(R_AXI_BASEADR + %s, &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("    io_write(AXI_BANK_IP  + %s, tmp);\n" % hex(register))
+        lines.append("    io_write(IP_BASE_ADDR  + %s, tmp);\n" % hex(register))
         lines.append("}\n")
         dstVHDL[0] += 4
         return lines
@@ -376,7 +377,7 @@ class FromASN1SCCtoVHDL(RecursiveMapperGeneric[str, List[int]]):  # pylint: disa
         lines.append("        tmp = 0;\n")
         lines.append("        tmp = *(unsigned int*)(%s.arr + (i*4));\n" % srcVar)
         lines.append("        //axi_write(R_AXI_BASEADR + %s + (i*4), &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("        io_write(AXI_BANK_IP  + %s + (i*4), tmp);\n" % hex(register))
+        lines.append("        io_write(IP_BASE_ADDR  + %s + (i*4), tmp);\n" % hex(register))
         lines.append("    }\n")
         lines.append("}\n")
 
@@ -391,7 +392,7 @@ class FromASN1SCCtoVHDL(RecursiveMapperGeneric[str, List[int]]):  # pylint: disa
         lines.append("{\n")
         lines.append("    unsigned int tmp = (unsigned int)%s;\n" % srcVar)
         lines.append("    //axi_write(R_AXI_BASEADR + %s, &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("    io_write(AXI_BANK_IP  + %s, tmp);\n" % hex(register))
+        lines.append("    io_write(IP_BASE_ADDR  + %s, tmp);\n" % hex(register))
         lines.append("}\n")
         dstVHDL[0] += 4
         return lines
@@ -467,6 +468,7 @@ class VHDLGlueGenerator(SynchronousToolGlueGeneratorGeneric[List[int], List[int]
     # def HeadersOnStartup(self, modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname):
     def HeadersOnStartup(self, unused_modelingLanguage: str, unused_asnFile: str, unused_subProgram: ApLevelContainer, unused_subProgramImplementation: str, unused_outputDir: str, unused_maybeFVname: str) -> None:
         self.C_SourceFile.write("#include \"%s.h\" // Space certified compiler generated\n" % self.asn_name)
+        self.C_SourceFile.write("#include \"adder_driver.h\" \n")
         self.C_SourceFile.write('''
 
 #include <stdio.h>
@@ -542,25 +544,18 @@ static long long bswap64(long long x)
 unsigned int count;
 
 // include any needed lib headers
-#include "axi_support.h"
-#include <rtems.h>
+#include "uart.h"
+#include "util.h"
 
-#define XPAR_TASTE_0_BASEADDR 0x40000000
-
-#define BUS_ALIGNEMENT                4
-#define AXI_BANK_IP                 XPAR_TASTE_0_BASEADDR + START_ADD
-#define START_ADD                    0x00000300
-
-static inline uint32_t io_read(uintptr_t Addr)
+uint32_t io_read(uint32_t Addr)
 {
     return *(volatile uint32_t *) Addr;
 }
 
-static inline void io_write(uintptr_t Addr, uint32_t Value)
+void io_write(uint32_t Addr, uint32_t Value)
 {
     volatile uint32_t *LocalAddr = (volatile uint32_t *)Addr;
     *LocalAddr = Value;
-    rtems_task_wake_after(10);
 }
 
 ''')
@@ -598,13 +593,13 @@ static inline void io_write(uintptr_t Addr, uint32_t Value)
         self.C_SourceFile.write("    // Now that the parameters are passed inside the FPGA, run the processing logic\n")
 
         self.C_SourceFile.write('    unsigned int okstart = 1;\n')
-        self.C_SourceFile.write('    io_write(AXI_BANK_IP + %s, okstart);\n' %
+        self.C_SourceFile.write('    io_write(IP_BASE_ADDR + %s, okstart);\n' %
                                 hex(int(VHDL_Circuit.lookupSP[sp._id]._offset)))
-        self.C_SourceFile.write('    //if (io_write(R_AXI_BASEADR + %s, okstart)) {\n' %
-                                hex(int(VHDL_Circuit.lookupSP[sp._id]._offset)))
-        self.C_SourceFile.write('    //   LOGERROR("Failed writing Target\\n");\n')
-        self.C_SourceFile.write('    //   return -1;\n')
-        self.C_SourceFile.write('    //}\n')
+        # self.C_SourceFile.write('    //if (io_write(R_AXI_BASEADR + %s, okstart)) {\n' %
+        #                         hex(int(VHDL_Circuit.lookupSP[sp._id]._offset)))
+        # self.C_SourceFile.write('    //   LOGERROR("Failed writing Target\\n");\n')
+        # self.C_SourceFile.write('    //   return -1;\n')
+        # self.C_SourceFile.write('    //}\n')
         self.C_SourceFile.write('    LOGDEBUG(" - Write OK\\n");\n')
 
         self.C_SourceFile.write('    count = 0;\n')
@@ -612,13 +607,13 @@ static inline void io_write(uintptr_t Addr, uint32_t Value)
         self.C_SourceFile.write("      // Wait for processing logic to complete\n")
         self.C_SourceFile.write('      count++;\n')
         self.C_SourceFile.write("      // io_read returns successful??\n")
-        self.C_SourceFile.write('      flag = io_read(AXI_BANK_IP + %s);\n' %
+        self.C_SourceFile.write('      flag = io_read(IP_BASE_ADDR + %s);\n' %
                                 hex(int(VHDL_Circuit.lookupSP[sp._id]._offset)))
-        self.C_SourceFile.write('      // if (io_read(AXI_BANK_IP + %s)==0) {\n' %
-                                hex(int(VHDL_Circuit.lookupSP[sp._id]._offset)))
-        self.C_SourceFile.write('      //  LOGERROR("Failed reading Target\\n");\n')
-        self.C_SourceFile.write('      //  return -1;\n')
-        self.C_SourceFile.write('      //}\n')
+        # self.C_SourceFile.write('      // if (io_read(IP_BASE_ADDR + %s)==0) {\n' %
+                                # hex(int(VHDL_Circuit.lookupSP[sp._id]._offset)))
+        # self.C_SourceFile.write('      //  LOGERROR("Failed reading Target\\n");\n')
+        # self.C_SourceFile.write('      //  return -1;\n')
+        # self.C_SourceFile.write('      //}\n')
         self.C_SourceFile.write('      LOGDEBUG(" - Read OK\\n");\n')
         self.C_SourceFile.write('    }\n')
         self.C_SourceFile.write('    if(flag==0 && count == RETRIES){\n')
@@ -632,41 +627,42 @@ static inline void io_write(uintptr_t Addr, uint32_t Value)
 
 
 g_placeholders = {
-    "circuits": '',
     "inputregdefaults": '',
     "ioregisterindex": '',
     "iregistersignals": '',
     "oregistersignals": '',
     "internalstartdone": '',
     'internaloutputs': '',
-    "internalassignments": '',
     "apbwriteregs": '',
     "apbreadregs": '',
     "regresets": '',
     "regclocked": '',
     "finstateoutputs": '',
-    "reset": '',
-    "updateStartCompleteLedRegs": '',
-    "updateStartStopPulses": '',
-    "readinputdata": '',
-    "setStartSignalsLow": '',
-    "outputs": '',
-    "completions": '',
-    "starts": '',
-    "writeoutputdata": '',
     "connectionsToIP": '',
-    "updateCalculationsCompleteReset": '',
-    "updateCalculationsComplete": '',
     "pi": '',
-    "done_start_assign": '',
-    "starstoppulses": '',
     "internalsignals": '',
-    "memfilesrelocation": '',
-    "apbregs": '',
     "intipstart": '',
-    "intipdone": '',
-    "intipoutp": '',
-    "ipoutpregd": ''
+    "intipdone": ''
+    
+    # "circuits": '',
+    # "internalassignments": '',
+    # "reset": '',
+    # "updateStartCompleteLedRegs": '',
+    # "updateStartStopPulses": '',
+    # "readinputdata": '',
+    # "setStartSignalsLow": '',
+    # "outputs": '',
+    # "completions": '',
+    # "starts": '',
+    # "writeoutputdata": '',
+    # "updateCalculationsCompleteReset": '',
+    # "updateCalculationsComplete": '',
+    # "done_start_assign": '',
+    # "starstoppulses": '',
+    # "memfilesrelocation": '',
+    # "apbregs": '',
+    # "intipoutp": '',
+    # "ipoutpregd": ''
 
 }
 
@@ -729,9 +725,7 @@ def OnChoice(nodeTypename: str, node: AsnChoice, subProgram: ApLevelContainer, s
 def OnShutdown(modelingLanguage: str, asnFile: str, sp: ApLevelContainer, subProgramImplementation: str, maybeFVname: str) -> None:
     if vhdlBackend:
         vhdlBackend.OnShutdown(modelingLanguage, asnFile, sp, subProgramImplementation, maybeFVname)
-    if subProgramImplementation.lower() == "simulink":
-        EmitBambuSimulinkBridge(sp, subProgramImplementation)
-    elif subProgramImplementation.lower() == "c":
+    if subProgramImplementation.lower() == "c":
         EmitBambuCBridge(sp, subProgramImplementation)
 
 
@@ -853,14 +847,6 @@ def OnFinal() -> None:
                     iRegisterMapper.Map(
                         direction, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
 
-                # inputdeclarationLines.extend(
-                #     inputDeclarationMapper.Map(
-                #         direction, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
-
-                # inputassignLines.extend(
-                #     inputAssignMapper.Map(
-                #         direction, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
-
                 internalSignalsLines.extend(
                     internalSignalsMapper.Map(
                         direction, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
@@ -893,20 +879,8 @@ def OnFinal() -> None:
                     writeoutputdataMapper.Map(
                         counter, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
 
-        completions.append(c._spCleanName + '_done')
-        starts.append(c._spCleanName + '_start')
-
-        AddToStr('circuits', '    component %s_bambu is\n' % c._spCleanName)
-        AddToStr('circuits', '    port (\n')
-        AddToStr('circuits', '\n'.join(['        ' + x for x in circuitLines]) + '\n')
-        AddToStr('circuits', '        start_%s  : in  std_logic;\n' % c._spCleanName)
-        AddToStr('circuits', '        finish_%s : out std_logic;\n' % c._spCleanName)
-        AddToStr('circuits', '        clock_%s : in std_logic;\n' % c._spCleanName)
-        AddToStr('circuits', '        reset_%s  : in  std_logic\n' % c._spCleanName)
-        AddToStr('circuits', '    );\n')
-        AddToStr('circuits', '    end component;\n\n')
-
-        
+        # completions.append(c._spCleanName + '_done')
+        # starts.append(c._spCleanName + '_start')        
 
         skeleton = []
         skeleton.append('    entity %s_bambu is\n' % c._spCleanName)
@@ -974,60 +948,14 @@ def OnFinal() -> None:
         # Signal placeholders for the FSM
         AddToStr('intipstart', 'int_%(pi)s_start' % {'pi': c._spCleanName})
         AddToStr('intipdone', 'int_%(pi)s_done' % {'pi': c._spCleanName})
-        AddToStr('intipoutp', 'int_%(pi)s_outp' % {'pi': c._spCleanName})
-        AddToStr('ipoutpregd', 'int_%(pi)s_start')
+        # AddToStr('intipoutp', 'int_%(pi)s_outp' % {'pi': c._spCleanName})
+        # AddToStr('ipoutpregd', 'int_%(pi)s_start')
 
         AddToStr('finstateoutputs', '\n'.join([x for x in finOutputLines]) + ';' + '\n' )
 
         # Register reset values
         AddToStr('regresets', '\n'.join([x for x in registerResetLines]) + '\n')
         AddToStr('regclocked', '\n'.join([x for x in registerClockedLines]) + '\n')
-
-        AddToStr('reset', "            %(pi)s_StartCalculationsInternal    <= '0';\n" % {'pi': c._spCleanName})
-        AddToStr('reset', "            --%(pi)s_inp                          <= (others => '0');\n" % {'pi': c._spCleanName})
-        AddToStr('reset', "            %(pi)s_StartCalculationsPulse       <= '0';\n" % {'pi': c._spCleanName})
-        AddToStr('reset', "            %(pi)s_StartCalculationsInternalOld <= '0';\n" % {'pi': c._spCleanName})
-
-        AddToStr('updateStartCompleteLedRegs', "            led_complete_reg        <= %(pi)s_CalculationsComplete;\n" % {'pi': c._spCleanName})
-        AddToStr('updateStartCompleteLedRegs', "            if %(pi)s_StartCalculationsPulse = '1' then\n" % {'pi': c._spCleanName})
-        AddToStr('updateStartCompleteLedRegs', "                led_start_reg       <= '1';\n")
-        AddToStr('updateStartCompleteLedRegs', "            end if;\n")
-        AddToStr('updateStartCompleteLedRegs', "            if %(pi)s_CalculationsComplete = '1' then\n" % {'pi': c._spCleanName})
-        AddToStr('updateStartCompleteLedRegs', "                led_start_reg       <= '0';\n")
-        AddToStr('updateStartCompleteLedRegs', "            end if;\n")
-
-        AddToStr('updateStartStopPulses',
-                 '            %(pi)s_StartCalculationsPulse <= %(pi)s_StartCalculationsInternal xor %(pi)s_StartCalculationsInternalOld;\n' % {'pi': c._spCleanName})
-        AddToStr('updateStartStopPulses',
-                 '            %(pi)s_StartCalculationsInternalOld <= %(pi)s_StartCalculationsInternal;\n' % {'pi': c._spCleanName})
-
-        AddToStr('readinputdata', 'when (%s) => v.%s_StartCalculationsInternal	:= AXI_SLAVE_CTRL_r.%s_StartCalculationsInternal xor \'1\';\n' % (0x0300 + c._offset, c._spCleanName, c._spCleanName))
-        AddToStr('readinputdata', '\n'.join([' ' * 22 + x for x in readinputdataLines]) + '\n')
-
-        AddToStr('setStartSignalsLow', ' ' * 12 + "if(%s_CalculationsCompletePulse = '1') then\n" % c._spCleanName)
-        AddToStr('setStartSignalsLow', ' ' * 12 + "     %s_StartCalculationsInternal    <= '0';\n" % c._spCleanName)
-        AddToStr('setStartSignalsLow', ' ' * 12 + "     %s_StartCalculationsPulse       <= '0';\n" % c._spCleanName)
-        AddToStr('setStartSignalsLow', ' ' * 12 + "     %s_StartCalculationsInternalOld <= '0';\n" % c._spCleanName)
-        AddToStr('setStartSignalsLow', ' ' * 12 + "end if;\n")
-
-        AddToStr('writeoutputdata', 'when (%s) => v_comb_out.rdata(31 downto 0)	:= X"000000" & "0000000" & AXI_SLAVE_CTRL_r.done;\n' % (0x0300 + c._offset))
-        AddToStr('writeoutputdata', '\n'.join(['\t' * 5 + x for x in writeoutputdataLines]) + '\n')
-
-        AddToStr('updateCalculationsCompleteReset', ' ' * 12 + "%s_CalculationsComplete    <= '0';\n" % c._spCleanName)
-        AddToStr('updateCalculationsComplete', ' ' * 12 + "if(%s_CalculationsCompletePulse = '1') then\n" % c._spCleanName)
-        AddToStr('updateCalculationsComplete', ' ' * 12 + "    %s_CalculationsComplete <= '1';\n" % c._spCleanName)
-        AddToStr('updateCalculationsComplete', ' ' * 12 + "elsif (%s_StartCalculationsPulse='1') then\n" % c._spCleanName)
-        AddToStr('updateCalculationsComplete', ' ' * 12 + "    %s_CalculationsComplete <= '0';\n" % c._spCleanName)
-        AddToStr('updateCalculationsComplete', ' ' * 12 + "end if;\n")
-
-        AddToStr('done_start_assign', 'if %s_start = \'1\' then\nv.done	:= \'0\';\nend if;\n' % c._spCleanName)
-        AddToStr('done_start_assign', 'if %s_done = \'1\' then\nv.done	:= \'1\';\nend if;\n' % c._spCleanName)
-
-        AddToStr('starstoppulses', 'v.%s_StartCalculationsInternalOld 	:= AXI_SLAVE_CTRL_r.%s_StartCalculationsInternal;\n' % (c._spCleanName, c._spCleanName))
-
-    AddToStr('outputs', ', '.join(outputs))
-    AddToStr('completions', ', '.join(completions))
-    AddToStr('starts', ', '.join(starts))
 
     assert len(VHDL_Circuit.allCircuits) > 0
     AddToStr('pi', "%s" % VHDL_Circuit.allCircuits[0]._spCleanName)
@@ -1237,6 +1165,12 @@ def EmitBambuCBridge(sp: ApLevelContainer, unused_subProgramImplementation: str)
     leafTypeDict = asnParser.g_leafTypeDict
 
     outputCsourceFilename = vhdlBackend.CleanNameAsToolWants(sp._id) + "_bambu.c"
+    outputCheaderFilename = vhdlBackend.CleanNameAsToolWants(sp._id) + "_driver.h"
+
+    bambuHeaderFile = open(os.path.dirname(vhdlBackend.C_SourceFile.name) + '/' + outputCheaderFilename, 'w+')
+    bambuHeaderFile.write("#pragma once\n")
+    bambuHeaderFile.write("#include \"config.h\"\n")
+    bambuHeaderFile.write("#define IP_BASE_ADDR (APB_BASE_ADDR + APB_SLV_2_OFF)")
 
     bambuFile = open(os.path.dirname(vhdlBackend.C_SourceFile.name) + '/' + outputCsourceFilename, 'w')
 

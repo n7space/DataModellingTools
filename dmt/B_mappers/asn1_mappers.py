@@ -20,6 +20,9 @@ from ..commonPy import asnParser
 from ..commonPy.recursiveMapper import RecursiveMapperGeneric
 from .synchronousTool import SynchronousToolGlueGeneratorGeneric
 
+def CleanName(name: str) -> str:
+    return re.sub(r'[^a-zA-Z0-9_]', '_', name)
+
 class MapASN1ToVHDLCircuit(RecursiveMapperGeneric[str, str]):
     def MapInteger(self, direction: str, dstVHDL: str, node: AsnInt, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         if not node._range:

@@ -40,8 +40,6 @@ end apb_taste;
 
 architecture rtl of apb_taste is
 
- ----(circuits)s
-
   type state is (IDLE,
                  WORKING,
                  FIN);
@@ -158,7 +156,6 @@ begin --Begin architecture 'struct'
       when FIN =>
         -- We are here because of adder_done. But now it's off again, so we need to keep it in a register.
         reg_done <= '1';
-        -- Yea yea yea
         %(finstateoutputs)s
         if (%(intipstart)s = '1') then
           reg_done <= '0';

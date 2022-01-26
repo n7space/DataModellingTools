@@ -378,7 +378,7 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
             (encoding.lower(),
              self.CleanNameAsADAWants(nodeTypename),
              self.CleanNameAsADAWants(subProgram._id + "_" + subProgramImplementation),
-             param._id)
+             param._id)   
 
         targetVar = self.TargetVar(nodeTypename, encoding, node, subProgram, subProgramImplementation, param, leafTypeDict, names)  # pylint: disable=assignment-from-no-return
 
@@ -774,7 +774,7 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                                             (self.CleanNameAsToolWants(param._id),
                                              tmpSpName,
                                              self.CleanNameAsToolWants(param._id),
-                                             param._signal._asnSize))
+                                             param._signal._asnSize))                            
             if genFpgaDevDrv:
                 # HW delegation via Execute() was successful, so return 0 to Dispatcher
                 self.C_SourceFile.write("    return 0;\n")
