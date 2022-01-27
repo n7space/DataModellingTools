@@ -406,7 +406,7 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
             (encoding.lower(),
              self.CleanNameAsADAWants(nodeTypename),
              self.CleanNameAsADAWants(subProgram._id + "_" + subProgramImplementation),
-             param._id)   
+             param._id)
 
         targetVar = self.TargetVar(nodeTypename, encoding, node, subProgram, subProgramImplementation, param, leafTypeDict, names)  # pylint: disable=assignment-from-no-return
 

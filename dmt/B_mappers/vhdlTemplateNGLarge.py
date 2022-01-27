@@ -5,11 +5,11 @@ vhd = '''
 -------------------------------------------------------
 --! @file       apb_taste.vhd
 --! @brief      PoC APB interface to a TASTE IP
---! @author     Thomas Makryniotis (ESA) 
+--! @author     Thomas Makryniotis (ESA)
 --!
 --!-----------------------------------------------------------------------------------------------
---! @details  
---!  
+--! @details
+--!
 --! @todo provide a detailed description and comments tag for this entity for doxygen
 --!
 --! Limitations : None
@@ -80,7 +80,7 @@ begin --Begin architecture 'struct'
     elsif rising_edge(pclk) then
 
       -- Begin default assignments
-      
+
       %(inputregdefaults)s
 
       led_reg_d <= led_reg_q;
@@ -96,7 +96,7 @@ begin --Begin architecture 'struct'
         -- Write
         if (s_apb_master.pwrite) = '1' then
           case to_integer(unsigned(s_apb_master.paddr(5 downto 2))) is
-          
+
             when START =>
               start_reg <= s_apb_master.pwdata(0);
             %(apbwriteregs)s
@@ -109,10 +109,10 @@ begin --Begin architecture 'struct'
           case to_integer(unsigned(s_apb_master.paddr(5 downto 2))) is
             when START =>
               s_apb_slave.prdata <= X"000000" & "0000000" & start_reg; -- Doesn't work but will fix it
-            
+
             -- Input registers is posible to be read for sanity purposes
 
-            %(apbreadregs)s 
+            %(apbreadregs)s
             when DONE =>
               s_apb_slave.prdata <= X"000000" & "0000000" & reg_done;
             --when TEST =>
@@ -219,9 +219,9 @@ SRCS=../ip/src/TASTE_AXI.vhd ../ip/src/%(pi)s
 EXEC=./TASTE/TASTE.runs/impl_1/TASTE_wrapper.bit
 
 all: ${EXEC}
-    
+
 ${EXEC}: ${SRCS}
-	vivado -mode batch -source TASTE_AXI.tcl
+$(tab)svivado -mode batch -source TASTE_AXI.tcl
 
 clean:
 %(tab)srm -rf *.bit
@@ -232,7 +232,7 @@ load_exec = r'''
 
 #Get the programming script path
 TCL_DIR="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
-#Call the script 
+#Call the script
 /tools/Xilinx/Vivado/2019.2/bin/xsdb $TCL_DIR/programming.tcl $TCL_DIR $1
 '''
 
@@ -259,7 +259,7 @@ ps7_init
 ps7_post_config
 puts "Load FPGA and configuring PS system OK!"
 eval dow [lindex $argv 1]
-con 
+con
 ##Uncomment if it is deseired to run in two targets
 ##targets 3
 ##con -addr 0x00404040

@@ -257,7 +257,7 @@ def getSyncBackend(modelingLanguage: str) -> Sync_B_Mapper:
         elif commonPy.configMT.fpga_mapper == "ZYNQZC706":
             return cast(Sync_B_Mapper, zynqzc706_B_mapper)  # pragma: no cover
         elif commonPy.configMT.fpga_mapper == "NGLARGE":
-                return cast(Sync_B_Mapper, brave_large_B_mapper)  # pragma: no cover
+            return cast(Sync_B_Mapper, brave_large_B_mapper)  # pragma: no cover
     return cast(Sync_B_Mapper, g_sync_mappers[modelingLanguage])
 
 
