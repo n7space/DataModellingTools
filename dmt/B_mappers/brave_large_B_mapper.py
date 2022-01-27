@@ -466,9 +466,9 @@ class VHDLGlueGenerator(SynchronousToolGlueGeneratorGeneric[List[int], List[int]
         return FromASN1SCCtoVHDL()
 
     # def HeadersOnStartup(self, modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname):
-    def HeadersOnStartup(self, unused_modelingLanguage: str, unused_asnFile: str, unused_subProgram: ApLevelContainer, unused_subProgramImplementation: str, unused_outputDir: str, unused_maybeFVname: str) -> None:
+    def HeadersOnStartup(self, unused_modelingLanguage: str, unused_asnFile: str, subProgram: ApLevelContainer, unused_subProgramImplementation: str, unused_outputDir: str, unused_maybeFVname: str) -> None:
         self.C_SourceFile.write("#include \"%s.h\" // Space certified compiler generated\n" % self.asn_name)
-        self.C_SourceFile.write("#include \"adder_driver.h\" \n")
+        self.C_SourceFile.write("#include \"%s_driver.h\" \n" % vhdlBackend.CleanNameAsToolWants(subProgram._id))
         self.C_SourceFile.write('''
 
 #include <stdio.h>
@@ -484,22 +484,22 @@ class VHDLGlueGenerator(SynchronousToolGlueGeneratorGeneric[List[int], List[int]
 //#define LOGDEBUGS
 
 #ifdef LOGERRORS
-#define LOGERROR(x...) printf(x)
+#define LOGERROR(x...) dbg_printf(x)
 #else
 #define LOGERROR(x...)
 #endif
 #ifdef LOGWARNINGS
-#define LOGWARNING(x...) printf(x)
+#define LOGWARNING(x...) dbg_printf(x)
 #else
 #define LOGWARNING(x...)
 #endif
 #ifdef LOGINFOS
-#define LOGINFO(x...) printf(x)
+#define LOGINFO(x...) dbg_printf(x)
 #else
 #define LOGINFO(x...)
 #endif
 #ifdef LOGDEBUGS
-#define LOGDEBUG(x...) printf(x)
+#define LOGDEBUG(x...) dbg_printf(x)
 #else
 #define LOGDEBUG(x...)
 #endif
@@ -1708,7 +1708,7 @@ def OnFinal() -> None:
         skeleton.append('    );\n')
         skeleton.append('    end %s_bambu;\n\n' % c._spCleanName)
 
-        vhdlSkeleton = open(vhdlBackend.dir + "/TASTE-VHDL-DESIGN/ip/src/" + c._spCleanName + '_bambu.vhd', 'w')
+        vhdlSkeleton = open(vhdlBackend.dir + "/hdl/src/" + c._spCleanName + '_bambu.vhd', 'w')
         vhdlSkeleton.write(
             vhdlTemplateNGLarge.per_circuit_vhd % {
                 'pi': c._spCleanName,
@@ -1782,25 +1782,6 @@ def OnFinal() -> None:
     msg = ""
     for c in VHDL_Circuit.allCircuits:
         msg += '%s_bambu.vhd' % c._spCleanName
-    makefile = open(vhdlBackend.dir + '/TASTE-VHDL-DESIGN/project/Makefile', 'w')
-    makefile.write(vhdlTemplateNGLarge.makefile % {'pi': msg, 'tab': '\t'})
-    makefile.close()
-
-    load_exec = open(vhdlBackend.dir + '/TASTE-VHDL-DESIGN/project/load_exec.sh', 'w')
-    load_exec.write(vhdlTemplateNGLarge.load_exec)
-    load_exec.close()
-
-    programming_tcl = open(vhdlBackend.dir + '/TASTE-VHDL-DESIGN/project/programming.tcl', 'w')
-    programming_tcl.write(vhdlTemplateNGLarge.programming_tcl)
-    programming_tcl.close()
-
-    axi_support = open(vhdlBackend.dir + '/axi_support.h', 'w')
-    axi_support.write(vhdlTemplateNGLarge.axi_support)
-    axi_support.close()
-
-    catalog = open(vhdlBackend.dir + '/TASTE-VHDL-DESIGN/ip/component.xml', 'w')
-    catalog.write(vhdlTemplateNGLarge.component_xml % {'pi': msg})
-    catalog.close()
 
 
 def getTypeAndVarsAsBambuWantsThem(param: Param, names: AST_Lookup, leafTypeDict: AST_Leaftypes):
