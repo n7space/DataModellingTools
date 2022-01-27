@@ -329,37 +329,39 @@ load_exec = r'''
 
 #Get the programming script path
 TCL_DIR="$( cd "$( dirname "$0" )" >/dev/null 2>&1 && pwd )"
-#Call the script 
-/tools/Xilinx/Vivado/2019.2/bin/xsdb $TCL_DIR/programming.tcl $TCL_DIR $1
+#Call the script
+/opt/Xilinx/Vivado/2018.3/bin/xsdb $TCL_DIR/programming.tcl $TCL_DIR $1
 '''
 
 programming_tcl = r'''
-set host_ip 172.22.71.42
+
+set host_ip 127.0.0.1
 set host_port 3121
 
 set path [lindex $argv 0]
 
 cd $path
 
-puts -nonewline "Connecting to ${host_ip}:${host_port}..."
-connect -host 172.22.71.42 -port 3121
-puts "OK!"
+puts "\[-\] Connecting to ${host_ip}:${host_port}..."
+flush stdout
+connect -host ${host_ip} -port ${host_port}
 targets
 targets 2
-puts -nonewline "Reset the system..."
+puts "\[-\] Resetting the system..."
+flush stdout
 rst -system
-puts "OK!"
-puts "Load FPGA and configuring PS system"
+puts "\[-\] Loading FPGA with bitfile..."
+flush stdout
 fpga -f TASTE/TASTE.runs/impl_1/TASTE_wrapper.bit
+puts "\[-\] Sourcing and configuring PS system..."
+flush stdout
 source TASTE/TASTE.srcs/sources_1/bd/TASTE/ip/TASTE_processing_system7_0_0/ps7_init.tcl
 ps7_init
 ps7_post_config
-puts "Load FPGA and configuring PS system OK!"
+puts "\[-\] Loading ARM binary..."
+flush stdout
 eval dow [lindex $argv 1]
-con 
-##Uncomment if it is deseired to run in two targets
-##targets 3
-##con -addr 0x00404040
+con
 puts "Software is running!"
 '''
 

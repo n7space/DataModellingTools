@@ -5,7 +5,7 @@ from sqlalchemy import exc
 
 sys.path.append("asn2dataModel")
 import DV
-from lotsofdatatypes_model import (
+from db_model import (
     MyInt_SQL, My2ndInt_SQL, MySeq_SQL, TypeEnumerated_SQL, T_ARR_SQL,
     MySuperSeq_SQL, MyChoice_SQL, TypeNested_SQL)
 from LotsOfDataTypes_asn import (

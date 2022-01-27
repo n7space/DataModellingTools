@@ -1,0 +1,684 @@
+Agent-Datamodel DEFINITIONS ::=
+BEGIN
+IMPORTS
+   T-Int, T-UInt, T-Double, Vector2d, Vector3d, Position2D, Position, Pose2D, CameraPred, ScientificcameraPred, BatteryPred, BatterycmdPred, GuidancecmdPred, RoverpositionPred, RoboticarmPred, Camerastatus, Scientificcamerastatus, Batterystatus, Batterycmdstatus, Guidancecmdstatus, Roverpositionstatus, Roboticarmstatus, HaltStatus, BatteryLevel, AutonomyLevel, ChangeAutonomyMode, Traverse, TakeSample, LeaveSample, TakePictureAt, GoingTo, MoveRarm, PickSample, DropSample, TakeImage, Scan, Recharge, Telecommand, Telemetry FROM ERGO-DATAVIEW
+   T-Int32, T-UInt32, T-Int8, T-UInt8, T-Boolean, T-Null-Record FROM TASTE-BasicTypes;
+
+Agent-States ::= ENUMERATED {wait-0-guidancereactor-0-goingto, wait-0-camerareactor-0-wait-0-scicamops, wait-0-guidancereactor-0-fault, wait-0-rarmreactor-0-fault, wait-0-gcireactor, wait-0-gcireactor-0-wait, wait-0-camerareactor, wait-0-batteryreactor-0-rechargebat12, wait-0-camerareactor-0-wait-0-scicamops-0-fault, wait-0-plannerreactor-0-idle, wait-0-plannerreactor-0-takingpic, wait-0-rarmreactor-0-picking, wait-0-rarmreactor-0-moving, wait-0-rarmreactor-0-cancel, wait-0-camerareactor-0-wait-0-camops-0-cancel, wait-0-guidancereactor-0-cancel, wait-0-plannerreactor-0-picking, wait-0-batteryreactor-0-cancel21, wait-0-camerareactor-0-wait-0-camops-0-idle, wait-0-plannerreactor-0-goingtodrop, wait-0-batteryreactor-0-cancel1, wait-0-guidancereactor, wait-0-plannerreactor-0-goingto, wait-0-batteryreactor-0-cancel12, state-0-end, wait-0-rarmreactor-0-picked, wait-0-guidancereactor-0-idleat, wait-0-camerareactor-0-wait-0-scicamops-0-scanning, wait-0-batteryreactor-0-cancel2, wait-0-camerareactor-0-wait-0-scicamops-0-cancel, wait-0-rarmreactor, wait-0-plannerreactor-0-dropping, wait-0-batteryreactor-0-idle, wait-0-batteryreactor, wait-0-camerareactor-0-wait, wait-0-plannerreactor, wait-0-rarmreactor-0-dropping, wait-0-batteryreactor-0-rechargebat2, wait-0-camerareactor-0-wait-0-camops, wait-0-batteryreactor-0-rechargebat1, wait-0-camerareactor-0-wait-0-scicamops-0-idle, wait, wait-0-camerareactor-0-wait-0-camops-0-takingpicture, wait-0-plannerreactor-0-trav, wait-0-rarmreactor-0-idleat, wait-0-batteryreactor-0-rechargebat21, wait-0-plannerreactor-0-goingtopick, wait-0-camerareactor-0-wait-0-camops-0-fault}
+
+Agent-Context ::= SEQUENCE {
+   state Agent-States,
+   init-done BOOLEAN,
+   wait-0-gcireactor-0-state Agent-States,
+   wait-0-guidancereactor-0-state Agent-States,
+   wait-0-plannerreactor-0-state Agent-States,
+   wait-0-rarmreactor-0-state Agent-States,
+   wait-0-camerareactor-0-state Agent-States,
+   wait-0-batteryreactor-0-state Agent-States,
+   wait-0-camerareactor-0-wait-0-scicamops-0-state Agent-States,
+   wait-0-camerareactor-0-wait-0-camops-0-state Agent-States,
+   autonomymode AutonomyLevel,
+   tc Telecommand,
+   travgoalavailable T-Boolean,
+   takeobjgoalavailable T-Boolean,
+   leaveobjgoalavailable T-Boolean,
+   takepicgoalavailable T-Boolean,
+   guicmdreq Guidancecmdstatus,
+   guigoalavailable T-Boolean,
+   guigoalfinished T-Boolean,
+   rarmcmdreq Roboticarmstatus,
+   rarmgoalavailable T-Boolean,
+   rarmgoalfinished T-Boolean,
+   camcmdreq Camerastatus,
+   camgoalavailable T-Boolean,
+   camgoalfinished T-Boolean,
+   scicamcmdreq Scientificcamerastatus,
+   scicamgoalavailable T-Boolean,
+   scicamgoalfinished T-Boolean,
+   batcmdreq Batterycmdstatus,
+   batgoalavailable T-Boolean,
+   batgoalfinished T-Boolean,
+   tm Telemetry,
+   batcmd1status Batterycmdstatus,
+   bat1status Batterystatus,
+   batcmd2status Batterycmdstatus,
+   bat2status Batterystatus,
+   camstatus Camerastatus,
+   scicamstatus Scientificcamerastatus,
+   guicmdstatus Guidancecmdstatus,
+   rarmstatus Roboticarmstatus,
+   roverpose Roverpositionstatus
+}
+
+Telecommand-selection ::= ENUMERATED {automode-present(1), trav-present(2), takeobj-present(3), leaveobj-present(4), takepic-present(5), going-present(6), movearm-present(7), pickobj-present(8), dropobj-present(9), takeimg-present(10), scanobj-present(11), rechargebat-present(12)}
+END
+Batterytype-Datamodel DEFINITIONS ::=
+BEGIN
+IMPORTS
+   T-Int, T-UInt, T-Double, Vector2d, Vector3d, Position2D, Position, Pose2D, CameraPred, ScientificcameraPred, BatteryPred, BatterycmdPred, GuidancecmdPred, RoverpositionPred, RoboticarmPred, Camerastatus, Scientificcamerastatus, Batterystatus, Batterycmdstatus, Guidancecmdstatus, Roverpositionstatus, Roboticarmstatus, HaltStatus, BatteryLevel, AutonomyLevel, ChangeAutonomyMode, Traverse, TakeSample, LeaveSample, TakePictureAt, GoingTo, MoveRarm, PickSample, DropSample, TakeImage, Scan, Recharge, Telecommand, Telemetry FROM ERGO-DATAVIEW
+   T-Int32, T-UInt32, T-Int8, T-UInt8, T-Boolean, T-Null-Record FROM TASTE-BasicTypes;
+
+Batterytype-States ::= ENUMERATED {wait}
+
+Batterytype-Context ::= SEQUENCE {
+   state Batterytype-States,
+   init-done BOOLEAN,
+   batstatus Batterystatus,
+   batcmd Batterycmdstatus,
+   batstartlevel T-Double,
+   batdecreasestep T-Double,
+   batrechargestep T-Double
+}
+
+Telecommand-selection ::= ENUMERATED {automode-present(1), trav-present(2), takeobj-present(3), leaveobj-present(4), takepic-present(5), going-present(6), movearm-present(7), pickobj-present(8), dropobj-present(9), takeimg-present(10), scanobj-present(11), rechargebat-present(12)}
+END
+Camera-Datamodel DEFINITIONS ::=
+BEGIN
+IMPORTS
+   T-Int, T-UInt, T-Double, Vector2d, Vector3d, Position2D, Position, Pose2D, CameraPred, ScientificcameraPred, BatteryPred, BatterycmdPred, GuidancecmdPred, RoverpositionPred, RoboticarmPred, Camerastatus, Scientificcamerastatus, Batterystatus, Batterycmdstatus, Guidancecmdstatus, Roverpositionstatus, Roboticarmstatus, HaltStatus, BatteryLevel, AutonomyLevel, ChangeAutonomyMode, Traverse, TakeSample, LeaveSample, TakePictureAt, GoingTo, MoveRarm, PickSample, DropSample, TakeImage, Scan, Recharge, Telecommand, Telemetry FROM ERGO-DATAVIEW
+   T-Int32, T-UInt32, T-Int8, T-UInt8, T-Boolean, T-Null-Record FROM TASTE-BasicTypes;
+
+Camera-States ::= ENUMERATED {wait-0-nominalops-0-wait, wait-0-camops, wait-0-scicamops-0-wait, wait-0-scicamops, wait-0-scicamops-0-waitscanning, state-0-end, wait, wait-0-nominalops, wait-0-camops-0-wait, wait-0-nominalops-0-restart, wait-0-camops-0-waitimage}
+
+Camera-Context ::= SEQUENCE {
+   state Camera-States,
+   init-done BOOLEAN,
+   wait-0-nominalops-0-state Camera-States,
+   wait-0-scicamops-0-state Camera-States,
+   wait-0-camops-0-state Camera-States,
+   camstatus Camerastatus,
+   scicamstatus Scientificcamerastatus
+}
+
+Telecommand-selection ::= ENUMERATED {automode-present(1), trav-present(2), takeobj-present(3), leaveobj-present(4), takepic-present(5), going-present(6), movearm-present(7), pickobj-present(8), dropobj-present(9), takeimg-present(10), scanobj-present(11), rechargebat-present(12)}
+END
+ERGO-DATAVIEW DEFINITIONS ::=
+BEGIN
+
+-- Definition of basic types
+
+T-Int ::=  INTEGER (-2147483648 .. 2147483647)
+
+T-UInt ::= INTEGER (0 .. 4294967295)
+
+T-Double ::= REAL (-1.0e+308 .. 1.0e+308)
+
+-- Definition of robotic types
+
+Vector2d ::= SEQUENCE (SIZE(2)) OF T-Double
+
+Vector3d ::= SEQUENCE (SIZE(3)) OF T-Double
+
+Position2D ::= Vector2d
+
+Position ::= Vector3d
+
+Pose2D ::= SEQUENCE {
+    pos     Position2D,
+    orient  T-Double
+}
+
+-- Definition of Agent-Functional types
+
+CameraPred ::= ENUMERATED { camera-idle, camera-takingpicture, camera-fault, camera-cancel }
+ScientificcameraPred ::= ENUMERATED { scientificcamera-idle, scientificcamera-scanning, scientificcamera-fault, scientificcamera-cancel }
+BatteryPred ::= ENUMERATED { battery-set, battery-cancel }
+BatterycmdPred ::= ENUMERATED { batterycmd-idle, batterycmd-recharging, batterycmd-cancel }
+GuidancecmdPred ::= ENUMERATED { guidancecmd-idleat, guidancecmd-goingto, guidancecmd-fault, guidancecmd-cancel }
+RoverpositionPred ::= ENUMERATED { roverposition-position, roverposition-unknown, roverposition-cancel }
+RoboticarmPred ::= ENUMERATED { roboticarm-idleat, roboticarm-picked, roboticarm-moving, roboticarm-picking, roboticarm-dropping, roboticarm-fault, roboticarm-cancel }
+
+
+-- CAMERA DATA (AGENT-FUNCTIONAL)
+Camerastatus ::= SEQUENCE {
+    predicate    CameraPred
+}
+
+-- SCIENTIFICCAMERA DATA (AGENT-FUNCTIONAL)
+Scientificcamerastatus ::= SEQUENCE {
+    predicate    ScientificcameraPred,
+    frequency    T-UInt
+}
+
+-- BATTERY DATA (AGENT-FUNCTIONAL)
+Batterystatus ::= SEQUENCE {
+    predicate    BatteryPred,
+    level        T-Double
+}
+
+-- BATTERYCMD DATA (AGENT-FUNCTIONAL)
+Batterycmdstatus ::= SEQUENCE {
+    predicate    BatterycmdPred
+}
+
+-- GUIDANCECMD DATA (AGENT-FUNCTIONAL)
+Guidancecmdstatus ::= SEQUENCE {
+    predicate     GuidancecmdPred,
+    atposition    Pose2D,
+    fromposition  Pose2D,
+    toposition    Pose2D
+}
+
+-- ROVERPOSITION DATA (AGENT-FUNCTIONAL)
+Roverpositionstatus ::= SEQUENCE {
+    predicate     RoverpositionPred,
+    atposition    Pose2D
+}
+
+-- ROBOTICARM DATA (AGENT-FUNCTIONAL)
+Roboticarmstatus ::= SEQUENCE {
+    predicate     RoboticarmPred,
+    atposition    Position,
+    sampleid      T-Int,
+    fromposition  Position,
+    toposition    Position
+}
+
+-- Definition of specific functional types
+
+HaltStatus ::= ENUMERATED { low-bat, other }
+BatteryLevel ::= T-Double
+
+-- Definition of telecommands
+
+-- Autonomy mode change
+
+AutonomyLevel ::= ENUMERATED {e1, e4}
+
+ChangeAutonomyMode ::= SEQUENCE {
+    level AutonomyLevel
+}
+
+-- E4 mode
+
+Traverse ::= SEQUENCE {
+    topose Pose2D
+}
+
+TakeSample ::= SEQUENCE {
+    sampleid T-Int,
+    tosamplepos Position,
+    toroverpose Pose2D
+}
+
+LeaveSample ::= SEQUENCE {
+    sampleid T-Int,
+    tosamplepos Position,
+    toroverpose Pose2D
+}
+
+TakePictureAt ::= SEQUENCE {
+    topose Pose2D
+}
+
+-- Communicate ::= SEQUENCE {}
+
+-- E1/E2/E3 mode
+
+GoingTo ::= SEQUENCE {
+    toposition Pose2D
+}
+
+MoveRarm ::= SEQUENCE {
+    toposition Position
+}
+
+PickSample ::= SEQUENCE {
+   sampleid T-Int,
+   toposition Position
+}
+
+DropSample ::= SEQUENCE {
+    sampleid T-Int,
+    toposition Position
+}
+
+TakeImage ::= SEQUENCE {}
+
+Scan ::= SEQUENCE {
+    frequency T-UInt
+}
+
+Recharge ::= SEQUENCE {}
+
+
+
+-- Telecommand
+
+Telecommand ::= CHOICE {
+    automode ChangeAutonomyMode,
+    trav Traverse,
+    takeobj TakeSample,
+    leaveobj LeaveSample,
+    takepic TakePictureAt,
+--    comm Communicate,
+    going GoingTo,
+    movearm MoveRarm,
+    pickobj PickSample,
+    dropobj DropSample,
+    takeimg TakeImage,
+    scanobj Scan,
+    rechargebat Recharge
+}
+
+
+-- Telemetry
+
+Telemetry ::= SEQUENCE {
+    automode AutonomyLevel,
+    guidancestatus Guidancecmdstatus,
+    roverpose Roverpositionstatus,
+    rarmstatus Roboticarmstatus,
+    camstatus Camerastatus,
+    scicamstatus Scientificcamerastatus,
+    bat1status Batterycmdstatus,
+    bat1level BatteryLevel,
+    bat2status Batterycmdstatus,
+    bat2level BatteryLevel
+--    antstatus Antennastatus
+}
+
+END
+
+
+TASTE-BasicTypes DEFINITIONS ::=
+BEGIN
+
+-- Set of TASTE predefined basic types
+
+T-Int32 ::=  INTEGER (-2147483648 .. 2147483647)
+
+T-UInt32 ::= INTEGER (0 .. 4294967295)
+
+T-Int8 ::= INTEGER (-128 .. 127)
+
+T-UInt8 ::= INTEGER (0 .. 255)
+
+T-Boolean ::= BOOLEAN
+
+T-Null-Record ::= SEQUENCE {}
+
+END
+
+
+Fdir-Datamodel DEFINITIONS ::=
+BEGIN
+IMPORTS
+   T-Int, T-UInt, T-Double, Vector2d, Vector3d, Position2D, Position, Pose2D, CameraPred, ScientificcameraPred, BatteryPred, BatterycmdPred, GuidancecmdPred, RoverpositionPred, RoboticarmPred, Camerastatus, Scientificcamerastatus, Batterystatus, Batterycmdstatus, Guidancecmdstatus, Roverpositionstatus, Roboticarmstatus, HaltStatus, BatteryLevel, AutonomyLevel, ChangeAutonomyMode, Traverse, TakeSample, LeaveSample, TakePictureAt, GoingTo, MoveRarm, PickSample, DropSample, TakeImage, Scan, Recharge, Telecommand, Telemetry FROM ERGO-DATAVIEW
+   T-Int32, T-UInt32, T-Int8, T-UInt8, T-Boolean, T-Null-Record FROM TASTE-BasicTypes;
+
+Fdir-States ::= ENUMERATED {waitgui, wait, waitrarm}
+
+Fdir-Context ::= SEQUENCE {
+   state Fdir-States,
+   init-done BOOLEAN,
+   timeoutwdog T-UInt,
+   guistatus GuidancecmdPred,
+   rarmstatus RoboticarmPred,
+   camstatus CameraPred,
+   scicamstatus ScientificcameraPred,
+   batlevel T-Double,
+   batthreshold T-Double
+}
+
+Telecommand-selection ::= ENUMERATED {automode-present(1), trav-present(2), takeobj-present(3), leaveobj-present(4), takepic-present(5), going-present(6), movearm-present(7), pickobj-present(8), dropobj-present(9), takeimg-present(10), scanobj-present(11), rechargebat-present(12)}
+END
+Guidancecontrol-Datamodel DEFINITIONS ::=
+BEGIN
+IMPORTS
+   T-Int, T-UInt, T-Double, Vector2d, Vector3d, Position2D, Position, Pose2D, CameraPred, ScientificcameraPred, BatteryPred, BatterycmdPred, GuidancecmdPred, RoverpositionPred, RoboticarmPred, Camerastatus, Scientificcamerastatus, Batterystatus, Batterycmdstatus, Guidancecmdstatus, Roverpositionstatus, Roboticarmstatus, HaltStatus, BatteryLevel, AutonomyLevel, ChangeAutonomyMode, Traverse, TakeSample, LeaveSample, TakePictureAt, GoingTo, MoveRarm, PickSample, DropSample, TakeImage, Scan, Recharge, Telecommand, Telemetry FROM ERGO-DATAVIEW
+   T-Int32, T-UInt32, T-Int8, T-UInt8, T-Boolean, T-Null-Record FROM TASTE-BasicTypes;
+
+Guidancecontrol-States ::= ENUMERATED {wait}
+
+Guidancecontrol-Context ::= SEQUENCE {
+   state Guidancecontrol-States,
+   init-done BOOLEAN,
+   guistatus Guidancecmdstatus,
+   roverpose Roverpositionstatus,
+   newpos T-Double,
+   xyspeed T-Double,
+   xyaccuracy T-Double,
+   yawspeed T-Double,
+   yawaccuracy T-Double,
+   istargetreached T-Boolean,
+   haltcmd HaltStatus
+}
+
+Telecommand-selection ::= ENUMERATED {automode-present(1), trav-present(2), takeobj-present(3), leaveobj-present(4), takepic-present(5), going-present(6), movearm-present(7), pickobj-present(8), dropobj-present(9), takeimg-present(10), scanobj-present(11), rechargebat-present(12)}
+END
+Rarmcontrol-Datamodel DEFINITIONS ::=
+BEGIN
+IMPORTS
+   T-Int, T-UInt, T-Double, Vector2d, Vector3d, Position2D, Position, Pose2D, CameraPred, ScientificcameraPred, BatteryPred, BatterycmdPred, GuidancecmdPred, RoverpositionPred, RoboticarmPred, Camerastatus, Scientificcamerastatus, Batterystatus, Batterycmdstatus, Guidancecmdstatus, Roverpositionstatus, Roboticarmstatus, HaltStatus, BatteryLevel, AutonomyLevel, ChangeAutonomyMode, Traverse, TakeSample, LeaveSample, TakePictureAt, GoingTo, MoveRarm, PickSample, DropSample, TakeImage, Scan, Recharge, Telecommand, Telemetry FROM ERGO-DATAVIEW
+   T-Int32, T-UInt32, T-Int8, T-UInt8, T-Boolean, T-Null-Record FROM TASTE-BasicTypes;
+
+Rarmcontrol-States ::= ENUMERATED {wait}
+
+Rarmcontrol-Context ::= SEQUENCE {
+   state Rarmcontrol-States,
+   init-done BOOLEAN,
+   rarmstatus Roboticarmstatus,
+   rarmpos Position,
+   homepos Position,
+   xyzspeed T-Double,
+   xyaccuracy T-Double,
+   zaccuracy T-Double,
+   haspicked T-Boolean,
+   targetreached T-Boolean,
+   homereached T-Boolean,
+   posreached T-Boolean,
+   halt HaltStatus
+}
+
+Telecommand-selection ::= ENUMERATED {automode-present(1), trav-present(2), takeobj-present(3), leaveobj-present(4), takepic-present(5), going-present(6), movearm-present(7), pickobj-present(8), dropobj-present(9), takeimg-present(10), scanobj-present(11), rechargebat-present(12)}
+END
+Simulation-DataView DEFINITIONS ::=
+BEGIN
+   IMPORTS
+      
+      --  ASN.1 modules used by thread agent_BATTERY_STATUS_1
+      Batterystatus FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread agent_BATTERY_STATUS_2
+      Batterystatus FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread agent_BATTERYCMD_STATUS_1
+      Batterycmdstatus FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread agent_BATTERYCMD_STATUS_2
+      Batterycmdstatus FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread agent_CAMERA_STATUS
+      Camerastatus FROM ERGO-DATAVIEW
+      
+      
+      --  ASN.1 modules used by thread agent_GUIDANCECMD_STATUS
+      Guidancecmdstatus FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread agent_ROBOTICARM_STATUS
+      Roboticarmstatus FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread agent_ROVERPOSITION_STATUS
+      Roverpositionstatus FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread agent_SCIENTIFICCAMERA_STATUS
+      Scientificcamerastatus FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread agent_TELECOMMAND
+      Telecommand FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread battery1_BATTERYCMD_REQUEST
+      Batterycmdstatus FROM ERGO-DATAVIEW
+      
+      
+      --  ASN.1 modules used by thread battery2_BATTERYCMD_REQUEST
+      Batterycmdstatus FROM ERGO-DATAVIEW
+      
+      
+      --  ASN.1 modules used by thread camera_CAMERA_REQUEST
+      Camerastatus FROM ERGO-DATAVIEW
+      
+      
+      
+      --  ASN.1 modules used by thread camera_SCIENTIFICCAMERA_REQUEST
+      Scientificcamerastatus FROM ERGO-DATAVIEW
+      
+      
+      
+      
+      
+      --  ASN.1 modules used by thread fdir_CAM_FDIR
+      CameraPred FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread fdir_GUI_WDOG
+      GuidancecmdPred FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread fdir_POWER_LEVEL_FDIR
+      BatteryLevel FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread fdir_RARM_STATUS_FDIR
+      RoboticarmPred FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread fdir_SCIENTIFICCAM_FDIR
+      ScientificcameraPred FROM ERGO-DATAVIEW
+      
+      
+      
+      --  ASN.1 modules used by thread groundcontrol_TELEMETRY
+      Telemetry FROM ERGO-DATAVIEW
+      
+      
+      
+      --  ASN.1 modules used by thread guidancecontrol_GUIDANCECMD_REQUEST
+      Guidancecmdstatus FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread guidancecontrol_HALT_GUI
+      HaltStatus FROM ERGO-DATAVIEW
+      
+      
+      --  ASN.1 modules used by thread rarmcontrol_HALT_RARM
+      HaltStatus FROM ERGO-DATAVIEW
+      
+      --  ASN.1 modules used by thread rarmcontrol_ROBOTICARM_REQUEST
+      Roboticarmstatus FROM ERGO-DATAVIEW
+      
+      -- Import generic integer type (used for timers)
+      T-UInt32 FROM TASTE-BasicTypes
+      --  Import the SDL function states needed for the global system state
+      Agent-Context           FROM Agent-Datamodel
+      Batterytype-Context     FROM Batterytype-Datamodel
+      Batterytype-Context     FROM Batterytype-Datamodel
+      Camera-Context          FROM Camera-Datamodel
+      Fdir-Context            FROM Fdir-Datamodel
+      Guidancecontrol-Context FROM Guidancecontrol-Datamodel
+      Rarmcontrol-Context     FROM Rarmcontrol-Datamodel
+   ;
+
+   
+   
+   
+   Agent-Event ::= CHOICE {
+      msg-in CHOICE {
+         batterycmd-status-1     SEQUENCE { executionstatus Batterycmdstatus },
+         batterycmd-status-2     SEQUENCE { executionstatus Batterycmdstatus },
+         battery-status-1        SEQUENCE { p1 Batterystatus },
+         battery-status-2        SEQUENCE { p1 Batterystatus },
+         camera-status           SEQUENCE { p1 Camerastatus },
+         do-step                 SEQUENCE {   },
+         guidancecmd-status      SEQUENCE { p1 Guidancecmdstatus },
+         roboticarm-status       SEQUENCE { p1 Roboticarmstatus },
+         roverposition-status    SEQUENCE { p1 Roverpositionstatus },
+         scientificcamera-status SEQUENCE { p1 Scientificcamerastatus },
+         telecommand             SEQUENCE { tc Telecommand }
+      },
+      msg-out CHOICE {
+         batterycmd-request-1     SEQUENCE { executionrequest Batterycmdstatus },
+         batterycmd-request-2     SEQUENCE { executionrequest Batterycmdstatus },
+         camera-request           SEQUENCE { p1 Camerastatus },
+         guidancecmd-request      SEQUENCE { p1 Guidancecmdstatus },
+         roboticarm-request       SEQUENCE { p1 Roboticarmstatus },
+         scientificcamera-request SEQUENCE { p1 Scientificcamerastatus },
+         telemetry                SEQUENCE { tm Telemetry }
+      }
+   }
+   
+   Battery1-Event ::= CHOICE {
+      msg-in CHOICE {
+         batterycmd-request SEQUENCE { executionrequest Batterycmdstatus },
+         do-step            SEQUENCE {   }
+      },
+      msg-out CHOICE {
+         batterycmd-status SEQUENCE { executionstatus Batterycmdstatus },
+         battery-status    SEQUENCE { p1 Batterystatus },
+         power-level-fdir  SEQUENCE { power BatteryLevel }
+      }
+   }
+   
+   Battery2-Event ::= CHOICE {
+      msg-in CHOICE {
+         batterycmd-request SEQUENCE { executionrequest Batterycmdstatus },
+         do-step            SEQUENCE {   }
+      },
+      msg-out CHOICE {
+         batterycmd-status SEQUENCE { executionstatus Batterycmdstatus },
+         battery-status    SEQUENCE { p1 Batterystatus },
+         power-level-fdir  SEQUENCE { power BatteryLevel }
+      }
+   }
+   
+   Camera-Event ::= CHOICE {
+      msg-in CHOICE {
+         camera-request           SEQUENCE { p1 Camerastatus },
+         do-step                  SEQUENCE {   },
+         halt-camera              SEQUENCE {   },
+         scientificcamera-request SEQUENCE { p1 Scientificcamerastatus },
+         tCam    SEQUENCE {},
+         tSciCam SEQUENCE {},
+         t       SEQUENCE {}
+      },
+      msg-out CHOICE {
+         camera-status           SEQUENCE { p1 Camerastatus },
+         cam-fdir                SEQUENCE { camerastatus CameraPred },
+         scientificcamera-status SEQUENCE { p1 Scientificcamerastatus },
+         scientificcam-fdir      SEQUENCE { p1 ScientificcameraPred }
+      }
+   }
+   
+   Demo-Timer-Manager-Event ::= CHOICE {
+      msg-in CHOICE {
+         tick SEQUENCE {   }
+      },
+      msg-out CHOICE {
+         camera-t       SEQUENCE {   },
+         camera-tcam    SEQUENCE {   },
+         camera-tscicam SEQUENCE {   },
+         fdir-twdog     SEQUENCE {   }
+      }
+   }
+   
+   Fdir-Event ::= CHOICE {
+      msg-in CHOICE {
+         cam-fdir           SEQUENCE { camerastatus CameraPred },
+         gui-wdog           SEQUENCE { guidrivestatus GuidancecmdPred },
+         power-level-fdir   SEQUENCE { power BatteryLevel },
+         rarm-status-fdir   SEQUENCE { rarmstatus RoboticarmPred },
+         scientificcam-fdir SEQUENCE { p1 ScientificcameraPred },
+         tWdog SEQUENCE {}
+      },
+      msg-out CHOICE {
+         halt-camera SEQUENCE {   },
+         halt-gui    SEQUENCE { p1 HaltStatus },
+         halt-rarm   SEQUENCE { p1 HaltStatus }
+      }
+   }
+   
+   Groundcontrol-Event ::= CHOICE {
+      msg-in CHOICE {
+         poll      SEQUENCE {   },
+         telemetry SEQUENCE { tm Telemetry }
+      },
+      msg-out CHOICE {
+         telecommand SEQUENCE { tc Telecommand }
+      }
+   }
+   
+   Guidancecontrol-Event ::= CHOICE {
+      msg-in CHOICE {
+         do-step             SEQUENCE {   },
+         guidancecmd-request SEQUENCE { p1 Guidancecmdstatus },
+         gui-drive           SEQUENCE {   },
+         halt-gui            SEQUENCE { p1 HaltStatus }
+      },
+      msg-out CHOICE {
+         guidancecmd-status   SEQUENCE { p1 Guidancecmdstatus },
+         gui-wdog             SEQUENCE { guidrivestatus GuidancecmdPred },
+         roverposition-status SEQUENCE { p1 Roverpositionstatus }
+      }
+   }
+   
+   Guidancelibrary-Event ::= SEQUENCE {}  -- Synchronous function
+   
+   Rarmcontrol-Event ::= CHOICE {
+      msg-in CHOICE {
+         do-step            SEQUENCE {   },
+         halt-rarm          SEQUENCE { p1 HaltStatus },
+         roboticarm-request SEQUENCE { p1 Roboticarmstatus }
+      },
+      msg-out CHOICE {
+         rarm-status-fdir  SEQUENCE { rarmstatus RoboticarmPred },
+         roboticarm-status SEQUENCE { p1 Roboticarmstatus }
+      }
+   }
+   
+
+   --  List all the TASTE functions present in the system
+   PID ::= ENUMERATED {
+        env, agent, battery1, battery2, camera, demo-timer-manager, fdir, groundcontrol, guidancecontrol, guidancelibrary, rarmcontrol
+   }
+
+   --  Current observer state flag (used by model checkers)
+   Observer-State-Kind ::= ENUMERATED {
+      regular-state,
+      error-state,
+      ignore-state,
+      success-state
+   }
+
+   --  Event related to the execution of a PI or call of a RI in the functional code
+   Function-Event ::= CHOICE {
+      agent              Agent-Event,
+      battery1           Battery1-Event,
+      battery2           Battery2-Event,
+      camera             Camera-Event,
+      demo-timer-manager Demo-Timer-Manager-Event,
+      fdir               Fdir-Event,
+      groundcontrol      Groundcontrol-Event,
+      guidancecontrol    Guidancecontrol-Event,
+      guidancelibrary    Guidancelibrary-Event,
+      rarmcontrol        Rarmcontrol-Event
+   }
+
+   --  Event at interface level (PI or RI), including source and destination ID
+   Interface-Event ::= SEQUENCE {
+      source PID,
+      dest   PID,
+      event  Function-Event
+   }
+
+   --  Event sent to the observers
+   Observable-Event ::= CHOICE {
+      no-event        SEQUENCE {},
+      system-startup  SEQUENCE {},
+      input-event     Interface-Event,   --  input event is evaluated after the transition
+      output-event    Interface-Event,   --  output event is evaluated before the message is sent
+      unhandled-input Interface-Event    --  message received in a state where it is not expected
+   }
+
+   --  constant that can be used to refer to the absence of an input/output event
+   nothing Observable-Event ::= no-event : {}
+
+   --  Define a queue of events, corresponding to the input queue for each function
+   max-events INTEGER ::= 10
+   Events-Ty ::= SEQUENCE (SIZE (0 .. max-events)) OF Observable-Event
+
+   --  Global system state (excluding observers, which are defined later)
+   System-State ::= SEQUENCE {
+      --  Message queues
+      agent-queue           Events-Ty (SIZE (0..2)),
+      battery1-queue        Events-Ty (SIZE (0..2)),
+      battery2-queue        Events-Ty (SIZE (0..2)),
+      camera-queue          Events-Ty (SIZE (0..2)),
+      fdir-queue            Events-Ty (SIZE (0..2)),
+      guidancecontrol-queue Events-Ty (SIZE (0..2)),
+      rarmcontrol-queue     Events-Ty (SIZE (0..2)),
+
+      agent            Agent-Context,
+      battery1         Batterytype-Context,
+      battery2         Batterytype-Context,
+      camera           Camera-Context,
+      fdir             Fdir-Context,
+      guidancecontrol  Guidancecontrol-Context,
+      rarmcontrol      Rarmcontrol-Context
+   }
+END
