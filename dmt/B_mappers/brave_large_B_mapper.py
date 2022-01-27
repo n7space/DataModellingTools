@@ -1088,18 +1088,18 @@ class MapASN1ToVHDLregisterDefaults(RecursiveMapperGeneric[str, str]):
         bits = math.log(max(abs(x) for x in node._range) + 1, 2)
         bits += (bits if node._range[0] < 0 else 0)
 
-        if direction == "in " :
+        if direction == "in ":
             return [dstVHDL + '_reg_d' + ' <= ' + dstVHDL + '_reg_q;']
-        else :
+        else:
             return['']
 
     def MapReal(self, direction: str, dstVHDL: str, unused_node: AsnReal, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return [dstVHDL + ' : ' + direction + ('std_logic_vector(63 downto 0);')]
 
     def MapBoolean(self, direction: str, dstVHDL: str, _: AsnBool, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        if direction == "in " :
+        if direction == "in ":
             return [dstVHDL + '_reg_d' + ' <= ' + dstVHDL + '_reg_q;']
-        else :
+        else:
             return['']
 
     def MapOctetString(self, direction: str, dstVHDL: str, node: AsnOctetString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
@@ -1217,9 +1217,6 @@ class MapASN1ToVHDLregisterAPBwrites(RecursiveMapperGeneric[str, str]):
             return [ret]
         else:
             return ['']
-            
-
-        #return ['CONSTANT ' + dstVHDL.upper() + '_IDX ' + ': integer := ']
     
     def MapReal(self, _: str, dstVHDL: str, unused_node: AsnReal, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return ['signal ' + dstVHDL + ' : ' + ('std_logic_vector(63 downto 0);')]
@@ -1289,9 +1286,6 @@ class MapASN1ToVHDLregisterAPBreads(RecursiveMapperGeneric[str, str]):
             ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q(31 downto 0)' + ';'
         
         return [ret]
-            
-
-        #return ['CONSTANT ' + dstVHDL.upper() + '_IDX ' + ': integer := ']
     
     def MapReal(self, _: str, dstVHDL: str, unused_node: AsnReal, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return ['signal ' + dstVHDL + ' : ' + ('std_logic_vector(63 downto 0);')]
@@ -1487,7 +1481,6 @@ g_placeholders = {
 
 }
 
-
 # def Common(nodeTypename, node, subProgram, subProgramImplementation, param, leafTypeDict, names):
 def Common(nodeTypename: str, node: AsnNode, subProgram: ApLevelContainer, unused_subProgramImplementation: str, param: Param, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> None:
     if subProgram._id not in VHDL_Circuit.lookupSP:
@@ -1648,7 +1641,6 @@ def OnFinal() -> None:
                 registerClockedValuesMapper.Map(
                     direction, c._spCleanName + '_' + p._id, node, VHDL_Circuit.leafTypeDict, VHDL_Circuit.names))
 
-
             if isinstance(p, InParam):
                 # readinputdataLines.extend(
                 #     readinputdataMapper.Map(
@@ -1719,7 +1711,7 @@ def OnFinal() -> None:
         # Register index - MapASN1ToVHDLregisterIndex()
         AddToStr('ioregisterindex', 'constant START : integer := 0; \n')
         AddToStr('ioregisterindex', 'constant DONE : integer := 1; \n')
-        AddToStr('ioregisterindex', '\n'.join(['' + x + str(idx+2) + ';' for idx, x in enumerate(ioRegisterIndexLines)] ) + '\n')
+        AddToStr('ioregisterindex', '\n'.join(['' + x + str(idx+2) + ';' for idx, x in enumerate(ioRegisterIndexLines)]) + '\n')
         
         # Register signals (Used for I/O) - MapASN1ToVHDLregisters()
         AddToStr('iregistersignals', '\n'.join(['' + x for x in iRegisterLines]) + '\n\n')
