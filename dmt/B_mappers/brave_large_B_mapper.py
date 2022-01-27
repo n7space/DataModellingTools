@@ -621,9 +621,6 @@ void io_write(uint32_t Addr, uint32_t Value)
         self.C_SourceFile.write('      return -1;\n')
         self.C_SourceFile.write('    }\n')
         self.C_SourceFile.write('    return 0;\n')
-
-
-
 class MapASN1ToVHDLCircuit(RecursiveMapperGeneric[str, str]):
     def MapInteger(self, direction: str, dstVHDL: str, node: AsnInt, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         if not node._range:
@@ -740,7 +737,6 @@ class MapASN1ToVHDLinputRegisters(RecursiveMapperGeneric[str, str]):
 
     def MapSetOf(self, _: str, dstVHDL: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return self.MapSequenceOf(_, dstVHDL, node, leafTypeDict, names)  # pragma: nocover
-
 class MapASN1ToVHDLoutputRegisters(RecursiveMapperGeneric[str, str]):
     def MapInteger(self, _: str, dstVHDL: str, node: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         if not node._range:
@@ -798,7 +794,6 @@ class MapASN1ToVHDLoutputRegisters(RecursiveMapperGeneric[str, str]):
 
     def MapSetOf(self, _: str, dstVHDL: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return self.MapSequenceOf(_, dstVHDL, node, leafTypeDict, names)  # pragma: nocover
-
 class MapASN1ToVHDLinternalOutputSignals(RecursiveMapperGeneric[str, str]):
     def MapInteger(self, _: str, dstVHDL: str, node: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         if not node._range:
@@ -806,7 +801,6 @@ class MapASN1ToVHDLinternalOutputSignals(RecursiveMapperGeneric[str, str]):
         bits = math.log(max(abs(x) for x in node._range) + 1, 2)
         bits += (bits if node._range[0] < 0 else 0)
         return ['signal ' + 'int_' + dstVHDL + ' : ' + ('std_logic_vector(63 downto 0);')]
-
 
     def MapReal(self, _: str, dstVHDL: str, unused_node: AsnReal, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return ['signal ' + dstVHDL + ' : ' + ('std_logic_vector(63 downto 0);')]
@@ -857,7 +851,6 @@ class MapASN1ToVHDLinternalOutputSignals(RecursiveMapperGeneric[str, str]):
 
     def MapSetOf(self, _: str, dstVHDL: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return self.MapSequenceOf(_, dstVHDL, node, leafTypeDict, names)  # pragma: nocover
-
 # pylint: disable=no-self-use
 class MapASN1ToVHDLinputIPconnections(RecursiveMapperGeneric[str, str]):
     def MapInteger(self, srcRegister: str, dstCircuitPort: str, _: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
