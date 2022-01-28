@@ -1736,7 +1736,7 @@ def OnFinal() -> None:
 
         # Internal signals, common to all implementations
         AddToStr('internalsignals', "signal start_reg : std_logic; -- Register for incoming start signal\n")
-        AddToStr('internalsignals', "signal reg_done : std_logic; -- Internal done and registered done signals. The latter one is software accessible.\n" % {'pi': c._spCleanName})
+        AddToStr('internalsignals', "signal reg_done : std_logic; -- Internal done and registered done signals. The latter one is software accessible.\n")
         AddToStr('internalsignals', "signal led_reg_d, led_reg_q : std_logic; -- Test led, to be used to see whether IP is alive\n")
         AddToStr('internalsignals', "signal equals : std_logic;\n")
         AddToStr('internalsignals', "signal swreset : std_logic;\n")

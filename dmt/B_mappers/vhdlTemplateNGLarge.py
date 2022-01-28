@@ -1,6 +1,8 @@
 # Company: GMV
 # Copyright European Space Agency, 2019-2020
 
+# pylint: disable=too-many-lines
+
 vhd = '''
 -------------------------------------------------------
 --! @file       apb_taste.vhd
