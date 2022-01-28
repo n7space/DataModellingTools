@@ -1752,13 +1752,13 @@ def OnFinal() -> None:
         AddToStr('connectionsToIP', '        );\n')
 
         # Default assignments for input registers
-        AddToStr('inputregdefaults', '\n'.join([x for x in iRegisterDefaultLines]) + '\n')
+        AddToStr('inputregdefaults', '\n'.join(iRegisterDefaultLines) + '\n')
 
         # APB write routine for write-accessible registers
-        AddToStr('apbwriteregs', '\n'.join([x for x in registerAPBwriteLines]))
+        AddToStr('apbwriteregs', '\n'.join(registerAPBwriteLines))
 
         # APB read routine for read-accessible registers
-        AddToStr('apbreadregs', '\n'.join([x for x in registerAPBreadLines]))
+        AddToStr('apbreadregs', '\n'.join(registerAPBreadLines))
 
         # Signal placeholders for the FSM
         AddToStr('intipstart', 'int_%(pi)s_start' % {'pi': c._spCleanName})
@@ -1766,11 +1766,11 @@ def OnFinal() -> None:
         # AddToStr('intipoutp', 'int_%(pi)s_outp' % {'pi': c._spCleanName})
         # AddToStr('ipoutpregd', 'int_%(pi)s_start')
 
-        AddToStr('finstateoutputs', '\n'.join([x for x in finOutputLines]) + ';' + '\n')
+        AddToStr('finstateoutputs', '\n'.join(finOutputLines) + ';' + '\n')
 
         # Register reset values
-        AddToStr('regresets', '\n'.join([x for x in registerResetLines]) + '\n')
-        AddToStr('regclocked', '\n'.join([x for x in registerClockedLines]) + '\n')
+        AddToStr('regresets', '\n'.join(registerResetLines) + '\n')
+        AddToStr('regclocked', '\n'.join(registerClockedLines) + '\n')
 
     assert len(VHDL_Circuit.allCircuits) > 0
     AddToStr('pi', "%s" % VHDL_Circuit.allCircuits[0]._spCleanName)
