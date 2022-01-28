@@ -1593,6 +1593,18 @@ def OnFinal() -> None:
         panic("Failed to un-tar BRAVELARGE tarball...")
 
     for c in VHDL_Circuit.allCircuits:
+
+        # Add the generated .vhd file to the project_files.py
+
+        vhdpath = "/apb_taste_ip/rtl/" + c._spCleanName + '_bambu.vhd'
+        addline = "    p.addFile('work', sources_files_directory + '" + vhdpath + "')\n"
+
+        with open(vhdlBackend.dir + "/hdl/sub_scripts/project_files.py", 'r') as projectfiles:
+            lines = projectfiles.readlines()
+        with open(vhdlBackend.dir + "/hdl/sub_scripts/project_files.py", 'w') as projectfiles:
+            for line in lines:
+                projectfiles.write(re.sub(r'.# TASTE IP', ' # TASTE IP\n' + addline, line))
+
         circuitLines = []
 
         ioRegisterIndexLines = []
@@ -1710,7 +1722,7 @@ def OnFinal() -> None:
         skeleton.append('    );\n')
         skeleton.append('    end %s_bambu;\n\n' % c._spCleanName)
 
-        vhdlSkeleton = open(vhdlBackend.dir + "/hdl/src/" + c._spCleanName + '_bambu.vhd', 'w')
+        vhdlSkeleton = open(vhdlBackend.dir + "hdl/src/apb_taste_ip/rtl/" + c._spCleanName + '_bambu.vhd', 'w')
         vhdlSkeleton.write(
             vhdlTemplateNGLarge.per_circuit_vhd % {
                 'pi': c._spCleanName,
