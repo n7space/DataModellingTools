@@ -468,6 +468,7 @@ class VHDLGlueGenerator(SynchronousToolGlueGeneratorGeneric[List[int], List[int]
     # def HeadersOnStartup(self, modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname):
     def HeadersOnStartup(self, unused_modelingLanguage: str, unused_asnFile: str, subProgram: ApLevelContainer, unused_subProgramImplementation: str, unused_outputDir: str, unused_maybeFVname: str) -> None:
         self.C_SourceFile.write("#include \"%s.h\" // Space certified compiler generated\n" % self.asn_name)
+        assert vhdlBackend is not None
         self.C_SourceFile.write("#include \"%s_driver.h\" \n" % vhdlBackend.CleanNameAsToolWants(subProgram._id))
         self.C_SourceFile.write('''
 
