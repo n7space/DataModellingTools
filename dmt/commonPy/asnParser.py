@@ -95,9 +95,9 @@ g_adaUses = {}       # type: AST_AdaUses
 g_checkedSoFarForKeywords = {}  # type: Dict[str, int]
 
 g_invalidKeywords = [
-    "active", "adding", "all", "alternative", "and", "any", "as", "atleast", "axioms", "block", "call", "channel", "comment", "connect", "connection", "constant", "constants", "create", "dcl", "decision", "default", "else", "endalternative", "endblock", "endchannel", "endconnection", "enddecision", "endgenerator", "endmacro", "endnewtype", "endoperator", "endpackage", "endprocedure", "endprocess", "endrefinement", "endselect", "endservice", "endstate", "endsubstructure", "endsyntype", "endsystem", "env", "error", "export", "exported", "external", "fi", "finalized", "for", "fpar", "from", "gate", "generator", "if", "import", "imported", "in", "inherits", "input", "interface", "join", "literal", "literals", "macro", "macrodefinition", "macroid", "map", "mod", "nameclass", "newtype", "nextstate", "nodelay", "noequality", "none", "not", "now", "offspring", "operator", "operators", "or", "ordering", "out", "output", "package", "parent", "priority", "procedure", "process", "provided", "redefined", "referenced", "refinement", "rem", "remote", "reset", "return", "returns", "revealed", "reverse", "save", "select", "self", "sender", "service", "set", "signal", "signallist", "signalroute", "signalset", "spelling", "start", "state", "stop", "struct", "substructure", "synonym", "syntype", "system", "task", "then", "this", "to", "type", "use", "via", "view", "viewed", "virtual", "with", "xor", "end", "i", "j", "auto", "const",
+    "active", "adding", "all", "alternative", "and", "any", "as", "atleast", "axioms", "block", "call", "channel", "comment", "connect", "connection", "constant", "constants", "create", "dcl", "decision", "default", "else", "endalternative", "endblock", "endchannel", "endconnection", "enddecision", "endgenerator", "endmacro", "endnewtype", "endoperator", "endpackage", "endprocedure", "endprocess", "endrefinement", "endselect", "endservice", "endstate", "endsubstructure", "endsyntype", "endsystem", "env", "error", "export", "exported", "external", "fi", "finalized", "for", "fpar", "from", "gate", "generator", "if", "import", "imported", "in", "inherits", "input", "interface", "join", "literal", "literals", "macro", "macrodefinition", "macroid", "map", "mod", "nameclass", "newtype", "nextstate", "nodelay", "noequality", "none", "not", "now", "offspring", "operator", "operators", "or", "ordering", "out", "output", "package", "parent", "priority", "procedure", "process", "provided", "redefined", "referenced", "refinement", "rem", "remote", "reset", "return", "returns", "revealed", "reverse", "save", "select", "self", "sender", "service", "set", "signal", "signallist", "signalroute", "signalset", "spelling", "start", "stop", "struct", "substructure", "synonym", "syntype", "system", "task", "then", "this", "to", "type", "use", "via", "view", "viewed", "virtual", "with", "xor", "end", "i", "j", "auto", "const",
     # From Nicolas Gillet/Astrium for SCADE
-    "abstract", "activate", "and", "assume", "automaton", "bool", "case", "char", "clock", "const", "default", "div", "do", "else", "elsif", "emit", "end", "enum", "every", "false", "fby", "final", "flatten", "fold", "foldi", "foldw", "foldwi", "function", "guarantee", "group", "if", "imported", "initial", "int", "is", "last", "let", "make", "map", "mapfold", "mapi", "mapw", "mapwi", "match", "merge", "mod", "node", "not", "numeric", "of", "onreset", "open", "or", "package", "parameter", "pre", "private", "probe", "public", "real", "restart", "resume", "returns", "reverse", "sensor", "sig", "specialize", "state", "synchro", "tel", "then", "times", "transpose", "true", "type", "unless", "until", "var", "when", "where", "with", "xor",
+    "abstract", "activate", "and", "assume", "automaton", "bool", "case", "char", "clock", "const", "default", "div", "do", "else", "elsif", "emit", "end", "enum", "every", "false", "fby", "final", "flatten", "fold", "foldi", "foldw", "foldwi", "function", "guarantee", "group", "if", "imported", "initial", "int", "is", "last", "let", "make", "map", "mapfold", "mapi", "mapw", "mapwi", "match", "merge", "mod", "node", "not", "numeric", "of", "onreset", "open", "or", "package", "parameter", "pre", "private", "probe", "public", "real", "restart", "resume", "returns", "reverse", "sensor", "sig", "specialize", "synchro", "tel", "then", "times", "transpose", "true", "type", "unless", "until", "var", "when", "where", "with", "xor",
     # From Maxime - ESA GNC Team
     "open", "close", "flag", "device", "range", "name"
 ]
@@ -348,7 +348,7 @@ def IsInvalidType(name: str) -> bool:
     return \
         (name.lower() in g_invalidKeywords) or \
         (name.lower() in lotokens) or \
-        any([name.lower().endswith(x) for x in ["-buffer", "-buffer-max"]])
+        any(name.lower().endswith(x) for x in ["-buffer", "-buffer-max"])
 
 
 def CheckForInvalidKeywords(node_or_str: Union[str, AsnNode]) -> None:
@@ -401,61 +401,61 @@ def ParseAsnFileList(listOfFilenames: List[str]) -> None:  # pylint: disable=inv
             utility.panic(
                 "The configured cache folder:\n\n\t" + projectCache + "\n\n...is not there!\n")
 
+    # Compute MD5 checksum of the contents of our input ASN.1 files
+    filehash = hashlib.md5()
+    for each in sorted(listOfFilenames):
+        filehash.update(
+            open(each, "r", encoding="utf-8").read().encode('utf-8'))
+        # also hash the file path: it is used in the AST in XML, so it is
+        # not enough to hash the content of the ASN.1 files, as two sets
+        # of files may have the same hash, that would lead to different XML
+        # content.
+        filehash.update(each.encode('utf-8'))
+    newHash = filehash.hexdigest()
+
+    xmlAST = None
+    someFilesHaveChanged = False
+    if projectCache is not None:
+        # set the name of the XML files containing the dumped ASTs
+        xmlAST = projectCache + os.sep + newHash + "_ast_v4.xml"
+        if not os.path.exists(xmlAST):
+
+            someFilesHaveChanged = True
+            print("[DMT] No cached model found for", ",".join(listOfFilenames))
+    else:
+        # no projectCache set, so xmlAST is set to None
+        someFilesHaveChanged = True
+    if not someFilesHaveChanged:
+        print("[DMT] Reusing cached ASN.1 AST for ", ",".join(listOfFilenames))
+
+    if not xmlAST:
+        (dummy, xmlAST) = tempfile.mkstemp()
+        os.fdopen(dummy).close()
+
     # To avoid race conditions from multiple processes spawning ASN1SCC at the same time,
     # enforce mutual exclusion via locking.
-    with lock_filename('/tmp/onlyOneASN1SCC', verbose=False):
-
-        xmlAST = None
-        someFilesHaveChanged = False
-        if projectCache is not None:
-            filehash = hashlib.md5()
-            for each in sorted(listOfFilenames):
-                filehash.update(
-                    open(each, "r", encoding="utf-8").read().encode('utf-8'))
-                # also hash the file path: it is used in the AST in XML, so it is
-                # not enough to hash the content of the ASN.1 files, as two sets
-                # of files may have the same hash, that would lead to different XML
-                # content.
-                filehash.update(each.encode('utf-8'))
-            newHash = filehash.hexdigest()
-            # set the name of the XML files containing the dumped ASTs
-            xmlAST = projectCache + os.sep + newHash + "_ast_v4.xml"
-            xmlAST2 = projectCache + os.sep + newHash + "_ast_v1.xml"
-            if not os.path.exists(xmlAST) or not os.path.exists(xmlAST2):
-
-                someFilesHaveChanged = True
-                print("[DMT] No cached model found for", ",".join(listOfFilenames))
-        else:
-            # no projectCache set, so xmlAST is set to None
-            someFilesHaveChanged = True
-        if not someFilesHaveChanged:
-            print("[DMT] Reusing cached ASN.1 AST for ", ",".join(listOfFilenames))
-
-        if not xmlAST:
-            (dummy, xmlAST) = tempfile.mkstemp()
-            os.fdopen(dummy).close()
-
-        if someFilesHaveChanged:
-            asn1SccPath = spawn.find_executable('asn1.exe')
+    if someFilesHaveChanged:
+        with lock_filename('/tmp/onlyOneASN1SCC' + newHash, verbose=False):
+            asn1SccPath = spawn.find_executable('asn1scc')
             if asn1SccPath is None:
-                utility.panic("ASN1SCC seems not installed on your system (asn1.exe not found in PATH).\n")
+                utility.panic("ASN1SCC seems not installed on your system (asn1scc not found in PATH).\n")
             asn1SccDir = os.path.dirname(os.path.abspath(asn1SccPath))
-            spawnResult = os.system("mono \"" + asn1SccPath + "\" -customStg \"" + asn1SccDir + "/xml.stg:" + xmlAST + "\" -typePrefix asn1Scc -fp AUTO -customStgAstVersion 4 \"" + "\" \"".join(listOfFilenames) + "\"")
+            spawnResult = os.system("\"" + asn1SccPath + "\" -customStg \"" + asn1SccDir + "/xml.stg:" + xmlAST + "\" -typePrefix asn1Scc -fp AUTO -customStgAstVersion 4 \"" + "\" \"".join(listOfFilenames) + "\"")
             if spawnResult != 0:
                 errCode = spawnResult / 256
                 if errCode == 1:
                     utility.panic("ASN1SCC reported syntax errors. Aborting...")
                 elif errCode == 2:
-                    utility.panic("ASN1SCC reported semantic errors (or mono failed). Aborting...")
+                    utility.panic("ASN1SCC reported semantic errors (or .NET Core failed). Aborting...")
                 elif errCode == 3:
                     utility.panic("ASN1SCC reported internal error. Contact ESA with this input. Aborting...")
                 elif errCode == 4:
                     utility.panic("ASN1SCC reported usage error. Aborting...")
                 else:
                     utility.panic("ASN1SCC generic error. Contact ESA with this input. Aborting...")
-        ParseASN1SCC_AST(xmlAST)
-        if projectCache is None:
-            os.unlink(xmlAST)
+    ParseASN1SCC_AST(xmlAST)
+    if projectCache is None:
+        os.unlink(xmlAST)
 
 
 def Dump() -> None:
@@ -553,7 +553,7 @@ def GetAttrCertainly(node: Element, attrName: str) -> Any:
     return node._attrs[attrName]
 
 
-def GetChild(node: Element, childName: str) -> Element:
+def GetChild(node: Element, childName: str) -> Element:  # pylint: disable=inconsistent-return-statements
     for x in node._children:
         if x._name == childName:
             return x
@@ -809,7 +809,7 @@ def GenericFactory(newModule: Module, xmlType: Element) -> AsnNode:
         utility.panic("GenericFactory: No children for Type (%s, %s)" %  # pragma: no cover
                       (newModule._asnFilename, lineNo))  # pragma: no cover
     xmlContainedType = xmlType._children[0]
-    if xmlContainedType._name not in list(Factories.keys()):
+    if xmlContainedType._name not in list(Factories.keys()):  # pylint: disable=consider-iterating-dictionary
         utility.panic("Unsupported XML type node: '%s' (%s, %s)" %  # pragma: no cover
                       (xmlContainedType._name, newModule._asnFilename, lineNo))  # pragma: no cover
     maker = Factories[xmlContainedType._name]
@@ -930,7 +930,7 @@ def PrintType(f: IO[Any], xmlType: Element, indent: str, nameCleaner: Callable[[
         f.write(' (%s .. %s)' % (mmin, mmax))
     elif realType._name == "BitStringType":
         utility.panic("BIT STRINGs are not supported, use SEQUENCE OF BOOLEAN")  # pragma: no cover
-    elif realType._name == "OctetStringType" or realType._name == "IA5StringType" or realType._name == "NumericStringType":
+    elif realType._name in ["OctetStringType", "IA5StringType", "NumericStringType"]:
         f.write('OCTET STRING')
         mmin = GetAttrCertainly(realType, "Min")
         mmax = GetAttrCertainly(realType, "Max")
@@ -949,7 +949,7 @@ def PrintType(f: IO[Any], xmlType: Element, indent: str, nameCleaner: Callable[[
             for otherOptions in options[1:]:
                 f.write(',\n' + indent + '    ' + nameCleaner(GetAttrCertainly(otherOptions, "StringValue")) + "(" + GetAttrCertainly(otherOptions, "IntValue") + ")")
         f.write('\n' + indent + '}')
-    elif realType._name == "SequenceType" or realType._name == "SetType":
+    elif realType._name in ["SequenceType", "SetType"]:
         if realType._name == "SequenceType":
             f.write('SEQUENCE {\n')
         else:

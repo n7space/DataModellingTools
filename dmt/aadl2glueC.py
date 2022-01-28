@@ -142,7 +142,7 @@ g_sync_mappers = {
     'Simulink': simulink_B_mapper,
     'gui': gui_B_mapper,
     'python': python_B_mapper,
-    'QgenC': qgenc_B_mapper,
+    'QGenC': qgenc_B_mapper,
     'vhdl': vhdl_B_mapper,
 }
 
@@ -200,7 +200,7 @@ of each SUBPROGRAM param.'''
                     klass = commonPy
                     for step in python2className.split('.')[1:]:
                         klass = getattr(klass, step)
-                    o.__class__ = klass
+                    o.__class__ = klass  # pylint: disable=invalid-class-object
             except Exception:
                 pass
 
@@ -236,13 +236,13 @@ def SpecialCodes(asnFile: Optional[str]) -> None:
 the scope of individual parameters (e.g. it needs access to all ASN.1
 types). This used to cover Dumpable C/Ada Types and OG headers.'''
     outputDir = commonPy.configMT.outputDir
-    asn1SccPath = spawn.find_executable('asn1.exe')
+    asn1SccPath = spawn.find_executable('asn1scc')
     # allow externally-defined flags when calling the asn1 compiler (e.g. to set word size based on target)
     extraFlags = os.getenv("ASN1SCC_FLAGS") or ""
     if asnFile is not None:
         if not asn1SccPath:
-            panic("ASN1SCC seems not installed on your system (asn1.exe not found in PATH).\n")  # pragma: no cover
-        os.system('mono "{}" -typePrefix asn1Scc {} -Ada -equal -o "{}" "{}"'
+            panic("ASN1SCC seems not installed on your system (asn1scc not found in PATH).\n")  # pragma: no cover
+        os.system('"{}" -typePrefix asn1Scc {} -Ada -equal -o "{}" "{}"'
                   .format(asn1SccPath, extraFlags, outputDir, '" "'.join([asnFile])))
 
 
@@ -257,7 +257,7 @@ def getSyncBackend(modelingLanguage: str) -> Sync_B_Mapper:
         elif commonPy.configMT.fpga_mapper == "ZYNQZC706":
             return cast(Sync_B_Mapper, zynqzc706_B_mapper)  # pragma: no cover
         elif commonPy.configMT.fpga_mapper == "NGLARGE":
-                return cast(Sync_B_Mapper, brave_large_B_mapper)  # pragma: no cover
+            return cast(Sync_B_Mapper, brave_large_B_mapper)  # pragma: no cover
     return cast(Sync_B_Mapper, g_sync_mappers[modelingLanguage])
 
 
@@ -368,12 +368,11 @@ def ProcessAsync(  # pylint: disable=dangerous-default-value
         leafTypeDict = commonPy.asnParser.g_leafTypeDict
 
         inform("This param uses definitions from %s", asnFile)
-        for nodeTypename in names:
+        for nodeTypename, node in names.items():
             # Check if this type must be skipped
             if nodeTypename in badTypes:
                 continue
 
-            node = names[nodeTypename]
             inform("ASN.1 node is %s", nodeTypename)
 
             # First, make sure we know what leaf type this node is
@@ -505,7 +504,7 @@ def main() -> None:
     if "-pdb" in sys.argv:
         sys.argv.remove("-pdb")  # pragma: no cover
         import pdb  # pragma: no cover pylint: disable=wrong-import-position,wrong-import-order
-        pdb.set_trace()  # pragma: no cover
+        pdb.set_trace()  # pragma: no cover pylint: disable=forgotten-debug-statement
 
     use_ASN1SCC_allboards_support = "-allboards" in sys.argv
     if use_ASN1SCC_allboards_support:

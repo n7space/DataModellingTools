@@ -14,7 +14,7 @@ cleanDB:
 	rm -f test.db
 
 clean:
-	rm -rf asn2dataModel lotsofdatatypes_model.* */*.pyc .coverage
+	rm -rf asn2dataModel db_model.* */*.pyc .coverage
 	$(MAKE) cleanDB
 
 build:
