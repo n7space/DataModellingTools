@@ -741,11 +741,8 @@ class MapASN1ToVHDLinputRegisters(RecursiveMapperGeneric[str, str]):
 
     def MapSetOf(self, _: str, dstVHDL: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return self.MapSequenceOf(_, dstVHDL, node, leafTypeDict, names)  # pragma: nocover
-<<<<<<< HEAD
-=======
 
 
->>>>>>> f131bcd18afc5b2c11fe3fb1e6091471a71a59a3
 class MapASN1ToVHDLoutputRegisters(RecursiveMapperGeneric[str, str]):
     def MapInteger(self, _: str, dstVHDL: str, node: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         if not node._range:
@@ -803,11 +800,8 @@ class MapASN1ToVHDLoutputRegisters(RecursiveMapperGeneric[str, str]):
 
     def MapSetOf(self, _: str, dstVHDL: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return self.MapSequenceOf(_, dstVHDL, node, leafTypeDict, names)  # pragma: nocover
-<<<<<<< HEAD
-=======
 
 
->>>>>>> f131bcd18afc5b2c11fe3fb1e6091471a71a59a3
 class MapASN1ToVHDLinternalOutputSignals(RecursiveMapperGeneric[str, str]):
     def MapInteger(self, _: str, dstVHDL: str, node: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         if not node._range:
@@ -865,11 +859,8 @@ class MapASN1ToVHDLinternalOutputSignals(RecursiveMapperGeneric[str, str]):
 
     def MapSetOf(self, _: str, dstVHDL: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return self.MapSequenceOf(_, dstVHDL, node, leafTypeDict, names)  # pragma: nocover
-<<<<<<< HEAD
-=======
 
 
->>>>>>> f131bcd18afc5b2c11fe3fb1e6091471a71a59a3
 # pylint: disable=no-self-use
 class MapASN1ToVHDLinputIPconnections(RecursiveMapperGeneric[str, str]):
     def MapInteger(self, srcRegister: str, dstCircuitPort: str, _: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
