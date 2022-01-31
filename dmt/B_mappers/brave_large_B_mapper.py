@@ -1294,9 +1294,9 @@ class MapASN1ToVHDLregisterAPBreads(RecursiveMapperGeneric[str, str]):
         bits = math.log(max(abs(x) for x in node._range) + 1, 2)
         bits += (bits if node._range[0] < 0 else 0)
         ret = "            when " + dstVHDL.upper() + '_IDX_L => \n'
-        ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q(31 downto 0)' + ';'
+        ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q(31 downto 0)' + ';\n'
         ret += "            when " + dstVHDL.upper() + '_IDX_H => \n'
-        ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q(63 downto 32)' + ';'
+        ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q(63 downto 32)' + ';\n'
         return [ret]
 
     def MapReal(self, _: str, dstVHDL: str, unused_node: AsnReal, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
