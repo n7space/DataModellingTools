@@ -1224,9 +1224,9 @@ class MapASN1ToVHDLregisterAPBwrites(RecursiveMapperGeneric[str, str]):
 
         if _ == "in ":
             ret = "            when " + dstVHDL.upper() + '_IDX_L => \n'
-            ret += '                ' + dstVHDL + '_reg_d' + '<= s_apb_master.pwdata(31 downto 0);\n'
+            ret += '                ' + dstVHDL + '_reg_d(31 downto 0)' + '<= s_apb_master.pwdata;\n'
             ret += "            when " + dstVHDL.upper() + '_IDX_H => \n'
-            ret += '                ' + dstVHDL + '_reg_d' + '<= s_apb_master.pwdata(63 downto 0);\n'
+            ret += '                ' + dstVHDL + '_reg_d(63 downto 32)' + '<= s_apb_master.pwdata;\n'
             return [ret]
         else:
             return ['']
@@ -1293,11 +1293,10 @@ class MapASN1ToVHDLregisterAPBreads(RecursiveMapperGeneric[str, str]):
             panicWithCallStack("INTEGERs need explicit ranges when generating VHDL code... (%s)" % node.Location())  # pragma: no cover
         bits = math.log(max(abs(x) for x in node._range) + 1, 2)
         bits += (bits if node._range[0] < 0 else 0)
-        ret = "            when " + dstVHDL.upper() + '_IDX => \n'
-        if _ == "in ":
-            ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q' + ';'
-        else:
-            ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q(63 downto 0)' + ';'
+        ret = "            when " + dstVHDL.upper() + '_IDX_L => \n'
+        ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q(31 downto 0)' + ';'
+        ret += "            when " + dstVHDL.upper() + '_IDX_H => \n'
+        ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q(63 downto 32)' + ';'
         return [ret]
 
     def MapReal(self, _: str, dstVHDL: str, unused_node: AsnReal, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
