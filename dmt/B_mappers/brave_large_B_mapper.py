@@ -175,7 +175,7 @@ class FromVHDLToASN1SCC(RecursiveMapperGeneric[List[int], str]):  # pylint: disa
         lines.append("    asn1SccSint val = 0;\n")
         lines.append("    for(i=0; i<sizeof(asn1SccSint)/4; i++) {\n")
         # lines.append("        //axi_read(R_AXI_BASEADR + %s + (i*4), &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("        tmp = io_read(IP_BASE_ADDR + 0x%s + (i*4));\n" % hex(register+4).lstrip("0x").upper())
+        lines.append("        tmp = io_read(IP_BASE_ADDR + 0x%s + (i*4));\n" % hex(register + 4).lstrip("0x").upper())
         # lines.append("        //tmp >>= 32; // \n")
         lines.append("        val |= (tmp << (32*i));\n")
         lines.append("    }\n")
@@ -192,7 +192,7 @@ class FromVHDLToASN1SCC(RecursiveMapperGeneric[List[int], str]):  # pylint: disa
         lines.append("    unsigned int i;\n")
         lines.append("    asn1SccSint val = 0;\n")
         lines.append("    for(i=0; i<sizeof(asn1Real)/4; i++) {\n")
-        lines.append("        tmp = io_read(IP_BASE_ADDR + %s + (i*4));\n" % hex(register+4))
+        lines.append("        tmp = io_read(IP_BASE_ADDR + %s + (i*4));\n" % hex(register + 4))
         lines.append("        val |= (tmp << (32*i));\n")
         lines.append("    }\n")
         lines.append("    %s = val;\n" % destVar)
@@ -206,7 +206,7 @@ class FromVHDLToASN1SCC(RecursiveMapperGeneric[List[int], str]):  # pylint: disa
         lines.append("{\n")
         lines.append("    unsigned int tmp = 0;\n")
         lines.append("    //axi_read(R_AXI_BASEADR + %s, &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("    tmp = io_read(IP_BASE_ADDR + %s);\n" % hex(register+4))
+        lines.append("    tmp = io_read(IP_BASE_ADDR + %s);\n" % hex(register + 4))
         lines.append("    %s = (asn1SccUint) tmp;\n" % destVar)
         lines.append("}\n")
         srcVHDL[0] += 4
@@ -230,7 +230,7 @@ class FromVHDLToASN1SCC(RecursiveMapperGeneric[List[int], str]):  # pylint: disa
         lines.append("    for(i=0; i<%d; i++) {\n" % int(node._range[-1] / 4))
         lines.append("        tmp = 0;\n")
         lines.append("        //axi_read(R_AXI_BASEADR + %s + (i*4), &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("        tmp = io_read(IP_BASE_ADDR + %s + (i*4));\n" % hex(register+4))
+        lines.append("        tmp = io_read(IP_BASE_ADDR + %s + (i*4));\n" % hex(register + 4))
         lines.append("        memcpy(%s.arr + (i*4), (unsigned char*)&tmp, sizeof(unsigned int));\n" % destVar)
         lines.append("    }\n")
         lines.append("}\n")
@@ -244,7 +244,7 @@ class FromVHDLToASN1SCC(RecursiveMapperGeneric[List[int], str]):  # pylint: disa
         lines.append("{\n")
         lines.append("    unsigned int tmp;\n")
         lines.append("    //axi_read(R_AXI_BASEADR + %s, &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("    tmp = io_read(IP_BASE_ADDR + %s);\n" % hex(register+4))
+        lines.append("    tmp = io_read(IP_BASE_ADDR + %s);\n" % hex(register + 4))
         lines.append("    %s = tmp;\n" % destVar)
         lines.append("}\n")
         srcVHDL[0] += 4
@@ -325,7 +325,7 @@ class FromASN1SCCtoVHDL(RecursiveMapperGeneric[str, List[int]]):  # pylint: disa
         lines.append("    asn1SccSint val = %s;\n" % srcVar)
         lines.append("    for(i=0; i<sizeof(asn1SccSint)/4; i++) {\n")
         lines.append("        tmp = val & 0xFFFFFFFF;\n")
-        lines.append("        io_write(IP_BASE_ADDR + 0x%s + (i*4), tmp);\n" % hex(register+4).lstrip("0x").upper())
+        lines.append("        io_write(IP_BASE_ADDR + 0x%s + (i*4), tmp);\n" % hex(register + 4).lstrip("0x").upper())
         lines.append("        val >>= 32;\n")
         lines.append("    }\n")
         lines.append("}\n")
@@ -341,7 +341,7 @@ class FromASN1SCCtoVHDL(RecursiveMapperGeneric[str, List[int]]):  # pylint: disa
         lines.append("    asn1Real val = %s;\n" % srcVar)
         lines.append("    for(i=0; i<sizeof(asn1Real)/4; i++) {\n")
         lines.append("        tmp = val & 0xFFFFFFFF;\n")
-        lines.append("        io_write(IP_BASE_ADDR  + %s + (i*4), tmp);\n" % hex(register+4))
+        lines.append("        io_write(IP_BASE_ADDR  + %s + (i*4), tmp);\n" % hex(register + 4))
         lines.append("        val >>= 32;\n")
         lines.append("    }\n")
         lines.append("}\n")
@@ -354,7 +354,7 @@ class FromASN1SCCtoVHDL(RecursiveMapperGeneric[str, List[int]]):  # pylint: disa
         lines.append("{\n")
         lines.append("    unsigned int tmp = (unsigned int)%s;\n" % srcVar)
         lines.append("    //axi_write(R_AXI_BASEADR + %s, &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("    io_write(IP_BASE_ADDR  + %s, tmp);\n" % hex(register+4))
+        lines.append("    io_write(IP_BASE_ADDR  + %s, tmp);\n" % hex(register + 4))
         lines.append("}\n")
         dstVHDL[0] += 4
         return lines
@@ -376,7 +376,7 @@ class FromASN1SCCtoVHDL(RecursiveMapperGeneric[str, List[int]]):  # pylint: disa
         lines.append("        tmp = 0;\n")
         lines.append("        tmp = *(unsigned int*)(%s.arr + (i*4));\n" % srcVar)
         lines.append("        //axi_write(R_AXI_BASEADR + %s + (i*4), &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("        io_write(IP_BASE_ADDR  + %s + (i*4), tmp);\n" % hex(register+4))
+        lines.append("        io_write(IP_BASE_ADDR  + %s + (i*4), tmp);\n" % hex(register + 4))
         lines.append("    }\n")
         lines.append("}\n")
 
@@ -391,7 +391,7 @@ class FromASN1SCCtoVHDL(RecursiveMapperGeneric[str, List[int]]):  # pylint: disa
         lines.append("{\n")
         lines.append("    unsigned int tmp = (unsigned int)%s;\n" % srcVar)
         lines.append("    //axi_write(R_AXI_BASEADR + %s, &tmp, 4, R_AXI_DSTADR);\n" % hex(register))
-        lines.append("    io_write(IP_BASE_ADDR  + %s, tmp);\n" % hex(register+4))
+        lines.append("    io_write(IP_BASE_ADDR  + %s, tmp);\n" % hex(register + 4))
         lines.append("}\n")
         dstVHDL[0] += 4
         return lines
@@ -568,7 +568,7 @@ void io_write(uint32_t Addr, uint32_t Value)
         elif isinstance(param._sourceElement, AadlParameter):
             srcVHDL = [0, VHDL_Circuit.lookupSP[subProgram._id]._paramOffset[param._id]]
         else:  # pragma: no cover
-            panicWithCallStack("%s not supported (yet?)\n" % str(param._sourceElement))  # pragma: no cover           
+            panicWithCallStack("%s not supported (yet?)\n" % str(param._sourceElement))  # pragma: no cover
         return srcVHDL
 
     # def TargetVar(self, nodeTypename, encoding, node, subProgram, subProgramImplementation, param, leafTypeDict, names):
@@ -608,7 +608,7 @@ void io_write(uint32_t Addr, uint32_t Value)
         self.C_SourceFile.write('      count++;\n')
         self.C_SourceFile.write("      // io_read returns successful??\n")
         self.C_SourceFile.write('      flag = io_read(IP_BASE_ADDR + %s);\n' %
-                                hex(int(VHDL_Circuit.lookupSP[sp._id]._offset)+4))
+                                hex(int(VHDL_Circuit.lookupSP[sp._id]._offset) + 4))
         # self.C_SourceFile.write('      // if (io_read(IP_BASE_ADDR + %s)==0) {\n' %
         #                                   hex(int(VHDL_Circuit.lookupSP[sp._id]._offset)))
         # self.C_SourceFile.write('      //  LOGERROR("Failed reading Target\\n");\n')
@@ -1152,13 +1152,17 @@ class MapASN1ToVHDLregisterDefaults(RecursiveMapperGeneric[str, str]):
 
 
 class MapASN1ToVHDLregisterIndex(RecursiveMapperGeneric[str, str]):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.regCount = 2
+
     def MapInteger(self, _: str, dstVHDL: str, node: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         if not node._range:
             panicWithCallStack("INTEGERs need explicit ranges when generating VHDL code... (%s)" % node.Location())  # pragma: no cover
         bits = math.log(max(abs(x) for x in node._range) + 1, 2)
         bits += (bits if node._range[0] < 0 else 0)
         ret = 'constant ' + dstVHDL.upper() + '_IDX_L ' + ': integer := ' + str(self.regCount) + ';\n'
-        ret += 'constant ' + dstVHDL.upper() + '_IDX_H ' + ': integer := ' + str(self.regCount+1)
+        ret += 'constant ' + dstVHDL.upper() + '_IDX_H ' + ': integer := ' + str(self.regCount + 1)
         self.regCount += 2
         return [ret]
 
@@ -1570,7 +1574,6 @@ def OnFinal() -> None:
     oRegisterMapper = MapASN1ToVHDLoutputRegisters()
     internalOutputsMapper = MapASN1ToVHDLinternalOutputSignals()  # To be implemented
     ioRegisterIndexMapper = MapASN1ToVHDLregisterIndex()
-    ioRegisterIndexMapper.regCount = 2
 
     ioRegisterDefaultMapper = MapASN1ToVHDLregisterDefaults()
     iConnectionsToIPMapper = MapASN1ToVHDLinputIPconnections()
@@ -1740,7 +1743,7 @@ def OnFinal() -> None:
         # Register index - MapASN1ToVHDLregisterIndex()
         AddToStr('ioregisterindex', 'constant START : integer := 0; \n')
         AddToStr('ioregisterindex', 'constant DONE : integer := 1; \n')
-        AddToStr('ioregisterindex', '\n'.join(x + ';\n' for  x in ioRegisterIndexLines) + '\n')
+        AddToStr('ioregisterindex', '\n'.join(x + ';\n' for x in ioRegisterIndexLines) + '\n')
 
         # Register signals (Used for I/O) - MapASN1ToVHDLregisters()
         AddToStr('iregistersignals', '\n'.join(['' + x for x in iRegisterLines]) + '\n\n')
