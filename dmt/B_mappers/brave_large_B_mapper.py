@@ -709,7 +709,7 @@ class MapASN1ToVHDLinputRegisters(RecursiveMapperGeneric[str, str]):
         return lines
 
     def MapEnumerated(self, _: str, dstVHDL: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ['signal ' + dstVHDL + ' : ' + 'std_logic_vector(7 downto 0);']
+        return ['signal ' + dstVHDL + '_reg_d' + ', ' + dstVHDL + '_reg_q' + ' : ' + ('std_logic_vector(7 downto 0);')]
 
     def MapSequence(self, _: str, dstVHDL: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
@@ -768,7 +768,7 @@ class MapASN1ToVHDLoutputRegisters(RecursiveMapperGeneric[str, str]):
         return lines
 
     def MapEnumerated(self, _: str, dstVHDL: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ['signal ' + dstVHDL + ' : ' + 'std_logic_vector(7 downto 0);']
+        return ['signal ' + dstVHDL + '_reg_d' + ', ' + dstVHDL + '_reg_q' + ' : ' + ('std_logic_vector(7 downto 0);')]
 
     def MapSequence(self, _: str, dstVHDL: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
@@ -827,7 +827,7 @@ class MapASN1ToVHDLinternalOutputSignals(RecursiveMapperGeneric[str, str]):
         return lines
 
     def MapEnumerated(self, _: str, dstVHDL: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ['signal ' + dstVHDL + ' : ' + 'std_logic_vector(7 downto 0);']
+        return ['signal ' + 'int_' + dstVHDL + ' : ' + ('std_logic_vector(7 downto 0);')]
 
     def MapSequence(self, _: str, dstVHDL: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
@@ -884,7 +884,7 @@ class MapASN1ToVHDLinputIPconnections(RecursiveMapperGeneric[str, str]):
         return lines
 
     def MapEnumerated(self, srcRegister: str, dstCircuitPort: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return [dstCircuitPort + ' => ' + srcRegister]
+        return [dstCircuitPort + ' => ' + srcRegister + '_reg_q']
 
     def MapSequence(self, srcRegister: str, dstCircuitPort: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
@@ -939,8 +939,8 @@ class MapASN1ToVHDLoutputIPconnections(RecursiveMapperGeneric[str, str]):
             lines.append(dstCircuitPort + ('_elem_%0*d' % (maxlen, i)) + ' => ' + srcRegister + ('_elem_%0*d' % (maxlen, i)))
         return lines
 
-    def MapEnumerated(self, srcRegister: str, dstCircuitPort: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return [dstCircuitPort + ' => ' + srcRegister]
+    def MapEnumerated(self, unused_srcRegister: str, dstCircuitPort: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
+        return [dstCircuitPort + ' => ' + 'int_' + dstCircuitPort]
 
     def MapSequence(self, srcRegister: str, dstCircuitPort: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
@@ -1051,7 +1051,7 @@ class MapASN1ToVHDLfinStateOutputs(RecursiveMapperGeneric[str, str]):
         return lines
 
     def MapEnumerated(self, srcRegister: str, dstCircuitPort: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return [dstCircuitPort + ' => ' + srcRegister]
+        return [srcRegister + '_reg_d' + ' <= ' + 'int_' + dstCircuitPort]
 
     def MapSequence(self, srcRegister: str, dstCircuitPort: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
@@ -1118,7 +1118,10 @@ class MapASN1ToVHDLregisterDefaults(RecursiveMapperGeneric[str, str]):
         return lines
 
     def MapEnumerated(self, direction: str, dstVHDL: str, _: AsnEnumerated, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return [dstVHDL + ' : ' + direction + 'std_logic_vector(7 downto 0);']
+        if direction == "in ":
+            return [dstVHDL + '_reg_d' + ' <= ' + dstVHDL + '_reg_q;']
+        else:
+            return['']
 
     def MapSequence(self, direction: str, dstVHDL: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
@@ -1186,7 +1189,9 @@ class MapASN1ToVHDLregisterIndex(RecursiveMapperGeneric[str, str]):
         return lines
 
     def MapEnumerated(self, _: str, dstVHDL: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ['signal ' + dstVHDL + ' : ' + 'std_logic_vector(7 downto 0);']
+        line = 'constant ' + dstVHDL.upper() + '_IDX ' + ': integer := ' + str(self.regCount)
+        self.regCount += 1
+        return [line]
 
     def MapSequence(self, _: str, dstVHDL: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
@@ -1229,7 +1234,7 @@ class MapASN1ToVHDLregisterAPBwrites(RecursiveMapperGeneric[str, str]):
         if _ == "in ":
             ret = "            when " + dstVHDL.upper() + '_IDX_L => \n'
             ret += '                ' + dstVHDL + '_reg_d(31 downto 0)' + '<= s_apb_master.pwdata;\n'
-            ret += "            when " + dstVHDL.upper() + '_IDX_H => \n'
+            ret += "           when " + dstVHDL.upper() + '_IDX_H => \n'
             ret += '                ' + dstVHDL + '_reg_d(63 downto 32)' + '<= s_apb_master.pwdata;\n'
             return [ret]
         else:
@@ -1241,7 +1246,7 @@ class MapASN1ToVHDLregisterAPBwrites(RecursiveMapperGeneric[str, str]):
     def MapBoolean(self, _: str, dstVHDL: str, __: AsnBool, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         if _ == "in ":
             ret = "            when " + dstVHDL.upper() + '_IDX => \n'
-            ret += '                ' + dstVHDL + '_reg_d' + '<= s_apb_master.pwdata;\n'
+            ret += '                ' + dstVHDL + '_reg_d' + '<= s_apb_master.pwdata(7 donwto 0);\n'
             return [ret]
         else:
             return ['']
@@ -1258,7 +1263,12 @@ class MapASN1ToVHDLregisterAPBwrites(RecursiveMapperGeneric[str, str]):
         return lines
 
     def MapEnumerated(self, _: str, dstVHDL: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ['signal ' + dstVHDL + ' : ' + 'std_logic_vector(7 downto 0);']
+        if _ == "in ":
+            ret = "            when " + dstVHDL.upper() + '_IDX => \n'
+            ret += '                ' + dstVHDL + '_reg_d' + '<= s_apb_master.pwdata(7 donwto 0);\n'
+            return [ret]
+        else:
+            return ['']
 
     def MapSequence(self, _: str, dstVHDL: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
@@ -1299,7 +1309,7 @@ class MapASN1ToVHDLregisterAPBreads(RecursiveMapperGeneric[str, str]):
         bits += (bits if node._range[0] < 0 else 0)
         ret = "            when " + dstVHDL.upper() + '_IDX_L => \n'
         ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q(31 downto 0)' + ';\n'
-        ret += "            when " + dstVHDL.upper() + '_IDX_H => \n'
+        ret += "           when " + dstVHDL.upper() + '_IDX_H => \n'
         ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q(63 downto 32)' + ';\n'
         return [ret]
 
@@ -1308,11 +1318,7 @@ class MapASN1ToVHDLregisterAPBreads(RecursiveMapperGeneric[str, str]):
 
     def MapBoolean(self, _: str, dstVHDL: str, __: AsnBool, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         ret = "            when " + dstVHDL.upper() + '_IDX => \n'
-        if _ == "in ":
-            ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q' + ';'
-        else:
-            ret += '                ' + 's_apb_slave.prdata ' + '<= ' + dstVHDL + '_reg_q(63 downto 0)' + ';'
-
+        ret += '                ' + 's_apb_slave.prdata ' + '<= X"000000" & ' + dstVHDL + '_reg_q' + ';\n'
         return [ret]
 
     def MapOctetString(self, _: str, dstVHDL: str, node: AsnOctetString, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
@@ -1327,7 +1333,9 @@ class MapASN1ToVHDLregisterAPBreads(RecursiveMapperGeneric[str, str]):
         return lines
 
     def MapEnumerated(self, _: str, dstVHDL: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ['signal ' + dstVHDL + ' : ' + 'std_logic_vector(7 downto 0);']
+        ret = "            when " + dstVHDL.upper() + '_IDX => \n'
+        ret += '                ' + 's_apb_slave.prdata ' + '<= X"000000" & ' + dstVHDL + '_reg_q' + ';\n'
+        return [ret]
 
     def MapSequence(self, _: str, dstVHDL: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
@@ -1386,7 +1394,7 @@ class MapASN1ToVHDLregisterResets(RecursiveMapperGeneric[str, str]):
         return lines
 
     def MapEnumerated(self, _: str, dstVHDL: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ['signal ' + dstVHDL + ' : ' + 'std_logic_vector(7 downto 0);']
+        return [dstVHDL + '_reg_q' + ' <= ' + '(others => \'0\');']
 
     def MapSequence(self, _: str, dstVHDL: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
@@ -1445,7 +1453,7 @@ class MapASN1ToVHDLregisterClocked(RecursiveMapperGeneric[str, str]):
         return lines
 
     def MapEnumerated(self, _: str, dstVHDL: str, __: AsnEnumerated, ___: AST_Leaftypes, dummy: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ['signal ' + dstVHDL + ' : ' + 'std_logic_vector(7 downto 0);']
+        return [dstVHDL + '_reg_q' + ' <= ' + dstVHDL + '_reg_d;']
 
     def MapSequence(self, _: str, dstVHDL: str, node: Union[AsnSequenceOrSet, AsnChoice], leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
