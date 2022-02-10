@@ -212,7 +212,7 @@ clean:
         g_outputGetSetC.write('    free(pData);\n')
         g_outputGetSetC.write('}\n\n')
     for nodeTypename, node in asnParser.g_names.items():
-        if node._isArtificial:
+        if node._isArtificial and os.getenv("ASN1_INTERNAL_TYPES_EXPORT") is None:
             continue
         WorkOnType(nodeTypename)
     WorkOnType("int")
@@ -594,7 +594,7 @@ def CreateDeclarationForType(nodeTypename: str, names: AST_Lookup, leafTypeDict:
 def CreateDeclarationsForAllTypes(names: AST_Lookup, leafTypeDict: AST_Leaftypes, unused_badTypes: SetOfBadTypenames) -> None:
     for nodeTypename in names:
         # Do not ignore the so called "bad types". In python, IA5Strings are supported
-        if not names[nodeTypename]._isArtificial:  # and nodeTypename not in badTypes:
+        if not names[nodeTypename]._isArtificial or os.getenv("ASN1_INTERNAL_TYPES_EXPORT") is not None:
             CreateDeclarationForType(nodeTypename, names, leafTypeDict)
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

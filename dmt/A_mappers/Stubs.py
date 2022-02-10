@@ -354,6 +354,10 @@ grep for the errorcode value inside ASN1SCC generated headers."""
     def DecodeACN(self, bitstream):
         self.Decode(bitstream, True)
 
+    def Initialise(self):
+        initialiseFunc = getattr(JMP, Clean(self._nodeTypeName) + "_Initialize")
+        initialiseFunc(self._ptr)
+
     def IsConstraintValid(self):
         # Allocate temp space to store error code (avoid race condition that _pErr would cause)
         pErr = c_void_p(CreateInstanceOf_int())
