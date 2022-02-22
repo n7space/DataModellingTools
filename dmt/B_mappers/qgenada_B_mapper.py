@@ -1,26 +1,9 @@
 #
-# (C) Semantix Information Technologies.
+# (C) Semantix Information Technologies, Neuropublic, IB Krates
+#     and European Space Agency
 #
-# Copyright 2014-2015 IB Krates <info@krates.ee>
-#       QGenc code generator integration
-#
-# Semantix Information Technologies is licensing the code of the
-# Data Modelling Tools (DMT) in the following dual-license mode:
-#
-# Commercial Developer License:
-#       The DMT Commercial Developer License is the suggested version
-# to use for the development of proprietary and/or commercial software.
-# This version is for developers/companies who do not want to comply
-# with the terms of the GNU Lesser General Public License version 2.1.
-#
-# GNU LGPL v. 2.1:
-#       This version of DMT is the one to use for the development of
-# applications, when you are willing to comply with the terms of the
-# GNU Lesser General Public License version 2.1.
-#
-# Note that in both cases, there are no charges (royalties) for the
-# generated code.
-#
+# Licensed under the GPL with Runtime Exception.
+# Note that there are no charges (royalties) for the generated code.
 '''
 This is the implementation of the code mapper for Ada code.
 As initially envisioned, ASSERT technology is not supposed

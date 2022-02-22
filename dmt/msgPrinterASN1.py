@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+# (C) Semantix Information Technologies, Neuropublic, and European Space Agency
+#
+# Licensed under the GPL with Runtime Exception.
+# Note that there are no charges (royalties) for the generated code.
 '''
 This is one of the code generators that Semantix developed for
 the European research project ASSERT. It is now enhanced in the
@@ -7,26 +11,6 @@ context of Data Modelling and Data Modelling Tuning projects.
 It reads the ASN.1 specification of the exchanged messages, and
 generates printer-functions for their content.
 '''
-
-# (C) Semantix Information Technologies.
-#
-# Semantix Information Technologies is licensing the code of the
-# Data Modelling Tools (DMT) in the following dual-license mode:
-#
-# Commercial Developer License:
-#       The DMT Commercial Developer License is the suggested version
-# to use for the development of proprietary and/or commercial software.
-# This version is for developers/companies who do not want to comply
-# with the terms of the GNU Lesser General Public License version 2.1.
-#
-# GNU LGPL v. 2.1:
-#       This version of DMT is the one to use for the development of
-# applications, when you are willing to comply with the terms of the
-# GNU Lesser General Public License version 2.1.
-#
-# Note that in both cases, there are no charges (royalties) for the
-# generated code.
-#
 import os
 import sys
 import copy
