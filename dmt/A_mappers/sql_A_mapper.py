@@ -174,7 +174,8 @@ def CreateBasic(nodeTypename: str, node: AsnBasicNode, leafTypeDict: AST_Leaftyp
         'INTEGER': 'int',
         'REAL': 'float',
         'BOOLEAN': 'boolean',
-        'OCTET STRING': 'VARCHAR'
+        'OCTET STRING': 'VARCHAR',
+        'AsciiString': 'VARCHAR'
     }[baseType]
     constraint = ""
     if isinstance(node, AsnOctetString):
@@ -293,7 +294,8 @@ def OnShutdown(badTypes: SetOfBadTypenames) -> None:
     typenameList = []  # type: List[str]
     for nodeTypename in sorted(list(g_innerTypes) + list(g_names.keys())):
         if nodeTypename in badTypes:
-            continue
+            # Keep IA5Strings in SQL backend
+            pass
         if nodeTypename not in typenameList:
             typenameList.append(nodeTypename)
     typesDoneSoFar = set()  # type: Set[str]

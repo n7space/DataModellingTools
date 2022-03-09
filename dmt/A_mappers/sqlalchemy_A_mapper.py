@@ -162,7 +162,8 @@ def CreateBasic(nodeTypename: str, node: AsnBasicNode, leafTypeDict: AST_Leaftyp
         'INTEGER': 'Integer',
         'REAL': 'Float',
         'BOOLEAN': 'Boolean',
-        'OCTET STRING': 'String'
+        'OCTET STRING': 'String',
+        'AsciiString': 'String'
     }[baseType]
     constraint = ""
     if isinstance(node, AsnString):
@@ -512,7 +513,8 @@ def OnShutdown(badTypes: SetOfBadTypenames) -> None:
     typenameList = []  # type: List[str]
     for nodeTypename in sorted(list(g_innerTypes.keys()) + list(g_names.keys())):
         if nodeTypename in badTypes:
-            continue
+            # Keep IA5Strings in SQLAlchemy backend
+            pass
         if nodeTypename not in typenameList:
             typenameList.append(nodeTypename)
 

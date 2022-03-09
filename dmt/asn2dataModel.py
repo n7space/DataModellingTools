@@ -202,8 +202,8 @@ def main() -> None:
             names = uniqueASNfiles[asnFile][0]
             for nodeTypename in sorted(names):
                 # Check if this type must be skipped
-                if nodeTypename in badTypes and modelingLanguage.lower() != 'python':
-                    # all languages but python discard IA5Strings
+                if nodeTypename in badTypes and modelingLanguage.lower() not in ('python', 'sql', 'sqlalchemy'):
+                    # all languages but python and SQL/SQLAlchemy discard IA5Strings
                     continue
                 node = names[nodeTypename]
                 inform("Processing %s (%s)...", nodeTypename, modelingLanguage)
