@@ -119,10 +119,10 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
             self.dir = outputDir
             self.useOSS = useOSS
 
-            outputADAsourceFilename = self.CleanNameAsADAWants(subProgram._id + "_" + subProgramImplementation) + "_wrapper.adb"
-            outputADAsourceFilename = outputADAsourceFilename.lower()
-            outputADAheaderFilename = self.CleanNameAsADAWants(subProgram._id + "_" + subProgramImplementation) + "_wrapper.ads"
-            outputADAheaderFilename = outputADAheaderFilename.lower()
+            ada_pkg_name = self.CleanNameAsADAWants(maybeFVname)
+
+            outputADAsourceFilename = (ada_pkg_name + ".adb").lower()
+            outputADAheaderFilename = (ada_pkg_name + ".ads").lower()
 
             inform(str(self.__class__) + ": Creating file '%s'...", outputADAheaderFilename)
             self.ADA_HeaderFile = open(outputDir + outputADAheaderFilename, 'w')
@@ -132,16 +132,30 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
 
             self.asn_name = os.path.basename(os.path.splitext(asnFile)[0])
 
-            self.ADA_HeaderFile.write('with taste_dataview;\n')
-            self.ADA_HeaderFile.write('use taste_dataview;\n')
-            self.ADA_HeaderFile.write(
-                'package %s is\n\n' %
-                self.CleanNameAsADAWants(subProgram._id + "_" + subProgramImplementation + "_wrapper"))
+            self.ADA_HeaderFile.write('with Interfaces,\n' +
+                                      '     Interfaces.C.Strings,\n' +
+                                      '     Ada.Characters.Handling,\n' +
+                                      '     TASTE_BasicTypes;\n')
+
+            # dataview packages that shall be imported by the header:
+            dataview_wrappers_dir = self.dir + "src/"
+            if os.path.exists(dataview_wrappers_dir):
+                dataview_pkgs = '\n'.join({"with " + os.path.splitext(f)[0] + "; use " + os.path.splitext(f)[0] + ";" for f in os.listdir(dataview_wrappers_dir)})
+            else:
+                dataview_pkgs = ''
+            self.ADA_HeaderFile.write('use Interfaces,\n' +
+                                      '     Interfaces.C.Strings,\n' +
+                                      '     Ada.Characters.Handling,\n' +
+                                      '     TASTE_BasicTypes;\n')
+            self.ADA_HeaderFile.write(dataview_pkgs + '\n\n')
+            self.ADA_HeaderFile.write('with qgen_type_wrap_io_qgen_entry_%s;\n' % self.CleanNameAsADAWants(subProgram._id))
+            self.ADA_HeaderFile.write('use qgen_type_wrap_io_qgen_entry_%s;\n' % self.CleanNameAsADAWants(subProgram._id))
+
+            self.ADA_HeaderFile.write('package %s is\n\n' % ada_pkg_name)
 
             self.ADA_SourceFile.write('with qgen_entry_%s;\n' % self.CleanNameAsADAWants(subProgram._id))
-            self.ADA_SourceFile.write(
-                'package body %s is\n\n' %
-                self.CleanNameAsADAWants(subProgram._id + "_" + subProgramImplementation + "_wrapper"))
+            self.ADA_SourceFile.write('use qgen_entry_%s;\n' % self.CleanNameAsADAWants(subProgram._id))
+            self.ADA_SourceFile.write('package body %s is\n\n' % ada_pkg_name)
         else:
             self.dir = outputDir
             self.useOSS = useOSS
@@ -225,17 +239,19 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
         srcVar = self.SourceVar(nodeTypename, encoding, node, subProgram, subProgramImplementation, param, leafTypeDict, names)  # pylint: disable=assignment-from-no-return
 
         if subProgramImplementation == "QGenAda":
+            QgenAda_output_type = 'qgen_entry_%s_comp_Output' % self.CleanNameAsADAWants(subProgram._id)
+
             self.ADA_HeaderFile.write(
-                "    procedure Ada_%s(QGen_OUT : in %s; T_OUT : out %s);\n" %
-                (tmpSpName, self.CleanNameAsToolWants(nodeTypename), "asn1Scc" + self.CleanNameAsToolWants(nodeTypename)))
+                "    procedure Ada_%s(QGen_In : in %s; T_OUT : in out %s);\n\n" %
+                (tmpSpName, QgenAda_output_type, "asn1Scc" + self.CleanNameAsToolWants(nodeTypename)))
             self.ADA_SourceFile.write(
-                "    procedure Ada_%s(QGen_OUT : in %s; T_OUT : out %s) is\n" %
-                (tmpSpName, self.CleanNameAsToolWants(nodeTypename), "asn1Scc" + self.CleanNameAsToolWants(nodeTypename)))
-            self.ADA_SourceFile.write('begin\n')
+                "    procedure Ada_%s(QGen_In : in %s; T_OUT : in out %s) is\n" %
+                (tmpSpName, QgenAda_output_type, "asn1Scc" + self.CleanNameAsToolWants(nodeTypename)))
+            self.ADA_SourceFile.write('    begin\n')
 
             toolToAsn1 = self.FromToolToASN1SCC()  # pylint: disable=assignment-from-no-return
             lines = toolToAsn1.Map(
-                "QGen_OUT",
+                "QGen_In." + self.CleanNameAsADAWants(param._id),
                 "T_OUT",
                 node,
                 leafTypeDict,
@@ -396,18 +412,20 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
         targetVar = self.TargetVar(nodeTypename, encoding, node, subProgram, subProgramImplementation, param, leafTypeDict, names)  # pylint: disable=assignment-from-no-return
 
         if subProgramImplementation == "QGenAda":
+            QgenAda_input_type = 'qgen_entry_%s_comp_Input' % self.CleanNameAsADAWants(subProgram._id)
+
             self.ADA_HeaderFile.write(
-                "    procedure Ada_%s(T_IN : in %s; QGen_IN : out %s);\n" %
-                (tmpSpName, "asn1Scc" + self.CleanNameAsToolWants(nodeTypename), self.CleanNameAsToolWants(nodeTypename)))
+                "    procedure Ada_%s(T_IN : in %s; QGen_Out : in out %s);\n\n" %
+                (tmpSpName, "asn1Scc" + self.CleanNameAsToolWants(nodeTypename), QgenAda_input_type))
             self.ADA_SourceFile.write(
-                "    procedure Ada_%s(T_IN : in %s; QGen_IN : out %s) is\n" %
-                (tmpSpName, "asn1Scc" + self.CleanNameAsToolWants(nodeTypename), self.CleanNameAsToolWants(nodeTypename)))
+                "    procedure Ada_%s(T_IN : in %s; QGen_Out : in out %s) is\n" %
+                (tmpSpName, "asn1Scc" + self.CleanNameAsToolWants(nodeTypename), QgenAda_input_type))
             self.ADA_SourceFile.write('    begin\n')
 
             asn1ToTool = self.FromASN1SCCtoTool()  # pylint: disable=assignment-from-no-return
             lines = asn1ToTool.Map(
                 "T_IN",
-                "QGen_IN",
+                "QGen_Out." + self.CleanNameAsADAWants(param._id),
                 node,
                 leafTypeDict,
                 names) if asn1ToTool else []
@@ -596,19 +614,29 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
 
     def OnShutdown(self, modelingLanguage: str, asnFile: str, sp: ApLevelContainer, subProgramImplementation: str, maybeFVname: str) -> None:
         if modelingLanguage == "QGenAda":
-            self.ADA_HeaderFile.write("    procedure Execute_%s (" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
-            self.ADA_SourceFile.write("    procedure Execute_%s (" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
+            ada_pkg_name = self.CleanNameAsADAWants(maybeFVname)
+
+            execute_proc_name = "Execute_" + self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation)
+
+            self.ADA_HeaderFile.write("    procedure %s (" % execute_proc_name)
+            self.ADA_SourceFile.write("    procedure %s (" % execute_proc_name)
             for param in sp._params:
                 if param._id != sp._params[0]._id:
                     self.ADA_HeaderFile.write('; ')
                     self.ADA_SourceFile.write('; ')
-                self.ADA_HeaderFile.write(self.CleanNameAsToolWants(param._id) + " : access asn1Scc" + self.CleanNameAsToolWants(param._signal._asnNodename))
-                self.ADA_SourceFile.write(self.CleanNameAsToolWants(param._id) + " : access asn1Scc" + self.CleanNameAsToolWants(param._signal._asnNodename))
+                self.ADA_HeaderFile.write(self.CleanNameAsToolWants(param._id) + " : in out asn1Scc" + self.CleanNameAsToolWants(param._signal._asnNodename))
+                self.ADA_SourceFile.write(self.CleanNameAsToolWants(param._id) + " : in out asn1Scc" + self.CleanNameAsToolWants(param._signal._asnNodename))
 
-            self.ADA_HeaderFile.write(");\n")
+            self.ADA_HeaderFile.write(");\n" +
+                                      "    pragma Export (C, %s, \"%s_PI_%s\");\n\n" % (execute_proc_name, maybeFVname, sp._id))
+
             self.ADA_SourceFile.write(") is\n")
-            for param in sp._params:
-                self.ADA_SourceFile.write("        %s : aliased %s;\n" % ("QGen_" + self.CleanNameAsToolWants(param._id), self.CleanNameAsToolWants(param._signal._asnNodename)))
+            QgenAda_input_par = "QGen_Input_" + self.CleanNameAsADAWants(sp._id)
+            QgenAda_input_type = 'qgen_entry_%s_comp_Input' % self.CleanNameAsADAWants(sp._id)
+            self.ADA_SourceFile.write("        %s : %s;\n" % (QgenAda_input_par, QgenAda_input_type))
+            QgenAda_output_par = "QGen_Output_" + self.CleanNameAsADAWants(sp._id)
+            QgenAda_output_type = 'qgen_entry_%s_comp_Output' % self.CleanNameAsADAWants(sp._id)
+            self.ADA_SourceFile.write("        %s : %s;\n" % (QgenAda_output_par, QgenAda_output_type))
             self.ADA_SourceFile.write("    begin\n\n")
             for param in sp._params:
                 nodeTypename = param._signal._asnNodename
@@ -620,17 +648,12 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                      self.CleanNameAsADAWants(param._id))
                 if isinstance(param, InParam):
                     self.ADA_SourceFile.write(
-                        '        %s(%s.all, QGen_%s);\n' % (
+                        '        %s(%s, %s);\n' % (
                             tmpSpName,
                             self.CleanNameAsToolWants(param._id),
-                            self.CleanNameAsToolWants(param._id)))
+                            QgenAda_input_par))
 
-            self.ADA_SourceFile.write("\n        qgen_entry_%s.comp (" % self.CleanNameAsADAWants(sp._id))
-            for param in sp._params:
-                if param._id != sp._params[0]._id:
-                    self.ADA_SourceFile.write(', ')
-                self.ADA_SourceFile.write("QGen_" + self.CleanNameAsToolWants(param._id))
-            self.ADA_SourceFile.write(");\n\n")
+            self.ADA_SourceFile.write("\n        comp (%s, %s);\n\n" % (QgenAda_input_par, QgenAda_output_par))
 
             # Encode outputs
             for param in sp._params:
@@ -643,17 +666,15 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                      param._id)
                 if isinstance(param, (InOutParam, OutParam)):  # pylint: disable=assignment-from-no-return
                     self.ADA_SourceFile.write(
-                        '        %s(QGen_%s, %s.all);\n' % (
+                        '        %s(%s, %s);\n' % (
                             tmpSpName,
-                            self.CleanNameAsToolWants(param._id),
+                            QgenAda_output_par,
                             self.CleanNameAsToolWants(param._id)))
             self.ADA_SourceFile.write("    end Execute_%s;\n" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
-            self.ADA_SourceFile.write(
-                'end %s;\n' %
-                self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation + "_wrapper"))
-            self.ADA_HeaderFile.write(
-                'end %s;\n' %
-                self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation + "_wrapper"))
+            self.ADA_SourceFile.write("begin\n")
+            self.ADA_SourceFile.write("    init;\n")
+            self.ADA_SourceFile.write('end %s;\n' % ada_pkg_name)
+            self.ADA_HeaderFile.write('end %s;\n' % ada_pkg_name)
 
         else:
             if genFpgaDevDrv:

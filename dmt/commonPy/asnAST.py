@@ -85,6 +85,9 @@
 #
 #     "The use case is two-fold - for SEQUENCE :
 #
+#     MyOtherSeq ::= SEQUENCE {
+#        a Type-a OPTIONAL,
+#        b Type-b OPTIONAL }
 #     MySeq ::= MyOtherSeq (WITH COMPONENTS {..., b ABSENT })
 #
 #     ...and for CHOICE:
@@ -94,7 +97,7 @@
 #        tc-5-4 , .....}
 #     TC-Subset ::= AllPossibleTC (WITH COMPONENTS {tc-6-1 ABSENT})
 #
-#     So alwaysPresent is NOT the negative of alwaysPresent:
+#     So alwaysPresent is NOT the negative of alwaysAbsent:
 #     a field can be optional, OR always present, OR always absent
 
 from typing import List, Union, Dict, Any  # NOQA pylint: disable=unused-import
