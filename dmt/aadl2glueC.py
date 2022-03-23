@@ -117,7 +117,6 @@ g_async_mappers = {
     'Ada': ada_B_mapper,
     'SDL': sdl_B_mapper,
     'OG': og_B_mapper,
-    'QGenAda': qgenada_B_mapper,
     'RTDS': rtds_B_mapper,
 }
 
@@ -128,13 +127,14 @@ g_sync_mappers = {
     'gui': gui_B_mapper,
     'python': python_B_mapper,
     'QGenC': qgenc_B_mapper,
+    'QGenAda': qgenada_B_mapper,
     'vhdl': vhdl_B_mapper,
 }
 
 
 def ParseAADLfilesAndResolveSignals() -> None:
     '''Invokes the ANTLR generated AADL parser, and resolves
-all references to AAADL Data types into the param._signal member
+all references to AADL Data types into the param._signal member
 of each SUBPROGRAM param.'''
     projectCache = os.getenv("PROJECT_CACHE")
     if projectCache is not None:
@@ -246,6 +246,8 @@ def getSyncBackend(modelingLanguage: str) -> Sync_B_Mapper:
     return cast(Sync_B_Mapper, g_sync_mappers[modelingLanguage])
 
 
+# sp means subprogram
+# maybeFVname: name of the TASTE function that contains the subprogram.
 def ProcessSync(
         modelingLanguage: str,
         asnFile: str,

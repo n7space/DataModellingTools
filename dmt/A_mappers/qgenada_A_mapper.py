@@ -68,7 +68,6 @@ def OnStartup(unused_modelingLanguage: str, asnFiles: List[str], outputDir: str,
     outputFilename = "Simulink_DataView_asn.m"
     inform("QGenAda_A_mapper: Creating file '%s'...", outputFilename)
     global g_outputFile
-    outputDir += "../"
     g_outputFile = open(outputDir + outputFilename, 'w')
     g_definedTypes.clear()
     global g_octetStrings
