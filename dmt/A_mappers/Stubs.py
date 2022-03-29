@@ -356,6 +356,8 @@ grep for the errorcode value inside ASN1SCC generated headers."""
 # OCTET STRING
 
     def SetFromPyString(self, src):
+        # This function is shared between IA5String and OCTET STRING
+        # therefore the caller may be sending a string or bytes
         strLength = len(src)
         self.SetLength(strLength, False)
         self._Caccessor += "_iDx"
@@ -364,7 +366,12 @@ grep for the errorcode value inside ASN1SCC generated headers."""
             for idx in range(0, strLength):
                 self._params.append(idx)
                 self._accessPath = accessPath + "[" + str(idx) + "]"
-                self.Set(ord(src[idx]), reset=False)
+                try:
+                    # if src is a string
+                    self.Set(ord(src[idx]), reset=False)
+                except:
+                    # If src is a set of bytes
+                    self.Set(src[idx], reset=False)
                 self._params.pop()
         else:
             for idx in range(0, strLength):
@@ -386,7 +393,13 @@ grep for the errorcode value inside ASN1SCC generated headers."""
                 retval += bytes([self.Get(reset=False)])
                 self._params.pop()
             self.Reset()
-            return retval.decode("utf-8")
+            try:
+                # This function is shared between IA5String and OCTET STRING
+                # therefore some callers expect a string, while other expect
+                # bytes (OCTET STRING may have non-ASCII, obviously)
+                return retval.decode("utf-8")
+            except:
+                return retval
         else:
             retval = ""
             strLength = self.GetLength(False)
