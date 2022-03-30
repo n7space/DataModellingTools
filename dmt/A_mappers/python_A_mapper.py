@@ -480,8 +480,7 @@ def DumpTypeDumper(
         lines.append(f"{codeIndent}value = {variableName}.GetPyString()")
         lines.append(f'''{codeIndent}if isinstance(value, str): value = '"' + value.replace('\\x00', '') + '"' ''')
         lines.append(f'''{codeIndent}else: value = "'" + value.hex().upper() + "'H"''')
-        lines.append(codeIndent +
-            'lines.append("%s"+value)' % (outputIndent))
+        lines.append(codeIndent + 'lines.append("%s"+value)' % (outputIndent))
         if variableName.startswith("path[i]"):
             lines.append(codeIndent + 'path.Reset(state)')
     elif isinstance(node, AsnEnumerated):
