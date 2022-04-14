@@ -381,8 +381,12 @@ grep for the errorcode value inside ASN1SCC generated headers."""
                 self._params.pop()
         self.Reset()
 
-    def GetPyString(self):
-        ''' Return an OCTET STRING as bytes '''
+    def GetPyString(self, tryToDecodeAscii=True):
+        ''' Return an OCTET STRING as bytes ; by default try to decode
+        the bytes as a printable ASCII string to keep backward compatibility.
+        Applications should set this flag to False and use the GetAsciiString
+        function (see below) to get the value of IA5Strings.
+        '''
         if sys.version_info > (3,):
             retval = b""
             strLength = self.GetLength(False)
@@ -394,13 +398,12 @@ grep for the errorcode value inside ASN1SCC generated headers."""
                 retval += bytes([self.Get(reset=False)])
                 self._params.pop()
             self.Reset()
-            try:
-                # This function should not be called to decode IA5String
-                # (use GetAscii string for that purpose), except for legacy
-                # code support.
-                return retval.decode("utf-8")
-            except:
-                return retval
+            if tryToDecodeAscii:
+                try:
+                    return retval.decode("utf-8")
+                except:
+                    pass
+            return retval
         else:
             retval = ""
             strLength = self.GetLength(False)

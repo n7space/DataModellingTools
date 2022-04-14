@@ -476,18 +476,17 @@ def DumpTypeDumper(
             codeIndent + 'lines.append("%s"+str(%s.Get()))' % (outputIndent, variableName))
         if variableName.startswith("path[i]"):
             lines.append(codeIndent + 'path.Reset(state)')
-    elif isinstance(node, AsnString):
-        # OCTET STRING only
-        lines.append(f"{codeIndent}value = {variableName}.GetPyString()")
-        lines.append(f'''{codeIndent}if isinstance(value, str): value = '"' + value.replace('\\x00', '') + '"' ''')
-        lines.append(f'''{codeIndent}else: value = "'" + value.hex().upper() + "'H"''')
+    elif isinstance(node, AsnAsciiString):
+        # IA5String (as a subtype of AsnString, it must be tested before)
+        lines.append(f"{codeIndent}value = {variableName}.GetAsciiString()")
+        lines.append(f'''{codeIndent}value = '"' + value + '"' ''')
         lines.append(codeIndent + 'lines.append("%s"+value)' % (outputIndent))
         if variableName.startswith("path[i]"):
             lines.append(codeIndent + 'path.Reset(state)')
-    elif isinstance(node, AsnAsciiString):
-        # IA5String
-        lines.append(f"{codeIndent}value = {variableName}.GetAsciiString()")
-        lines.append(f'''{codeIndent}value = '"' + value + '"' ''')
+    elif isinstance(node, AsnString):
+        # OCTET STRING only
+        lines.append(f"{codeIndent}value = {variableName}.GetPyString(tryToDecodeAscii=False)")
+        lines.append(f'''{codeIndent}value = "'" + value.hex().upper() + "'H"''')
         lines.append(codeIndent + 'lines.append("%s"+value)' % (outputIndent))
         if variableName.startswith("path[i]"):
             lines.append(codeIndent + 'path.Reset(state)')
