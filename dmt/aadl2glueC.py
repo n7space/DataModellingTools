@@ -602,7 +602,8 @@ def main() -> None:
             assert asnFile == param._signal._asnFilename
             nodeTypename = param._signal._asnNodename
             node = commonPy.asnParser.g_names[nodeTypename]
-            if node._leafType == "AsciiString" or nodeTypename in badTypes:
+            if (node._leafType == "AsciiString" or nodeTypename in badTypes) and (
+                    modelingLanguage not in ('C', 'Ada')):
                 panic("For type %s:\n\tIA5String and types that depend on them cannot "
                       "be used as a parameter.\n\tUse OCTET STRINGs instead!\n\t(%s)" % (
                           nodeTypename, node.Location()))  # pragma: no cover
