@@ -8,7 +8,7 @@ from typing import List, IO, Any
 from ..commonPy.asnAST import (
     AsnInt, AsnBool, AsnReal, AsnEnumerated,
     AsnOctetString, AsnChoice, AsnSequence, AsnSet,
-    AsnSequenceOf, AsnSetOf, AsnMetaMember, AsnNode)
+    AsnAsciiString, AsnSequenceOf, AsnSetOf, AsnMetaMember, AsnNode)
 
 from ..commonPy.utility import panic
 from ..commonPy.asnParser import AST_Lookup, AST_Leaftypes
@@ -589,7 +589,7 @@ def WriteCodeForGUIControls(prefixes: List[str],  # pylint: disable=invalid-sequ
             if item:
                 pyStr += '''["{prefixKey}"]'''.format(prefixKey=item)
 
-    if isinstance(node, (AsnInt, AsnReal, AsnOctetString)):
+    if isinstance(node, (AsnInt, AsnReal, AsnOctetString, AsnAsciiString)):
         if isinstance(node, AsnInt):
             if g_onceOnly:
                 g_PyDataModel.write(
@@ -604,7 +604,7 @@ def WriteCodeForGUIControls(prefixes: List[str],  # pylint: disable=invalid-sequ
                         nodeTypename, node._name, txtPrefix, isOptional, alwaysPresent, alwaysAbsent,
                         node._range[0], node._range[1]))
 
-        elif isinstance(node, AsnOctetString):
+        elif isinstance(node, (AsnOctetString, AsnAsciiString)):
             if g_onceOnly:
                 g_PyDataModel.write(
                     '''{'nodeTypename': '%s', 'type': 'STRING', 'id': '%s', 'isOptional': %s, 'alwaysPresent': %s, 'alwaysAbsent': %s, 'minSize': %d, 'maxSize': %d}''' % (

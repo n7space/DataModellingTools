@@ -382,6 +382,7 @@ grep for the errorcode value inside ASN1SCC generated headers."""
         self.Reset()
 
     def GetPyString(self):
+        ''' Return an OCTET STRING as bytes '''
         if sys.version_info > (3,):
             retval = b""
             strLength = self.GetLength(False)
@@ -394,12 +395,39 @@ grep for the errorcode value inside ASN1SCC generated headers."""
                 self._params.pop()
             self.Reset()
             try:
-                # This function is shared between IA5String and OCTET STRING
-                # therefore some callers expect a string, while other expect
-                # bytes (OCTET STRING may have non-ASCII, obviously)
+                # This function should not be called to decode IA5String
+                # (use GetAscii string for that purpose), except for legacy
+                # code support.
                 return retval.decode("utf-8")
             except:
                 return retval
+        else:
+            retval = ""
+            strLength = self.GetLength(False)
+            self._Caccessor += "_iDx"
+            accessPath = self._accessPath
+            for idx in range(0, strLength):
+                self._params.append(idx)
+                self._accessPath = accessPath + "[" + str(idx) + "]"
+                retval += chr(self.Get(reset=False))
+                self._params.pop()
+            self.Reset()
+            return retval
+
+    def GetAsciiString(self):
+        ''' Return IA5String '''
+        if sys.version_info > (3,):
+            retval = b""
+            strLength = self.GetLength(False)
+            self._Caccessor += "_iDx"
+            accessPath = self._accessPath
+            for idx in range(0, strLength):
+                self._params.append(idx)
+                self._accessPath = accessPath + "[" + str(idx) + "]"
+                retval += bytes([self.Get(reset=False)])
+                self._params.pop()
+            self.Reset()
+            return retval.decode("utf-8")
         else:
             retval = ""
             strLength = self.GetLength(False)

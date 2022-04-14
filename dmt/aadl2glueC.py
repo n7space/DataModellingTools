@@ -454,7 +454,7 @@ def ProcessCustomBackends(
             # if node._isArtificial:
             #     continue # artificially created (inner) type pragma: no cover
             leafType = leafTypeDict[nodeTypename]
-            if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING']:
+            if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'AsciiString']:
                 for backend in getCustomBackends(lang):
                     backend.OnBasic(nodeTypename, node, sp, sp_impl, param, leafTypeDict, names)
             elif leafType in ['SEQUENCE', 'SET', 'CHOICE', 'SEQUENCEOF', 'SETOF', 'ENUMERATED']:
@@ -603,7 +603,7 @@ def main() -> None:
             nodeTypename = param._signal._asnNodename
             node = commonPy.asnParser.g_names[nodeTypename]
             if (node._leafType == "AsciiString" or nodeTypename in badTypes) and (
-                    modelingLanguage not in ('C', 'Ada')):
+                    modelingLanguage not in ('C', 'Ada', "GUI_PI", "GUI_RI")):
                 panic("For type %s:\n\tIA5String and types that depend on them cannot "
                       "be used as a parameter.\n\tUse OCTET STRINGs instead!\n\t(%s)" % (
                           nodeTypename, node.Location()))  # pragma: no cover

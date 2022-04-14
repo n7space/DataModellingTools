@@ -217,7 +217,8 @@ def OnStartup(modelingLanguage: str,
         g_SourceFile.write('    }\n')
         g_SourceFile.write('    %s_TCDATA data;\n' % CleanSP)
         g_SourceFile.write('    data.tc_id = (int) i_%s;\n' % CleanSP)
-        g_SourceFile.write('    data.%s = * (%s *) p_%s;\n' % (CleanParam, CleanName(nodeTypename), CleanParam))
+#        g_SourceFile.write('    data.%s = * (%s *) p_%s;\n' % (CleanParam, CleanName(nodeTypename), CleanParam))
+        g_SourceFile.write('    memcpy(&data.%s, p_%s, sizeof(%s));\n' % (CleanParam, CleanParam, CleanName(nodeTypename)))
         g_SourceFile.write('    if (((mqd_t)-1) != q) {\n')
         g_SourceFile.write('        write_message_to_queue(q, sizeof(%s_TCDATA)-4, &data.%s, data.tc_id);\n' %
                            (CleanSP, subProgram._params[0]._id))
