@@ -606,10 +606,17 @@ def WriteCodeForGUIControls(prefixes: List[str],  # pylint: disable=invalid-sequ
 
         elif isinstance(node, (AsnOctetString, AsnAsciiString)):
             if g_onceOnly:
+                stringKind = "IA5String" if isinstance(node, AsnAsciiString)\
+                        else "OCTET STRING"
                 g_PyDataModel.write(
-                    '''{'nodeTypename': '%s', 'type': 'STRING', 'id': '%s', 'isOptional': %s, 'alwaysPresent': %s, 'alwaysAbsent': %s, 'minSize': %d, 'maxSize': %d}''' % (
-                        nodeTypename, txtPrefix, isOptional, alwaysPresent, alwaysAbsent,
-                        node._range[0], node._range[1]))
+                        f"{{'nodeTypename': '{nodeTypename}', \
+                           'type': '{stringKind}', \
+                           'id': '{txtPrefix}', \
+                           'isOptional': {isOptional}, \
+                           'alwaysPresent': {alwaysPresent}, \
+                           'alwaysAbsent': {alwaysAbsent}, \
+                           'minSize': {node._range[0]}, \
+                           'maxSize': {node._range[1]}}}")
 
     elif isinstance(node, AsnBool):
         if g_onceOnly:
