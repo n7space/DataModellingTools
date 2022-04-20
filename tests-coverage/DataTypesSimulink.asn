@@ -112,6 +112,7 @@ myStrFixed FixedLenConfigString ::= "Hello"
 
 T-TypeThatMustNotBeMappedExceptInPython ::= SEQUENCE {
     config  ConfigString,
+    moreConfigs  SEQUENCE SIZE(2) OF ConfigString,
     param   INTEGER (0..10),
    fixstr  FixedLenConfigString DEFAULT "Hello"
 }
@@ -120,10 +121,10 @@ TypeWithOptional ::= SEQUENCE {
    a BOOLEAN OPTIONAL,
    b INTEGER (0..255|1299),
    c INTEGER (0..255),
-   d T-TypeThatMustNotBeMappedExceptInPython DEFAULT {config "Config", param 5, fixstr "World"}
+   d T-TypeThatMustNotBeMappedExceptInPython DEFAULT {config "Config", moreConfigs {"a", "b"}, param 5, fixstr "World"}
 }
 
-push-it T-TypeThatMustNotBeMappedExceptInPython ::= {config "Config", param 5, fixstr "World"}
+push-it T-TypeThatMustNotBeMappedExceptInPython ::= {config "Config", moreConfigs {"a", "b"}, param 5, fixstr "World"}
 
 SubTypeWithOptional ::= TypeWithOptional (WITH COMPONENTS {a ABSENT, c (42), b (1299)})
 
