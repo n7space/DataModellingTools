@@ -1002,9 +1002,9 @@ def PrintGrammarFromASTtoStdOut() -> None:
 
 def AsnUnparser(filehandle=sys.stdout) -> None:
     print('MY-MODULE DEFINITIONS AUTOMATIC TAGS ::= BEGIN\n\n', file=filehandle)
-    for typeName in g_names:  # pragma: no cover
+    for typeName, node in g_names.items():  # pragma: no cover
         print(f"{typeName} ::= ", file=filehandle, end='')  # pragma: no cover
-        print(g_names[typeName].AsASN1(g_names), file=filehandle)  # pragma: no cover
+        print(node.AsASN1(g_names), file=filehandle)  # pragma: no cover
     print('\nEND\n', file=filehandle)
 
 
