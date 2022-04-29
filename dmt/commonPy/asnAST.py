@@ -797,6 +797,9 @@ e.g.:
         assert self._leafType is not None   # pragma: no cover
         return result  # pragma: no cover
 
+    def AsASN1(self, _: Lookup) -> str:  # pylint: disable=no-self-use
+        return self._containedType
+
 # Helper functions
 
 
