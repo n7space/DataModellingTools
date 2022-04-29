@@ -277,7 +277,11 @@ Members:
 
     def AsASN1(self, _: Lookup) -> str:
         ret = 'REAL'
-        if self._range:
+        if self._range == 'float':
+            ret += ' (-3.4e38 .. 3.4e38)'
+        elif self._range == 'double':
+            ret += ' (-1.7e308 .. 1.7e308)'
+        elif self._range:
             ret += ' (' + ("%f" % self._range[0]) + ' .. ' + ("%f" % self._range[1]) + ')'
         return ret
 
