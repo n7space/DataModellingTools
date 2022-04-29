@@ -1000,6 +1000,16 @@ def PrintGrammarFromASTtoStdOut() -> None:
     PrintGrammarFromAST(sys.stdout)
 
 
+def AsnUnparser(filehandle=sys.stdout) -> None:
+    print('MY-MODULE DEFINITIONS AUTOMATIC TAGS ::= BEGIN\n\n', file=filehandle)
+    for typeName in g_names.keys():
+        if typeName in g_names:
+            # print("[-] Dumping ASN.1 form of %s" % typeName)
+            print(f"{typeName} ::= ", file=filehandle, end='')
+            print(g_names[typeName].AsASN1(g_names), file=filehandle)
+    print('\nEND\n', file=filehandle)
+
+
 def test_xml() -> None:
     if len(sys.argv) != 2 or not os.path.isfile(sys.argv[1]):
         sys.stderr.write("Missing or invalid path provided!\n")

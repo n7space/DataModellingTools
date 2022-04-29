@@ -122,10 +122,10 @@ class AsnNode:
         return "file %s, line %d" % (self._asnFilename, int(self._lineno))  # pragma: no cover
 
     def IdenticalPerSMP2(self, unused_other: 'AsnNode', unused_mynames: Lookup, unused_othernames: Lookup) -> bool:  # pylint: disable=no-self-use
-        utility.panic("internal error: Must be defined in derived class...")
+        utility.panic("internal error: IdenticalPerSMP2 must be defined in derived class...")
 
     def AsASN1(self, _: Lookup) -> str:  # pylint: disable=no-self-use
-        utility.panic("internal error: Must be defined in derived class...")
+        utility.panic("internal error: AsASN1 must be defined in derived class...")
 
 
 class AsnBasicNode(AsnNode):
@@ -471,13 +471,18 @@ def CommonAsASN1(kind: str, node: TypeWithMembers, typeDict: Lookup) -> str:
     ret = []
     for m in node._members:
         child = m[1]
+        unknownChildType = False
         if isinstance(child, AsnMetaMember):
             child = child._containedType
             while isinstance(child, str):
                 if child not in typeDict:
-                    utility.panic("There's no such type in typename dictionary: '%s'" % child)
+                    utility.warn("There's no such type in typename dictionary: '%s'" % child)
+                    ret.append(m[0] + ' ' + child)
+                    unknownChildType = True
+                    break
                 child = typeDict[child]
-        ret.append(m[0] + ' ' + child.AsASN1(typeDict))
+        if not unknownChildType:
+            ret.append(m[0] + ' ' + child.AsASN1(typeDict))
     return kind + ' {' + ", ".join(ret) + "}"
 
 
@@ -755,6 +760,9 @@ Members:
         result += " of type "
         result += self._containedType
         return result
+
+    def AsASN1(self, _: Lookup) -> str:  # pylint: disable=no-self-use
+        return self._containedType
 
 
 class AsnMetaType(AsnNode):
