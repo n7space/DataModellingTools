@@ -116,6 +116,7 @@ class AsnNode:
         self._asnFilename = asnFilename
         self._lineno = -1
         self._isArtificial = False
+        self._comment = None
         self.hasAcnEncDec = True
 
     def Location(self) -> str:
