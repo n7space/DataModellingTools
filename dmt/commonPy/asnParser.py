@@ -1005,7 +1005,7 @@ def AsnUnparser(filehandle=sys.stdout) -> None:
     for typeName, node in g_names.items():  # pragma: no cover
         if node._comment:
             print("\n-- " + "\n-- ".join(node._comment.split("\n")) + "\n",
-                file=filehandle, end='')  # pragma: no cover
+                  file=filehandle, end='')  # pragma: no cover
         print(f"{typeName} ::= ", file=filehandle, end='')  # pragma: no cover
         print(node.AsASN1(g_names), file=filehandle)  # pragma: no cover
     print('\nEND\n', file=filehandle)
