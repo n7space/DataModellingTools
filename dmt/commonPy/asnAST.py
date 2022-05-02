@@ -487,7 +487,11 @@ def CommonAsASN1(kind: str, node: TypeWithMembers, typeDict: Lookup) -> str:
                     break
                 child = typeDict[child]
         if not unknownChildType:
-            ret.append(m[0] + ' ' + child.AsASN1(typeDict))
+            result = ''
+            if child._comment:
+                result += '\n-- ' + "\n-- ".join(child._comment.split('\n')) + '\n'
+            result += m[0] + ' ' + child.AsASN1(typeDict)
+            ret.append(result)
     return kind + ' {' + ", ".join(ret) + "}"
 
 
