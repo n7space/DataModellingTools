@@ -655,10 +655,6 @@ def CommonIdenticalArrayCheck(me: TypeWithRange, other: TypeWithRange, mynames: 
 
 def CommonAsASN1array(kind: str, node: TypeWithRange, typeDict: Lookup) -> str:
     contained = node._containedType
-    while isinstance(contained, str):
-        if contained not in typeDict:
-            utility.panic("There's no such type in typename dictionary: '%s'" % contained)
-        contained = typeDict[contained]
     if node._range:
         if len(node._range) > 1 and node._range[0] != node._range[1]:
             span = ' (SIZE(' + str(node._range[0]) + ' .. ' + str(node._range[1]) + ')) OF '
@@ -666,7 +662,10 @@ def CommonAsASN1array(kind: str, node: TypeWithRange, typeDict: Lookup) -> str:
             span = ' (SIZE(' + str(node._range[0]) + ')) OF '
     else:
         span = ' OF '
-    return kind + span + contained.AsASN1(typeDict)
+    if isinstance(contained, str):
+        return kind + span + contained
+    else:
+        return kind + span + contained.AsASN1(typeDict)
 
 
 class AsnSequenceOf(AsnComplexNode):
