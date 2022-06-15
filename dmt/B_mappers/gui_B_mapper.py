@@ -933,7 +933,7 @@ def WriteCodeForAction(nodeTypename: str,
                      CleanName(nodeTypename))
     g_MyAction.write("        if (asn1Scc%s_Encode(&var_%s, &strm, &errorCode, TRUE) == FALSE) {\n" %
                      (CleanName(nodeTypename), CleanParam))
-    g_MyAction.write('            wxMessageBox(_T("Encoding of %s failed... Contact Semantix"), _T("Error encoding"), wxICON_ERROR);\n' % nodeTypename)
+    g_MyAction.write('            wxMessageBox(_T("Encoding of %s failed... Contact ESA"), _T("Error encoding"), wxICON_ERROR);\n' % nodeTypename)
     g_MyAction.write("\t\treturn;\n")
     g_MyAction.write("        } else {\n")
     WriteCodeForGnuPlot("TCDATA: ", node, subProgram, param, names)

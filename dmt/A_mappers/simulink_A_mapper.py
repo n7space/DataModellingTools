@@ -287,7 +287,7 @@ def CreateDeclarationForType(nodeTypename: str, names: AST_Lookup, leafTypeDict:
             panic("Simulink_A_mapper: Unexpected category of contained type (%s,%s)" % (node.Location(), str(contained)))  # pragma: no cover
 
     else:  # pragma: no cover
-        panic("Unexpected ASN.1 type... Send this grammar to Semantix")  # pragma: no cover
+        panic("Unexpected ASN.1 type... Send this grammar to ESA (maxime.perrotin@esa.int)")  # pragma: no cover
 
 
 def CreateDeclarationsForAllTypes(names: AST_Lookup, leafTypeDict: AST_Leaftypes) -> None:
