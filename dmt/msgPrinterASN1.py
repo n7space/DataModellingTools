@@ -10,6 +10,9 @@ context of Data Modelling and Data Modelling Tuning projects.
 
 It reads the ASN.1 specification of the exchanged messages, and
 generates printer-functions for their content.
+The printer functions respect the ASN.1 value notation
+They are used by the MSC tracing functionality (called from
+the _invoke_ri functions to dump parameter values)
 '''
 import os
 import sys
