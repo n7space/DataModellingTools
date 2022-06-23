@@ -72,8 +72,11 @@ class Printer(RecursiveMapper):
         lines.append("    int i;")
         limit = sourceSequenceLimit(node, srcCVariable)
         lines.append('    printf("%%s%s ", paramName);' % prefix)
+        lines.append('    printf("\'");')
         lines.append("    for(i=0; i<%s; i++)" % limit)
-        lines.append('        printf("%%c", %s.arr[i]);' % srcCVariable)
+        #lines.append('        printf("%%c", %s.arr[i]);' % srcCVariable)
+        lines.append('        printf("%%02x", %s.arr[i]);' % srcCVariable)
+        lines.append('    printf("\'H");')
         lines.append('    printf("\\n");')
         lines.append("}\n")
         return lines
