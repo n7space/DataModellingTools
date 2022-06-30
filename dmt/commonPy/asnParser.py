@@ -342,10 +342,11 @@ def CheckForInvalidKeywords(node_or_str: Union[str, AsnNode]) -> None:
                 if child[1]._containedType not in g_checkedSoFarForKeywords:
                     g_checkedSoFarForKeywords[child[1]._containedType] = 1
                     CheckForInvalidKeywords(g_names[child[1]._containedType])
-            if isinstance(child[1], AsnMetaMember) and child[1]._containedType.lower() == child[0].lower():
-                utility.panic(
-                    "Ada mappers won't allow SEQUENCE/CHOICE fields with same names as their types.\n" +
-                    "Fix declaration at %s ('%s')" % (node.Location(), child[1]._containedType.lower()))
+            # Commented out the following test as this is supported now (using -fp AUTO in asn1scc invokation)
+            #if isinstance(child[1], AsnMetaMember) and child[1]._containedType.lower() == child[0].lower():
+            #    utility.panic(
+            #        "Ada mappers won't allow SEQUENCE/CHOICE fields with same names as their types.\n" +
+            #        "Fix declaration at %s ('%s')" % (node.Location(), child[1]._containedType.lower()))
     elif isinstance(node, (AsnSequenceOf, AsnSetOf)):
         if isinstance(node._containedType, str):
             if IsInvalidType(node._containedType):
