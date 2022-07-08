@@ -388,7 +388,7 @@ def main():
     typesUnusableAsInterfaceParameters = []
     if bAADLv2:
         directiveTypes = [
-            "Simulink_Tunable_Parameter", "Timer", "Taste_directive"]
+            "Simulink_Tunable_Parameter", "Timer", "Taste_directive", "Taste_Implementation"]
         for typeName in directiveTypes:
             sourceText = ""
             adaPackageName = "TASTE_Directives"
@@ -399,7 +399,7 @@ def main():
                     '   Type_Source_Name => "{typeNameASN}";\n'
                     '   Deployment::ASN1_Module_Name => "{moduleName}";{sourceText}\n'
                     '   TASTE::Forbid_in_PI => true;\n'
-                    'END {typeName};\n'.format(
+                    'END {typeName};\n\n'.format(
                         typeName=typeName,
                         typeNameASN=typeName.replace('_', '-'),
                         sourceText=sourceText,
