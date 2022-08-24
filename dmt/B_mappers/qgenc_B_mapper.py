@@ -69,13 +69,13 @@ class FromQGenCToASN1SCC(RecursiveMapper):
     def MapEnumerated(self, srcQGenC: str, destVar: str, _: AsnEnumerated, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return ["%s = %s;\n" % (destVar, srcQGenC)]
 
-    def MapSequence(self, unused_srcQGenC: str, unused_destVar: str, node: AsnSequenceOrSet, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
+    def MapSequence(self, srcVar: str, destVar: str, node: AsnSequenceOrSet, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         lines = []  # type: List[str]
         for child in node._members:
             lines.extend(
                 self.Map(
-                    "%s" % (self.CleanName(child[0])),
-                    self.CleanName(child[0]),
+                    srcVar + "." + self.CleanName(child[0]),
+                    destVar + "." + self.CleanName(child[0]),
                     child[1],
                     leafTypeDict,
                     names))
