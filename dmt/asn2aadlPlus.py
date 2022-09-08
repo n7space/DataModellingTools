@@ -88,7 +88,8 @@ def calculateForNativeAndASN1SCC(absASN1SCCpath, autosrc, names, inputFiles):
     if platform.system() == "Windows" or platform.system() == "Darwin":
         mysystem("%s -c -uPER -o \"%s\" %s %s" % (absASN1SCCpath, autosrc, acn, '"' + '" "'.join(inputFiles) + '"'))
     else:
-        cmd = "%s -c -uPER -fp AUTO -typePrefix asn1Scc -o \"%s\" %s %s" % (absASN1SCCpath, autosrc, acn, '"' + '" "'.join(inputFiles) + '"')
+        # use -fp AUTO to deal with field prefixes, and renamePolicy 3 to use type prefix in enumerated values
+        cmd = "%s -c -uPER -fp AUTO -renamePolicy 3 -typePrefix asn1Scc -o \"%s\" %s %s" % (absASN1SCCpath, autosrc, acn, '"' + '" "'.join(inputFiles) + '"')
         res = mysystem(cmd)
         if res != 0:
             panic("This command failed: %s\n" % cmd)

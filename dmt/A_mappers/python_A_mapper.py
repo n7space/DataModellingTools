@@ -149,7 +149,7 @@ $(BDIR)/$(GRAMMAR).acn:
 
 # The hell of multiple outputs (see https://www.gnu.org/software/automake/manual/html_node/Multiple-Outputs.html )
 $(BDIR)/asn1crt.c:	$(GRAMMAR).asn  $(GRAMMAR).acn
-%(tab)s$(ASN1SCC) -ACN -c -uPER -equal -o $(BDIR) $< $(GRAMMAR).acn
+%(tab)s$(ASN1SCC) -ACN -renamePolicy 3 -c -uPER -equal -o $(BDIR) $< $(GRAMMAR).acn
 
 # The hell of multiple outputs (see https://www.gnu.org/software/automake/manual/html_node/Multiple-Outputs.html )
 $(BDIR)/$(GRAMMAR).c $(BDIR)/asn1crt_encoding.c $(BDIR)/asn1crt_encoding_uper.c $(BDIR)/asn1crt_encoding_acn.c $(BDIR)/$(GRAMMAR).h $(BDIR)/asn1crt.h:	$(BDIR)/asn1crt.c

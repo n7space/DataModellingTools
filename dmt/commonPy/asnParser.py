@@ -407,7 +407,7 @@ def ParseAsnFileList(listOfFilenames: List[str]) -> None:  # pylint: disable=inv
             if asn1SccPath is None:
                 utility.panic("ASN1SCC seems not installed on your system (asn1scc not found in PATH).\n")
             asn1SccDir = os.path.dirname(os.path.abspath(asn1SccPath))
-            spawnResult = os.system("\"" + asn1SccPath + "\" -customStg \"" + asn1SccDir + "/xml.stg:" + xmlAST + "\" -typePrefix asn1Scc -fp AUTO -customStgAstVersion 4 \"" + "\" \"".join(listOfFilenames) + "\"")
+            spawnResult = os.system("\"" + asn1SccPath + "\" -customStg \"" + asn1SccDir + "/xml.stg:" + xmlAST + "\" -typePrefix asn1Scc -fp AUTO -renamePolicy 3 -customStgAstVersion 4 \"" + "\" \"".join(listOfFilenames) + "\"")
             if spawnResult != 0:
                 errCode = spawnResult / 256
                 if errCode == 1:

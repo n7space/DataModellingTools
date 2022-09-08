@@ -26,7 +26,7 @@ for line in open(sys.argv[1] + '.h', 'r'):
         enums.append(line.strip().replace(",", "").split("="))
 
 enums_dump = "\n    ".join(
-    'printf("%s = %%d\\n", %s);' % (e, e)
+    'printf("%s = %%d\\nasn1Scc%s = %s\\n", %s);' % (e, e, e, e)
     for e in choices
 )
 

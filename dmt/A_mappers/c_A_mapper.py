@@ -29,7 +29,7 @@ def OnStartup(unused_modelingLanguage: str, asnFiles: List[str], outputDir: str,
     if not asn1SccPath:
         panic("ASN1SCC seems to be missing from your system (asn1scc not found in PATH).\n")  # pragma: no cover
     os.system(
-        "\"{}\" -typePrefix asn1Scc -c -uPER -o \"".format(asn1SccPath) +
+        "\"{}\" -typePrefix asn1Scc -fp AUTO -renamePolicy 3 -c -uPER -o \"".format(asn1SccPath) +
         outputDir + "\" \"" + "\" \"".join(asnFiles) + "\"")
 #   cmd = 'rm -f '
 #   for i in ['real.c', 'asn1crt.c', 'acn.c']:
