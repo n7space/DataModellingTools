@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 import os
 import sys
 sys.path.append("asn2dataModel")
@@ -28,18 +28,18 @@ class CompleteTestingOfSQLMapperWithSQLite(AllTests, unittest.TestCase):
     session = SessionFactory()
 
 
-class CompleteTestingOfSQLMapperWithPostgreSQL(AllTests, unittest.TestCase):
-    #engine = create_engine('sqlite:///:memory:', echo=True)
-    if os.getenv('CIRCLECI') is None:
-        dburi = 'postgresql+psycopg2://taste:tastedb@localhost/circle_test'
-    else:
-        dburi = 'postgresql+psycopg2://ubuntu:@localhost/circle_test'
-    engine = create_engine(dburi, echo=False)
-    Base.metadata.create_all(engine)
-    from sqlalchemy.orm import sessionmaker
-
-    SessionFactory = sessionmaker(bind=engine)
-    session = SessionFactory()
+#class CompleteTestingOfSQLMapperWithPostgreSQL(AllTests, unittest.TestCase):
+#    #engine = create_engine('sqlite:///:memory:', echo=True)
+#    if os.getenv('CIRCLECI') is None:
+#        dburi = 'postgresql+psycopg2://taste:tastedb@localhost/circle_test'
+#    else:
+#        dburi = 'postgresql+psycopg2://ubuntu:@localhost/circle_test'
+#    engine = create_engine(dburi, echo=False)
+#    Base.metadata.create_all(engine)
+#    from sqlalchemy.orm import sessionmaker
+#
+#    SessionFactory = sessionmaker(bind=engine)
+#    session = SessionFactory()
 
 
 #jclass CompleteTestingOfSQLMapperWithMySQL(AllTests, unittest.TestCase):

@@ -85,7 +85,7 @@ class AllTests:
     def test6_ArrayOfInts(self):
         e = T_ARR()
         e.SetLength(6)
-        for i in xrange(6):
+        for i in range(6):
             e[i].Set(i*3)
         ee = T_ARR_SQL(e)
         eid = ee.save(self.session)
@@ -103,9 +103,9 @@ class AllTests:
         d.anotherSeq.anInt.Set(13)
         d.anotherSeq.anotherInt.Set(14)
         d.anArray.SetLength(6)
-        for i in xrange(6):
+        for i in range(6):
             #d.anArray[i].SetLength(7)
-            for j in xrange(7):
+            for j in range(7):
                 d.anArray[i][j].Set(i*j + 0.5)
         d.aString.SetFromPyString("Hello")
         dd = MySuperSeq_SQL(d)
@@ -125,9 +125,9 @@ class AllTests:
         assert d.anotherSeq.anInt.Get() == yy.anotherSeq.anInt.Get()
         assert d.anotherSeq.anotherInt.Get() == yy.anotherSeq.anotherInt.Get()
         assert d.anArray.GetLength() == yy.anArray.GetLength()
-        for i in xrange(6):
+        for i in range(6):
             assert d.anArray[i].GetLength() == yy.anArray[i].GetLength()
-            for j in xrange(7):
+            for j in range(7):
                 assert d.anArray[i][j].Get() == yy.anArray[i][j].Get()
         assert d.aString.GetPyString() == yy.aString.GetPyString()
 
@@ -136,21 +136,21 @@ class AllTests:
         e.intVal.Set(5),
         e.int2Val.Set(-10)
         e.int3Val.Set(12)
-        for i in xrange(10):
+        for i in range(10):
             e.intArray[i].Set(i%4)
             e.realArray[i].Set(0.1+0.1*i)
             e.octStrArray[i].SetFromPyString('hello' + str(i))
             e.boolArray[i].Set(i%2 != 0)
             e.enumArray[i].Set(TypeEnumerated.blue)
         e.enumValue.Set(TypeEnumerated.red)
-        e.enumValue2.Set(DV.truism)
+        e.enumValue2.Set(DV.TypeNested_enumValue2_truism)
         e.label.SetFromPyString("Well, this is nice")
         e.bAlpha.Set(False)
         e.bBeta.Set(True)
         e.sString.SetFromPyString("Another string")
         e.arr.SetLength(5)
         e.arr2.SetLength(5)
-        for i in xrange(5):
+        for i in range(5):
             e.arr[i].Set(41*i)
             e.arr2[i].Set(0.1+0.1*i)
         ee = TypeNested_SQL(e)
@@ -162,7 +162,7 @@ class AllTests:
         assert e.intVal.Get() == ff.intVal.Get()
         assert e.int2Val.Get() == ff.int2Val.Get()
         assert e.int3Val.Get() == ff.int3Val.Get()
-        for i in xrange(10):
+        for i in range(10):
             assert e.intArray[i].Get() == ff.intArray[i].Get()
             assert math.fabs(e.realArray[i].Get() - ff.realArray[i].Get())<1e-10
             assert e.octStrArray[i].GetPyString() == ff.octStrArray[i].GetPyString()
@@ -176,6 +176,6 @@ class AllTests:
         assert e.sString.GetPyString() == ff.sString.GetPyString()
         assert ff.arr.GetLength() == 5
         assert ff.arr2.GetLength() == 5
-        for i in xrange(5):
+        for i in range(5):
             assert e.arr[i].Get() == ff.arr[i].Get()
             assert math.fabs(e.arr2[i].Get() - ff.arr2[i].Get()) < 1e-10

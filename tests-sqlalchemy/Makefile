@@ -1,11 +1,11 @@
 all:	cleanDB test
 
 cleanDB:
-	# PostgreSQL
-	/etc/init.d/postgresql restart
+	# PostgreSQL (disabled as taste uses sqlite by default)
+	#/etc/init.d/postgresql restart
 	# Since postgres takes a while to start, do this until it succeeds
-	bash -c "while true ; do echo 'drop database if exists circle_test; create database circle_test;' | psql -U ubuntu postgres && break ; done"
-	rm -f sql.log
+	#bash -c "while true ; do echo 'drop database if exists circle_test; create database circle_test;' | psql -U ubuntu postgres && break ; done"
+	#rm -f sql.log
 	#
 	# MySQL (is a toy - disabled related tests)
 	# echo 'drop database test; create database test;' | mysql -u taste || exit 1
@@ -29,12 +29,12 @@ test:	|build
 	./testSQLengines.py
 
 print:
-	@for i in MyInt My2ndInt MySeq MyChoice TypeEnumerated MySuperSeq T_ARR T_ARR_indexes T_ARR_elm ; do \
-	    	echo "========" ; \
-		echo PostgreSQL Content of $$i ; \
-		echo "========" ; \
-		echo "select * from \"$$i\" " | psql -U ubuntu circle_test ; \
-	done
+#	@for i in MyInt My2ndInt MySeq MyChoice TypeEnumerated MySuperSeq T_ARR T_ARR_indexes T_ARR_elm ; do \
+#	    	echo "========" ; \
+#		echo PostgreSQL Content of $$i ; \
+#		echo "========" ; \
+#		echo "select * from \"$$i\" " | psql -U ubuntu circle_test ; \
+#	done
 #	@for i in MyInt My2ndInt MySeq MyChoice TypeEnumerated MySuperSeq T_ARR T_ARR_indexes T_ARR_elm ; do \
 #	    	echo "========" ; \
 #		echo MySQL Content of $$i ; \
