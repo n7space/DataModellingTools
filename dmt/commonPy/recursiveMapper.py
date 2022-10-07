@@ -8,7 +8,7 @@ from typing import Union, List, Dict, TypeVar, Generic
 
 from .utility import panicWithCallStack
 from .asnAST import (
-    AsnSequence, AsnSet, AsnChoice, AsnSequenceOf, AsnSetOf, AsnEnumerated,
+    AsnAsciiString, AsnSequence, AsnSet, AsnChoice, AsnSequenceOf, AsnSetOf, AsnEnumerated,
     AsnMetaMember, AsnNode, AsnInt, AsnReal, AsnBool, AsnOctetString)
 from .asnParser import AST_Leaftypes, AST_Lookup
 
@@ -43,6 +43,10 @@ class RecursiveMapperGeneric(Generic[TSrc, TDest]):
 
     def MapOctetString(self, unused_srcVar: TSrc, unused_destVar: TDest, unused_node: AsnOctetString, unused_leafTypeDict: AST_Leaftypes, unused_names: AST_Lookup) -> List[str]:  # pylint: disable=no-self-use,invalid-sequence-index
         panicWithCallStack("Method undefined in a RecursiveMapper...")
+
+    def MapIA5String(self, unused_srcVar: TSrc, unused_destVar: TDest, unused_node: AsnAsciiString, unused_leafTypeDict: AST_Leaftypes, unused_names: AST_Lookup) -> List[str]:  # pylint: disable=no-self-use,invalid-sequence-index
+        print("Error: AsnAsciiString is not supported for this generator.")
+        return []  # pylint: disable=pointless-statement
 
     def MapEnumerated(self, unused_srcVar: TSrc, unused_destVar: TDest, unused_node: AsnEnumerated, unused_leafTypeDict: AST_Leaftypes, unused_names: AST_Lookup) -> List[str]:  # pylint: disable=no-self-use,invalid-sequence-index
         panicWithCallStack("Method undefined in a RecursiveMapper...")
@@ -89,6 +93,8 @@ class RecursiveMapperGeneric(Generic[TSrc, TDest]):
             lines.extend(self.MapChoice(srcVar, destVar, node, leafTypeDict, names))
         elif isinstance(node, AsnSequenceOf):
             lines.extend(self.MapSequenceOf(srcVar, destVar, node, leafTypeDict, names))
+        elif isinstance(node, AsnAsciiString):
+            lines.extend(self.MapIA5String(srcVar, destVar, node, leafTypeDict, names))
         elif isinstance(node, AsnSetOf):
             lines.extend(self.MapSetOf(srcVar, destVar, node, leafTypeDict, names))
         elif isinstance(node, AsnEnumerated):

@@ -25,7 +25,7 @@ from typing import List
 
 from ..commonPy.utility import panic
 from ..commonPy.asnAST import (
-    sourceSequenceLimit, isSequenceVariable, targetSequenceLimit,
+    AsnAsciiString, sourceSequenceLimit, isSequenceVariable, targetSequenceLimit,
     AsnInt, AsnReal, AsnBool, AsnSequenceOrSet, AsnSequenceOrSetOf,
     AsnChoice, AsnOctetString, AsnEnumerated, AsnNode)
 from ..commonPy.asnParser import AST_Lookup, AST_Leaftypes
@@ -369,8 +369,12 @@ class C_GlueGenerator(ASynchronousToolGlueGenerator):
                                          "ACN_" if encoding.lower() == "acn" else ""))
                 self.C_SourceFile.write("        /* Decoding succeeded */\n")
             elif encoding.lower() == "native":
-                self.C_SourceFile.write("    *pDst = *(asn1Scc%s *) pBuffer;\n    {\n" %
-                                        (self.CleanNameAsToolWants(nodeTypename)))
+                if isinstance(node, AsnAsciiString):
+                    self.C_SourceFile.write("    memcpy(pDst, pBuffer, sizeof(asn1Scc%s));\n    {\n" %
+                                            (self.CleanNameAsToolWants(nodeTypename)))
+                else:
+                    self.C_SourceFile.write("    *pDst = *(asn1Scc%s *) pBuffer;\n    {\n" %
+                                            (self.CleanNameAsToolWants(nodeTypename)))
 
         if self.useOSS and encoding.lower() == "uper":
             lines = self.FromOSStoC.Map(
