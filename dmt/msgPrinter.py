@@ -80,6 +80,14 @@ class Printer(RecursiveMapper):
         lines.append('    printf("\\n");')
         lines.append("}\n")
         return lines
+    
+    def MapIA5String(self, srcCVariable, prefix, node, __, ___):
+        lines = []
+        lines.append("{")
+        lines.append('    printf("%%s%s ", paramName);' % prefix)
+        lines.append('    printf("%%s", %s[i]);' % srcCVariable)
+        lines.append("}\n")
+        return lines
 
     def MapEnumerated(self, srcCVariable, prefix, _, __, ___):
         return ['printf("%%s%s %%d\\n", paramName, (int)%s);' % (prefix, srcCVariable)]

@@ -42,6 +42,12 @@ def usage():
     sys.exit(1)
 
 
+def isTypeForbidden(backend, typename, forbiddenTypes):
+    if backend in ("QGenC", "C") or backend == None:
+        return False
+    else:
+        return typename in forbiddenTypes
+
 # noinspection PyListCreation
 class Printer(RecursiveMapper):
     def __init__(self):
@@ -77,6 +83,9 @@ class Printer(RecursiveMapper):
         lines.append('    printf("\'H");')
         lines.append("}\n")
         return lines
+
+    def MapIA5String(self, srcCVariable, unused, node, __, ___):
+        return ['printf("\\"%%s\\"", %s);' % srcCVariable]
 
     def MapEnumerated(self, srcCVariable, unused, node, __, ___):
         lines = []
@@ -235,7 +244,7 @@ def main():
 
         for nodeTypename in names:
             # Check if this type must be skipped
-            if nodeTypename in badTypes:
+            if isTypeForbidden(None, nodeTypename, badTypes):
                 continue
             node = names[nodeTypename]
             if node._isArtificial:

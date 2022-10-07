@@ -24,7 +24,7 @@ stubs (to allow calling from the VM side) are also generated.
 from typing import List
 from ..commonPy.utility import panicWithCallStack
 from ..commonPy.asnAST import (
-    sourceSequenceLimit, isSequenceVariable, AsnInt, AsnReal, AsnEnumerated,
+    AsnAsciiString, sourceSequenceLimit, isSequenceVariable, AsnInt, AsnReal, AsnEnumerated,
     AsnBool, AsnSequenceOrSet, AsnSequenceOrSetOf, AsnChoice, AsnOctetString,
     AsnNode)
 from ..commonPy.asnParser import AST_Lookup, AST_Leaftypes
@@ -64,6 +64,16 @@ class FromQGenCToASN1SCC(RecursiveMapper):
         # No nCount anymore
         # else:
         #     lines.append("%s.nCount = %s;\n" % (destVar, node._range[-1]))
+        return lines
+
+    def MapIA5String(self, srcVar: str, destVar: str, node: AsnAsciiString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
+        lines = []  # type: List[str]
+        if not node._range:
+            panicWithCallStack("IA5String (in %s) must have a SIZE constraint inside ASN.1,\nor else we can't generate C code!" % node.Location())  # pragma: no cover
+        lines.append("for (int i = 0; i < %s; i++) {\n" % (node._range[-1] + 1))
+        lines.append("    %s[i] = %s.element_data[i];\n" % (destVar, srcVar))
+        lines.append("}\n")
+        lines.append("%s[%s.length] = 0;\n" % (destVar, srcVar))
         return lines
 
     def MapEnumerated(self, srcQGenC: str, destVar: str, _: AsnEnumerated, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
@@ -147,6 +157,19 @@ class FromASN1SCCtoQGenC(RecursiveMapper):
                          (limit, i + 1, dstQGenC, i, srcVar, i, dstQGenC, i))
         if len(node._range) > 1 and node._range[0] != node._range[1]:
             lines.append("%s.length = %s;\n" % (dstQGenC, limit))
+        return lines
+
+    def MapIA5String(self, srcVar: str, destVar: str, node: AsnAsciiString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
+        if not node._range:
+            panicWithCallStack("IA5String (in %s) must have a SIZE constraint inside ASN.1,\nor else we can't generate C code!" % node.Location())  # pragma: no cover
+
+        lines = []  # type: List[str]
+        limit = f"strnlen({srcVar}, {node._range[-1]})"
+        lines.append("for (int i = 0; i < %s; i++) {\n" % (node._range[-1] + 1))
+        lines.append("    %s.element_data[i] = %s[i];\n" % (destVar, srcVar))
+        lines.append("}\n")
+        if len(node._range) > 1 and node._range[0] != node._range[1]:
+            lines.append("%s.length = %s;\n" % (destVar, limit))
         return lines
 
     def MapEnumerated(self, srcVar: str, dstQGenC: str, node: AsnEnumerated, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index

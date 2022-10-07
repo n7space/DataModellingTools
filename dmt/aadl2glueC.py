@@ -246,6 +246,13 @@ def getSyncBackend(modelingLanguage: str) -> Sync_B_Mapper:
     return cast(Sync_B_Mapper, g_sync_mappers[modelingLanguage])
 
 
+def isTypeForbidden(backend, typename, forbiddenTypes):
+    if backend in ('QGenC', 'C'):
+        return False
+    else:
+        return typename in forbiddenTypes
+
+
 # sp means subprogram
 # maybeFVname: name of the TASTE function that contains the subprogram.
 def ProcessSync(
@@ -281,7 +288,7 @@ def ProcessSync(
         nodeTypename = param._signal._asnNodename
 
         # Check if this type must be skipped
-        if nodeTypename in badTypes:
+        if isTypeForbidden(modelingLanguage, nodeTypename, badTypes):
             continue
 
         node = names[nodeTypename]
@@ -292,7 +299,7 @@ def ProcessSync(
             continue  # artificially created (inner) type
 
         leafType = leafTypeDict[nodeTypename]
-        if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING']:
+        if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'AsciiString']:
             processor = backend.OnBasic
         elif leafType == 'SEQUENCE':
             processor = backend.OnSequence
@@ -357,7 +364,7 @@ def ProcessAsync(  # pylint: disable=dangerous-default-value
         inform("This param uses definitions from %s", asnFile)
         for nodeTypename, node in names.items():
             # Check if this type must be skipped
-            if nodeTypename in badTypes:
+            if isTypeForbidden(modelingLanguage, nodeTypename, badTypes):
                 continue
 
             inform("ASN.1 node is %s", nodeTypename)
@@ -367,7 +374,7 @@ def ProcessAsync(  # pylint: disable=dangerous-default-value
                 continue  # artificially created (inner) type
 
             leafType = leafTypeDict[nodeTypename]
-            if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING']:
+            if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'AsciiString']:
                 processor = backend.OnBasic
             elif leafType == 'SEQUENCE':
                 processor = backend.OnSequence
@@ -602,8 +609,8 @@ def main() -> None:
             assert asnFile == param._signal._asnFilename
             nodeTypename = param._signal._asnNodename
             node = commonPy.asnParser.g_names[nodeTypename]
-            if (node._leafType == "AsciiString" or nodeTypename in badTypes) and (
-                    modelingLanguage not in ('C', 'Ada', "GUI_PI", "GUI_RI")):
+            if (nodeTypename in badTypes) and (
+                    modelingLanguage not in ('QGenC', 'C', 'Ada', "GUI_PI", "GUI_RI")):
                 panic("For type %s:\n\tIA5String and types that depend on them cannot "
                       "be used as a parameter.\n\tUse OCTET STRINGs instead!\n\t(%s)" % (
                           nodeTypename, node.Location()))  # pragma: no cover

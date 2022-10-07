@@ -14,7 +14,7 @@ from typing import IO, Any, Generic, TypeVar  # NOQA pylint: disable=unused-impo
 from ..commonPy.utility import panic, inform, panicWithCallStack
 from ..commonPy.aadlAST import InParam, OutParam, InOutParam, ApLevelContainer, Param
 from ..commonPy.recursiveMapper import RecursiveMapperGeneric
-from ..commonPy.asnAST import AsnNode
+from ..commonPy.asnAST import AsnAsciiString, AsnNode
 from ..commonPy.asnParser import AST_Lookup, AST_Leaftypes
 
 
@@ -456,9 +456,15 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                 "int %s%s(void *pBuffer)\n{\n" % (tmpSpName, fpgaSuffix))
             self.C_SourceFile.write("    STATIC asn1Scc%s var_%s;\n" %
                                     (self.CleanNameAsToolWants(nodeTypename), self.CleanNameAsToolWants(nodeTypename)))
-            self.C_SourceFile.write("    var_%s = *(asn1Scc%s *) pBuffer;\n    {\n" %
-                                    (self.CleanNameAsToolWants(nodeTypename),
-                                     self.CleanNameAsToolWants(nodeTypename)))
+            if isinstance(node, AsnAsciiString):
+                self.C_SourceFile.write("    memcpy(var_%s, pBuffer, sizeof(asn1Scc%s));\n    {\n" %
+                                        (self.CleanNameAsToolWants(nodeTypename),
+                                         self.CleanNameAsToolWants(nodeTypename)))
+            else:
+                self.C_SourceFile.write("    var_%s = *(asn1Scc%s *) pBuffer;\n    {\n" %
+                                        (self.CleanNameAsToolWants(nodeTypename),
+                                         self.CleanNameAsToolWants(nodeTypename)))
+
             asn1ToTool = self.FromASN1SCCtoTool()  # pylint: disable=assignment-from-no-return
             lines = asn1ToTool.Map(
                 "var_" + self.CleanNameAsToolWants(nodeTypename),
