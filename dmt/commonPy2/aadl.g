@@ -243,8 +243,11 @@ subprogram_type
     SUBPROGRAM id:IDENT {
         //print "Now defining SUBPROGRAM", id.getText()
         //print f
-        sp = ApLevelContainer(id.getText())
-        g_apLevelContainers[id.getText()] = sp }
+        ident = id.getText()
+        if ident.startswith("SP_"):
+            ident = ident[3:]
+        sp = ApLevelContainer(ident)
+        g_apLevelContainers[ident] = sp }
     (EXTENDS unique_type_name )?
     (features=featuresSubprogram { 
         for spFeature in features:
@@ -256,11 +259,11 @@ subprogram_type
            else:
               signal = g_signals[spFeature._parameter._type]
            if spFeature._parameter._direction == "IN":
-              param = InParam(id.getText(), spFeature._id, signal, spFeature._parameter)
+              param = InParam(ident, spFeature._id, signal, spFeature._parameter)
            elif spFeature._parameter._direction == "OUT":
-              param = OutParam(id.getText(), spFeature._id, signal, spFeature._parameter)
+              param = OutParam(ident, spFeature._id, signal, spFeature._parameter)
            elif spFeature._parameter._direction == "INOUT":
-              param = InOutParam(id.getText(), spFeature._id, signal, spFeature._parameter)
+              param = InOutParam(ident, spFeature._id, signal, spFeature._parameter)
            else:
               panic("No IN/OUT/INOUT specified!")
            sp.AddParam(param)
@@ -268,9 +271,9 @@ subprogram_type
     ( flow_specs )?
     ( properties=propertyAssociations_no_modes {
         if properties != None:
-            if not g_apLevelContainers.has_key(id.getText()):
-               panic("Line %d: SUBPROGRAM (%s) must first be declared before it is PROPERTIES-ed"  % (id.getLine(), id.getText()))
-            sp = g_apLevelContainers[id.getText()]
+            if not g_apLevelContainers.has_key(ident):
+               panic("Line %d: SUBPROGRAM (%s) must first be declared before it is PROPERTIES-ed"  % (id.getLine(), ident))
+            sp = g_apLevelContainers[ident]
             for property in properties:
                if property._name[-15:].lower() == "source_language":
                    stripQuotes = property._propertyExpressionOrList.replace("\"", "")
@@ -544,10 +547,13 @@ subprogram_implementation
     :
     SUBPROGRAM IMPL 
     typeid: IDENT DOT defid: IDENT { 
-    if not g_apLevelContainers.has_key(typeid.getText()):
-        panic("Line %d: Subprogram (%s) must first be declared before it is implemented" % (typeid.getLine(), typeid.getText()))
-    sp = g_apLevelContainers[typeid.getText()]
-    g_subProgramImplementations.append([typeid.getText(), defid.getText(), sp._language, ""]) }
+    ident = typeid.getText()
+    if ident.startswith("SP_"):
+        ident = ident[3:]
+    if not g_apLevelContainers.has_key(ident):
+        panic("Line %d: Subprogram (%s) must first be declared before it is implemented" % (typeid.getLine(), ident))
+    sp = g_apLevelContainers[ident]
+    g_subProgramImplementations.append([ident, defid.getText(), sp._language, ""]) }
     (EXTENDS  unique_impl_name )?
     (refinestypeSubclause)?
     (callsSubclause)?
@@ -555,14 +561,14 @@ subprogram_implementation
         for conn in mesh:
             if conn._from._portId == None or conn._to._portId == None:
                 continue // One of _from,_to are connection_refinements (unsupported)
-            sp = g_apLevelContainers[typeid.getText()]
+            sp = g_apLevelContainers[ident]
             sp.AddConnection(conn._from, conn._to) } )?
     (flow_impls)?
     c=common_component_impl { 
         if c != None:
-            if not g_apLevelContainers.has_key(typeid.getText()):
-                panic("Line %d: SUBPROGRAM (%s) must first be declared before it is implemented" % (typeid.getLine(), typeid.getText()))
-            sp = g_apLevelContainers[typeid.getText()]
+            if not g_apLevelContainers.has_key(ident):
+                panic("Line %d: SUBPROGRAM (%s) must first be declared before it is implemented" % (typeid.getLine(), ident))
+            sp = g_apLevelContainers[ident]
             for assoc in c:
                 if assoc == None: continue
                 if assoc._name[-15:].lower() == "source_language":
@@ -571,11 +577,6 @@ subprogram_implementation
                 if assoc._name[-15:].lower() == "fv_name":
                     stripQuotes = assoc._value.replace("\"", "")
                     g_subProgramImplementations[-1][3] = stripQuotes
-                if assoc._name[-15:].lower() == "interface_name":
-                    stripQuotes = assoc._value.replace("\"", "")
-                    g_subProgramImplementations[-1][0] = stripQuotes
-                    g_apLevelContainers.pop(typeid.getText())
-                    g_apLevelContainers[stripQuotes] = sp
                 
     }
     END id:IDENT DOT id2:IDENT SEMI
