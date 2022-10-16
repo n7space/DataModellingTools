@@ -1,4 +1,4 @@
-### $ANTLR 2.7.7 (20160127): "aadl.g" -> "AadlLexer.py"$
+### $ANTLR 2.7.7 (20190904): "aadl.g" -> "AadlLexer.py"$
 ### import antlr and other modules ..
 import sys
 import antlr

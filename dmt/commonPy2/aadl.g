@@ -547,7 +547,7 @@ subprogram_implementation
     if not g_apLevelContainers.has_key(typeid.getText()):
         panic("Line %d: Subprogram (%s) must first be declared before it is implemented" % (typeid.getLine(), typeid.getText()))
     sp = g_apLevelContainers[typeid.getText()]
-    g_subProgramImplementations.append([typeid.getText(), defid.getText(), sp._language, "" ]) }
+    g_subProgramImplementations.append([typeid.getText(), defid.getText(), sp._language, ""]) }
     (EXTENDS  unique_impl_name )?
     (refinestypeSubclause)?
     (callsSubclause)?
@@ -567,12 +567,16 @@ subprogram_implementation
                 if assoc == None: continue
                 if assoc._name[-15:].lower() == "source_language":
                     stripQuotes = assoc._value.replace("\"", "")
-                    //sp.SetLanguage(stripQuotes) 
                     g_subProgramImplementations[-1][2] = stripQuotes
                 if assoc._name[-15:].lower() == "fv_name":
                     stripQuotes = assoc._value.replace("\"", "")
-                    //sp.SetLanguage(stripQuotes) 
                     g_subProgramImplementations[-1][3] = stripQuotes
+                if assoc._name[-15:].lower() == "interface_name":
+                    stripQuotes = assoc._value.replace("\"", "")
+                    g_subProgramImplementations[-1][0] = stripQuotes
+                    g_apLevelContainers.pop(typeid.getText())
+                    g_apLevelContainers[stripQuotes] = sp
+                
     }
     END id:IDENT DOT id2:IDENT SEMI
 ;

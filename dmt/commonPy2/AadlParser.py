@@ -1,4 +1,4 @@
-### $ANTLR 2.7.7 (20160127): "aadl.g" -> "AadlParser.py"$
+### $ANTLR 2.7.7 (20190904): "aadl.g" -> "AadlParser.py"$
 ### import antlr and other modules ..
 import sys
 import antlr
@@ -1253,8 +1253,7 @@ class Parser(antlr.LLkParser):
             if not g_apLevelContainers.has_key(typeid.getText()):
                panic("Line %d: Subprogram (%s) must first be declared before it is implemented" % (typeid.getLine(), typeid.getText()))
             sp = g_apLevelContainers[typeid.getText()]
-            # Add field for FPGA configurations
-            g_subProgramImplementations.append([typeid.getText(), defid.getText(), sp._language, "", sp._fpgaConfigurations])
+            g_subProgramImplementations.append([typeid.getText(), defid.getText(), sp._language, ""])
         la1 = self.LA(1)
         if False:
             pass
@@ -1327,17 +1326,15 @@ class Parser(antlr.LLkParser):
                    if assoc == None: continue
                    if assoc._name[-15:].lower() == "source_language":
                        stripQuotes = assoc._value.replace("\"", "")
-                       #sp.SetLanguage(stripQuotes) 
                        g_subProgramImplementations[-1][2] = stripQuotes
                    if assoc._name[-15:].lower() == "fv_name":
                        stripQuotes = assoc._value.replace("\"", "")
-                       #sp.SetLanguage(stripQuotes) 
                        g_subProgramImplementations[-1][3] = stripQuotes
-                   # Assign defined FPGA configurations
-                   if assoc._name[-19:].lower() == "fpga_configurations":
+                   if assoc._name[-15:].lower() == "interface_name":
                        stripQuotes = assoc._value.replace("\"", "")
-                       g_subProgramImplementations[-1][4] = stripQuotes
-                       sp.SetFPGAConfigurations(stripQuotes)      
+                       g_subProgramImplementations[-1][0] = stripQuotes
+                       g_apLevelContainers.pop(typeid.getText())
+                       g_apLevelContainers[stripQuotes] = sp
         self.match(END)
         id = self.LT(1)
         self.match(IDENT)

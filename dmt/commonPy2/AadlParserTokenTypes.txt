@@ -1,4 +1,4 @@
-// $ANTLR 2.7.7 (20160127): aadl.g -> AadlParserTokenTypes.txt$
+// $ANTLR 2.7.7 (20190904): aadl.g -> AadlParserTokenTypes.txt$
 AadlParser    // output token vocab name
 PACKAGE="package"=4
 END="end"=5
