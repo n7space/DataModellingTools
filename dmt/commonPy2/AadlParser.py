@@ -1259,7 +1259,7 @@ class Parser(antlr.LLkParser):
             if not g_apLevelContainers.has_key(ident):
                panic("Line %d: Subprogram (%s) must first be declared before it is implemented" % (typeid.getLine(), ident))
             sp = g_apLevelContainers[ident]
-            g_subProgramImplementations.append([ident, defid.getText(), sp._language, ""])
+            g_subProgramImplementations.append([ident, defid.getText(), sp._language, "", sp._fpgaConfigurations])
         la1 = self.LA(1)
         if False:
             pass
@@ -1336,6 +1336,9 @@ class Parser(antlr.LLkParser):
                    if assoc._name[-15:].lower() == "fv_name":
                        stripQuotes = assoc._value.replace("\"", "")
                        g_subProgramImplementations[-1][3] = stripQuotes
+                   if assoc._name[-19:].lower() == "fpga_configurations":
+                       g_subProgramImplementations[-1][4] = stripQuotes
+                       sp.SetFPGAConfigurations(stripQuotes)
         self.match(END)
         id = self.LT(1)
         self.match(IDENT)

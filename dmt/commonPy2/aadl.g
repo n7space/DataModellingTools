@@ -553,7 +553,7 @@ subprogram_implementation
     if not g_apLevelContainers.has_key(ident):
         panic("Line %d: Subprogram (%s) must first be declared before it is implemented" % (typeid.getLine(), ident))
     sp = g_apLevelContainers[ident]
-    g_subProgramImplementations.append([ident, defid.getText(), sp._language, ""]) }
+    g_subProgramImplementations.append([ident, defid.getText(), sp._language, "", sp._fpgaConfigurations]) }
     (EXTENDS  unique_impl_name )?
     (refinestypeSubclause)?
     (callsSubclause)?
@@ -577,7 +577,9 @@ subprogram_implementation
                 if assoc._name[-15:].lower() == "fv_name":
                     stripQuotes = assoc._value.replace("\"", "")
                     g_subProgramImplementations[-1][3] = stripQuotes
-                
+                if assoc._name[-19:].lower() == "fpga_configurations":
+                    g_subProgramImplementations[-1][4] = stripQuotes
+                    sp.SetFPGAConfigurations(stripQuotes)
     }
     END id:IDENT DOT id2:IDENT SEMI
 ;
