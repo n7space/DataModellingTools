@@ -393,7 +393,15 @@ def CreateGettersAndSetters(
     if isinstance(node, AsnBool):
         CommonBaseImpl("BOOLEAN", "flag", path, params, accessPathInC)
     elif isinstance(node, AsnInt):
-        CommonBaseImpl("INTEGER", "asn1SccSint", path, params, accessPathInC)
+        # Signed or unsigned integer as per asn1scc output
+        # Warning, this is not compatible with the -slim option, that generates
+        # the type size based on the range. The right solution would be to
+        # use the type name here, but unfortunately it is not stored in the
+        # node AST. To support the -slim mode, the type name must be added,
+        # or alternatively a range check has to be done to decide which type
+        # has to be used in the getters and setters.
+        baseType = "asn1SccSint" if int(node._range[0]) < 0 else "asn1SccUint"
+        CommonBaseImpl("INTEGER", baseType, path, params, accessPathInC)
     elif isinstance(node, AsnReal):
         CommonBaseImpl("REAL", "double", path, params, accessPathInC)
     elif isinstance(node, AsnAsciiString):
@@ -428,7 +436,7 @@ def CreateGettersAndSetters(
                 CreateGettersAndSetters(path + "_exist_" + childVarname,
                                         params,
                                         accessPathInC + union + ".exist." + childVarname,
-                                        AsnInt(),      # exist field is an int
+                                        AsnInt(range=(0, 1)),      # exist field is an unsigned int
                                         names,         # ignored
                                         leafTypeDict)  # ignored
             if isinstance(childNode, AsnMetaMember):
