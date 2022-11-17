@@ -250,6 +250,7 @@ An example for SetLength:
             else:
                 cTypesResultType = {
                     'asn1SccSint': c_longlong,
+                    'asn1SccUint': c_ulonglong,
                     'byte': c_ubyte,
                     'double': c_double,
                     'flag': c_bool,
