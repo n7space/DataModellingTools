@@ -11,7 +11,7 @@ import sys
 import DV_Types  # pylint: disable=import-error
 from ctypes import (
     cdll, c_void_p, c_ubyte, c_double, c_uint,
-    c_longlong, c_bool, c_int, c_long, c_char
+    c_longlong, c_bool, c_int, c_long, c_char, c_ulonglong
 )
 
 if sys.version_info > (3,):
