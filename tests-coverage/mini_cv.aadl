@@ -118,6 +118,7 @@ SUBPROGRAM IMPLEMENTATION mytestsubsystem.Simulink
 PROPERTIES
 	FV_Name => "mytestsubsystem_fv_Simulink";
 	Source_Language => Simulink;
+        Simulink_Interface_Type => full;
 END mytestsubsystem.Simulink;
 
 SUBPROGRAM IMPLEMENTATION mytestsubsystem.OG

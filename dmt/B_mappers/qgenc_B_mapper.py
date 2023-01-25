@@ -415,9 +415,16 @@ class QGenCGlueGenerator(SynchronousToolGlueGenerator):
                 "#include \"%s.oss.h\" // OSS generated\n" % self.asn_name)
             self.C_SourceFile.write("extern OssGlobal *g_world;\n\n")
         self.C_SourceFile.write("#include \"%s.h\" // Space certified compiler generated\n" % self.asn_name)
-        self.C_SourceFile.write("#include \"qgen_entry_%s.h\"\n\n" % self.CleanNameAsToolWants(subProgram._id).lower())
-        self.C_SourceFile.write("static qgen_entry_%s_comp_Input cInput;\n\n" % self.CleanNameAsToolWants(subProgram._id))
-        self.C_SourceFile.write("static qgen_entry_%s_comp_Output cOutput;\n\n" % self.CleanNameAsToolWants(subProgram._id))
+        if subProgram._simulinkInterfaceType == "full":
+            self.C_SourceFile.write("#include \"qgen_entry_%s.h\"\n\n" % self.CleanNameAsToolWants(subProgram._id).lower())
+            self.C_SourceFile.write("qgen_entry_%s_comp_Input cInput;\n\n" % self.CleanNameAsToolWants(subProgram._id))
+            self.C_SourceFile.write("qgen_entry_%s_comp_Output cOutput;\n\n" % self.CleanNameAsToolWants(subProgram._id))
+            self.C_SourceFile.write("int is_%s_initialized = 0;\n\n" % self.CleanNameAsToolWants(subProgram._id))
+        else:
+            self.C_SourceFile.write("#include \"qgen_entry_%s.h\"\n\n" % self.CleanNameAsToolWants(subProgram._simulinkFullInterfaceRef).lower())
+            self.C_SourceFile.write("extern qgen_entry_%s_comp_Input cInput;\n\n" % self.CleanNameAsToolWants(subProgram._simulinkFullInterfaceRef))
+            self.C_SourceFile.write("extern qgen_entry_%s_comp_Output cOutput;\n\n" % self.CleanNameAsToolWants(subProgram._simulinkFullInterfaceRef))
+            self.C_SourceFile.write("extern int is_%s_initialized;\n\n" % self.CleanNameAsToolWants(subProgram._simulinkFullInterfaceRef))
         self.g_FVname = subProgram._id
 
     def SourceVar(self,
@@ -454,15 +461,26 @@ class QGenCGlueGenerator(SynchronousToolGlueGenerator):
             panicWithCallStack("%s not supported (yet?)\n" % str(param._sourceElement))  # pragma: no cover
         return dstQGenC
 
-    def InitializeBlock(self, unused_modelingLanguage: str, unused_asnFile: str, unused_sp: ApLevelContainer, unused_subProgramImplementation: str, unused_maybeFVname: str) -> None:
-        self.C_SourceFile.write("    static int initialized = 0;\n")
-        self.C_SourceFile.write("    if (!initialized) {\n")
-        self.C_SourceFile.write("        initialized = 1;\n")
-        self.C_SourceFile.write("         qgen_entry_%s_init();\n" % self.g_FVname)
-        self.C_SourceFile.write("    }\n")
+    def InitializeBlock(self, unused_modelingLanguage: str, unused_asnFile: str, sp: ApLevelContainer, unused_subProgramImplementation: str, unused_maybeFVname: str) -> None:
+        fullInterfaceName = ''
+        if sp._simulinkInterfaceType == "full":
+            fullInterfaceName = self.CleanNameAsADAWants(sp._id)
+        else:
+            fullInterfaceName = self.CleanNameAsADAWants(sp._simulinkFullInterfaceRef)
 
-    def ExecuteBlock(self, unused_modelingLanguage: str, unused_asnFile: str, unused_sp: ApLevelContainer, unused_subProgramImplementation: str, unused_maybeFVname: str) -> None:
-        self.C_SourceFile.write("    qgen_entry_%s_comp(&cInput, &cOutput);\n" % self.g_FVname)
+        self.C_SourceFile.write("   if (!is_%s_initialized) {\n" % fullInterfaceName)
+        self.C_SourceFile.write("       is_%s_initialized = 1;\n" % fullInterfaceName)
+        self.C_SourceFile.write("       qgen_entry_%s_init();\n" % fullInterfaceName)
+        self.C_SourceFile.write("   }\n")
+
+    def ExecuteBlock(self, unused_modelingLanguage: str, unused_asnFile: str, sp: ApLevelContainer, unused_subProgramImplementation: str, unused_maybeFVname: str) -> None:
+        fullInterfaceName = ''
+        if sp._simulinkInterfaceType == "full":
+            fullInterfaceName = self.CleanNameAsADAWants(sp._id)
+        else:
+            fullInterfaceName = self.CleanNameAsADAWants(sp._simulinkFullInterfaceRef)
+
+        self.C_SourceFile.write("    qgen_entry_%s_comp(&cInput, &cOutput);\n" % fullInterfaceName)
 
 
 qgencBackend: QGenCGlueGenerator

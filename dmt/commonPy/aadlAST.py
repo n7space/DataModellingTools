@@ -166,6 +166,8 @@ class ApLevelContainer:
         self._connections = []  # type: List[Connection]
         self._language: str
         self._fpgaConfigurations: str
+        self._simulinkInterfaceType = None
+        self._simulinkFullInterfaceRef = ''
 
     def AddConnection(self, srcUniquePortId: UniquePortIdentifier, destUniquePortId: UniquePortIdentifier) -> None:
         if srcUniquePortId._componentId is None:

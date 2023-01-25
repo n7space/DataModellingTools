@@ -632,7 +632,7 @@ def main() -> None:
         sp = commonPy.aadlAST.g_apLevelContainers[spName]
         inform("Creating glue for parameters of %s.%s...", sp._id, sp_impl)
 
-        if not sp._params:
+        if not sp._params and not sp._simulinkInterfaceType == "step":
             # Avoid generating empty glue - no parameters for this APLC
             continue
 
