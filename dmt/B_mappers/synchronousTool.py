@@ -201,9 +201,13 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
             self.C_SourceFile.write("#ifndef STATIC\n")
             self.C_SourceFile.write("#define STATIC\n")
             self.C_SourceFile.write("#endif\n\n")
-            self.C_SourceFile.write("#include \"%s\"\n" % outputCheaderFilename)
+            self.C_SourceFile.write("#include \"%s\"\n\n" % outputCheaderFilename)
 
             self.HeadersOnStartup(modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname)
+
+            self.C_SourceFile.write("void __attribute__((weak)) qgen_entry_%s_init()\n" % self.CleanNameAsToolWants(subProgram._id))
+            self.C_SourceFile.write("{\n\n")
+            self.C_SourceFile.write("}\n\n")
 
             self.ADA_HeaderFile.write('with Interfaces.C.Extensions;\n')
             self.ADA_HeaderFile.write('use Interfaces.C.Extensions;\n\n')
