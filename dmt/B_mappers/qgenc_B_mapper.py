@@ -119,7 +119,7 @@ class FromQGenCToASN1SCC(RecursiveMapper):
         lines = []  # type: List[str]
         for i in range(0, node._range[-1]):
             lines.extend(
-                self.Map(("%s.element_data[%d]" % (srcQGenC, i)) if isMappedToPrimitive else ("%s.element_%02d" % (srcQGenC, i)),
+                self.Map(("%s.arr[%d]" % (srcQGenC, i)) if isMappedToPrimitive else ("%s.element_%02d" % (srcQGenC, i)),
                          destVar + ".arr[%d]" % i,
                          node._containedType,
                          leafTypeDict,
@@ -218,7 +218,7 @@ class FromASN1SCCtoQGenC(RecursiveMapper):
         for i in range(0, node._range[-1]):
             lines.extend(self.Map(
                 srcVar + ".arr[%d]" % i,
-                ("%s.element_data[%d]" % (dstQGenC, i)) if isMappedToPrimitive else ("%s.element_%02d" % (dstQGenC, i)),
+                ("%s.arr[%d]" % (dstQGenC, i)) if isMappedToPrimitive else ("%s.element_%02d" % (dstQGenC, i)),
                 node._containedType,
                 leafTypeDict,
                 names))
@@ -296,7 +296,7 @@ class FromQGenCToOSS(RecursiveMapper):
         lines = []  # type: List[str]
         for i in range(0, node._range[-1]):
             lines.extend(
-                self.Map(("%s.element_data[%d]" % (srcQGenC, i)) if isMappedToPrimitive else ("%s.element_%02d" % (srcQGenC, i)),
+                self.Map(("%s.arr[%d]" % (srcQGenC, i)) if isMappedToPrimitive else ("%s.element_%02d" % (srcQGenC, i)),
                          destVar + ".value[%d]" % i,
                          node._containedType,
                          leafTypeDict,
@@ -379,7 +379,7 @@ class FromOSStoQGenC(RecursiveMapper):
         for i in range(0, node._range[-1]):
             lines.extend(self.Map(
                 srcVar + ".value[%d]" % i,
-                ("%s.element_data[%d]" % (dstQGenC, i)) if isMappedToPrimitive else ("%s.element_%02d" % (dstQGenC, i)),
+                ("%s.arr[%d]" % (dstQGenC, i)) if isMappedToPrimitive else ("%s.element_%02d" % (dstQGenC, i)),
                 node._containedType,
                 leafTypeDict,
                 names))

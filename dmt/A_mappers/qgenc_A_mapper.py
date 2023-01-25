@@ -110,7 +110,8 @@ def CreateAlias(nodeTypename: str, mappedType: str, description: str) -> None:
     # Requirements have changed: Simulink has an issue with AliasType...
     g_outputFile.write("%s = Simulink.AliasType;\n" % CleanNameAsSimulinkWants(nodeTypename))
     g_outputFile.write("%s.BaseType = '%s';\n" % (CleanNameAsSimulinkWants(nodeTypename), mappedType))
-    g_outputFile.write("%s.Description = '%s';\n\n" % (CleanNameAsSimulinkWants(nodeTypename), description))
+    g_outputFile.write("%s.Description = '%s';\n" % (CleanNameAsSimulinkWants(nodeTypename), description))
+    g_outputFile.write("%s.HeaderFile = 'simulink_definition_of_types.h';\n\n" % CleanNameAsSimulinkWants(nodeTypename))
 
 
 def DeclareCollection(node: AsnSequenceOrSetOf, name: str, internal: str) -> None:
@@ -125,6 +126,7 @@ def DeclareCollection(node: AsnSequenceOrSetOf, name: str, internal: str) -> Non
     g_outputFile.write("%s_member_length.DataType='int32';\n" % name)
     g_outputFile.write("%s_member_length.Dimensions=1;\n\n" % name)
     g_outputFile.write('%s=Simulink.Bus;\n' % name)
+    g_outputFile.write("%s.HeaderFile = 'simulink_definition_of_types.h';\n" % name)
     g_outputFile.write("%s.Elements = " % name)
     g_outputFile.write('[')
     for i in range(0, node._range[-1]):
@@ -136,7 +138,7 @@ def DeclareCollection(node: AsnSequenceOrSetOf, name: str, internal: str) -> Non
 
 def DeclareSimpleCollection(node: Union[AsnString, AsnSequenceOf, AsnSetOf], name: str, internal: str) -> None:
     g_outputFile.write('%s_member_data=Simulink.BusElement;\n' % name)
-    g_outputFile.write("%s_member_data.Name='element_data';\n" % name)
+    g_outputFile.write("%s_member_data.Name='arr';\n" % name)
     g_outputFile.write("%s_member_data.DataType='%s';\n" % (name, internal))
     g_outputFile.write("%s_member_data.Dimensions=%d;\n\n" % (name, node._range[-1]))
 
@@ -151,13 +153,14 @@ def DeclareSimpleCollection(node: Union[AsnString, AsnSequenceOf, AsnSetOf], nam
         g_outputFile.write("%s_member_length.Dimensions=1;\n\n" % name)
 
     g_outputFile.write('%s=Simulink.Bus;\n' % name)
+    g_outputFile.write("%s.HeaderFile = 'simulink_definition_of_types.h';\n" % name)
     g_outputFile.write("%s.Elements = " % name)
     g_outputFile.write('[')
     g_outputFile.write("%s_member_data " % name)
     if bNeedLength:
         g_outputFile.write('%s_member_length' % name)
-    g_outputFile.write(']')
-    g_outputFile.write(";\n\n")
+
+    g_outputFile.write('];\n\n')
 
 
 def CreateDeclarationForType(nodeTypename: str, names: AST_Lookup, leafTypeDict: AST_Leaftypes) -> None:
@@ -254,6 +257,7 @@ def CreateDeclarationForType(nodeTypename: str, names: AST_Lookup, leafTypeDict:
             g_outputFile.write(name + ".Dimensions=1;\n\n")
 
         g_outputFile.write("%s = Simulink.Bus;\n" % CleanNameAsSimulinkWants(nodeTypename))
+        g_outputFile.write("%s.HeaderFile = 'simulink_definition_of_types.h';\n" % CleanNameAsSimulinkWants(nodeTypename))
         g_outputFile.write("%s.Elements = " % CleanNameAsSimulinkWants(nodeTypename))
         if elemNo > 1:
             g_outputFile.write('[')
