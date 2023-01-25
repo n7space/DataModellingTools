@@ -1339,6 +1339,12 @@ class Parser(antlr.LLkParser):
                    if assoc._name[-19:].lower() == "fpga_configurations":
                        g_subProgramImplementations[-1][4] = stripQuotes
                        sp.SetFPGAConfigurations(stripQuotes)
+                   if assoc._name[-25:].lower() == "simulink_interface_type":
+                       stripQuotes = assoc._value.replace("\"", "")
+                       sp.SetSimulinkInterfaceType(stripQuotes)
+                   if assoc._name[-30:].lower() == "simulink_full_interface_ref":
+                       stripQuotes = assoc._value.replace("\"", "")
+                       sp.SetSimulinkFullInterfaceRef(stripQuotes)
         self.match(END)
         id = self.LT(1)
         self.match(IDENT)

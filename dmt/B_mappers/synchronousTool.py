@@ -584,9 +584,9 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                param: Param,
                leafTypeDict: AST_Leaftypes,
                names: AST_Lookup) -> None:
-        if isinstance(param, (InOutParam, InParam)):
+        if isinstance(param, (InOutParam, InParam)) and (subProgram._simulinkInterfaceType in {"full", "partial_in", ""}):
             self.Decoder(nodeTypename, param._sourceElement._encoding, node, subProgram, subProgramImplementation, param, leafTypeDict, names)
-        if isinstance(param, (InOutParam, OutParam)):
+        if isinstance(param, (InOutParam, OutParam)) and (subProgram._simulinkInterfaceType in {"full", "partial_out", ""}):
             self.Encoder(nodeTypename, param._sourceElement._encoding, node, subProgram, subProgramImplementation, param, leafTypeDict, names)
 
     def OnBasic(self, nodeTypename: str, node: AsnNode, subProgram: ApLevelContainer, subProgramImplementation: str, param: Param, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> None:
@@ -693,7 +693,8 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                 # Execute() returns if interaction with FPGA HW is successful, that is, if HW writes and reads are successful (0) or not (-1)
                 self.C_HeaderFile.write("int Execute_%s%s(void);\n" % (self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation), fpgaSuffix))
             else:
-                self.C_HeaderFile.write("void Execute_%s(void);\n" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
+                if sp._simulinkInterfaceType in {"full", "step", ""}:
+                    self.C_HeaderFile.write("void Execute_%s(void);\n" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
             if maybeFVname != "":
                 if not (genFpgaDevDrv and maybeFVname in fpga_seen and fpga_seen[maybeFVname] == 'with_init_already'):
                     if modelingLanguage == "QGenC":
@@ -750,10 +751,11 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                 # Execute() returns if interaction with FPGA HW is successful, that is, if HW writes and reads are successful (0) or not (-1)
                 self.C_SourceFile.write("int Execute_%s%s()\n{\n" % (self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation), fpgaSuffix))
             else:
-                self.C_SourceFile.write("void Execute_%s()\n{\n" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
-            self.ExecuteBlock(modelingLanguage, asnFile, sp, subProgramImplementation, maybeFVname)
-            self.C_SourceFile.write("}\n\n")
-
+                if sp._simulinkInterfaceType in {"full", "step", ""}:
+                    self.C_SourceFile.write("void Execute_%s()\n{\n" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
+            if sp._simulinkInterfaceType in {"full", "step", ""}:
+                self.ExecuteBlock(modelingLanguage, asnFile, sp, subProgramImplementation, maybeFVname)
+                self.C_SourceFile.write("}\n\n")
             if maybeFVname != "":
                 if not (genFpgaDevDrv and maybeFVname in fpga_seen and fpga_seen[maybeFVname] == 'with_init_already'):
                     if modelingLanguage == "QGenC":
@@ -828,64 +830,67 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                 self.C_SourceFile.write('    }\n\n')
 
             # Decode inputs
-            for param in sp._params:
-                nodeTypename = param._signal._asnNodename
-                encoding = param._sourceElement._encoding
-                tmpSpName = "Convert_From_%s_To_%s_In_%s_%s%s" % \
-                    (encoding.lower(),
-                     self.CleanNameAsADAWants(nodeTypename),
-                     self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation),
-                     self.CleanNameAsADAWants(param._id),
-                     fpgaSuffix)
-                if isinstance(param, InParam):
-                    if modelingLanguage == "QGenC":
-                        self.C_SourceFile.write('    %s(p%s);\n' %
-                                                (tmpSpName,
-                                                 self.CleanNameAsToolWants(param._id)))
-                    else:
-                        self.C_SourceFile.write('    %s(p%s, size_%s);\n' %
-                                                (tmpSpName,
-                                                 self.CleanNameAsToolWants(param._id),
-                                                 self.CleanNameAsToolWants(param._id)))
-                elif isinstance(param, InOutParam):
-                    if modelingLanguage == "QGenC":
-                        self.C_SourceFile.write('    %s(p%s);\n' %
-                                                (tmpSpName,
-                                                 self.CleanNameAsToolWants(param._id)))
-                    else:
-                        self.C_SourceFile.write('    %s(p%s, *pSize_%s);\n' %  # pragma: no cover
-                                                (tmpSpName,
-                                                 self.CleanNameAsToolWants(param._id),
-                                                 self.CleanNameAsToolWants(param._id)))  # pragma: no cover
+            if sp._simulinkInterfaceType in {"full", "partial_in", ""}:
+                for param in sp._params:
+                    nodeTypename = param._signal._asnNodename
+                    encoding = param._sourceElement._encoding
+                    tmpSpName = "Convert_From_%s_To_%s_In_%s_%s%s" % \
+                        (encoding.lower(),
+                         self.CleanNameAsADAWants(nodeTypename),
+                         self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation),
+                         self.CleanNameAsADAWants(param._id),
+                         fpgaSuffix)
+                    if isinstance(param, InParam):
+                        if modelingLanguage == "QGenC":
+                            self.C_SourceFile.write('    %s(p%s);\n' %
+                                                    (tmpSpName,
+                                                     self.CleanNameAsToolWants(param._id)))
+                        else:
+                            self.C_SourceFile.write('    %s(p%s, size_%s);\n' %
+                                                    (tmpSpName,
+                                                     self.CleanNameAsToolWants(param._id),
+                                                     self.CleanNameAsToolWants(param._id)))
+                    elif isinstance(param, InOutParam):
+                        if modelingLanguage == "QGenC":
+                            self.C_SourceFile.write('    %s(p%s);\n' %
+                                                    (tmpSpName,
+                                                     self.CleanNameAsToolWants(param._id)))
+                        else:
+                            self.C_SourceFile.write('    %s(p%s, *pSize_%s);\n' %  # pragma: no cover
+                                                    (tmpSpName,
+                                                     self.CleanNameAsToolWants(param._id),
+                                                     self.CleanNameAsToolWants(param._id)))  # pragma: no cover
 
             # Do functional work
-            if genFpgaDevDrv:
-                # Check if HW delegation via Execute() is successful: return -1 to Dispatcher if not (so SW side can be called as fallback)
-                self.C_SourceFile.write("    if(Execute_%s%s()) return -1;\n" % (self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation), fpgaSuffix))
-            else:
-                self.C_SourceFile.write("    Execute_%s();\n" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
+            if sp._simulinkInterfaceType in {"full", "step", ""}:
+                if genFpgaDevDrv:
+                    # Check if HW delegation via Execute() is successful: return -1 to Dispatcher if not (so SW side can be called as fallback)
+                    self.C_SourceFile.write("    if(Execute_%s%s()) return -1;\n" % (self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation), fpgaSuffix))
+                else:
+                    self.C_SourceFile.write("    Execute_%s();\n" % self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation))
 
             # Encode outputs
-            for param in sp._params:
-                nodeTypename = param._signal._asnNodename
-                encoding = param._sourceElement._encoding
-                tmpSpName = "Convert_From_%s_To_%s_In_%s_%s%s" % \
-                    (self.CleanNameAsADAWants(nodeTypename),
-                     encoding.lower(),
-                     self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation),
-                     param._id,
-                     fpgaSuffix)
-                if isinstance(param, (InOutParam, OutParam)):
-                    if modelingLanguage == "QGenC":
-                        self.C_SourceFile.write('    %s(p%s);\n' %
-                                                (tmpSpName,
-                                                 self.CleanNameAsToolWants(param._id)))
-                    else:
-                        self.C_SourceFile.write('    *pSize_%s = %s(p%s, %s);\n' %
-                                                (self.CleanNameAsToolWants(param._id),
-                                                 tmpSpName,
-                                                 self.CleanNameAsToolWants(param._id),
-                                                 param._signal._asnSize))
+            if sp._simulinkInterfaceType in {"full", "partial_out", ""}:
+                for param in sp._params:
+                    nodeTypename = param._signal._asnNodename
+                    encoding = param._sourceElement._encoding
+                    tmpSpName = "Convert_From_%s_To_%s_In_%s_%s%s" % \
+                        (self.CleanNameAsADAWants(nodeTypename),
+                         encoding.lower(),
+                         self.CleanNameAsADAWants(sp._id + "_" + subProgramImplementation),
+                         param._id,
+                         fpgaSuffix)
+                    if isinstance(param, (InOutParam, OutParam)):
+                        if modelingLanguage == "QGenC":
+                            self.C_SourceFile.write('    %s(p%s);\n' %
+                                                    (tmpSpName,
+                                                     self.CleanNameAsToolWants(param._id)))
+                        else:
+                            self.C_SourceFile.write('    *pSize_%s = %s(p%s, %s);\n' %
+                                                    (self.CleanNameAsToolWants(param._id),
+                                                     tmpSpName,
+                                                     self.CleanNameAsToolWants(param._id),
+                                                     param._signal._asnSize))
             if genFpgaDevDrv:
                 # HW delegation via Execute() was successful, so return 0 to Dispatcher
                 self.C_SourceFile.write("    return 0;\n")
