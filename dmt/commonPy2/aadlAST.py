@@ -119,7 +119,7 @@ class ApLevelContainer:
         self._connections = []
         self._fpgaConfigurations = '' # The configuration(s)/"mode(s)" for which the Function's HW implementation shall apply (execution in FPGA)
         self._language = None
-        self._simulinkInterfaceType = None
+        self._simulinkInterfaceType = "full"
         self._simulinkFullInterfaceRef = ''
 
     def AddCalledAPLC(self, idAPLC):
