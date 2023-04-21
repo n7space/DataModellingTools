@@ -1,4 +1,4 @@
-AC_INIT([DMT], [2.2], [Thanassis.Tsiodras@esa.int])
+AC_INIT([DMT], [3.0], [Thanassis.Tsiodras@esa.int])
 
 AC_CONFIG_MACRO_DIR([ac-macros])
 
