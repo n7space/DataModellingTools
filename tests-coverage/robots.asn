@@ -3,7 +3,7 @@ BEGIN
 IMPORTS
    T-Int, T-UInt, T-Double, Vector2d, Vector3d, Position2D, Position, Pose2D, CameraPred, ScientificcameraPred, BatteryPred, BatterycmdPred, GuidancecmdPred, RoverpositionPred, RoboticarmPred, Camerastatus, Scientificcamerastatus, Batterystatus, Batterycmdstatus, Guidancecmdstatus, Roverpositionstatus, Roboticarmstatus, HaltStatus, BatteryLevel, AutonomyLevel, ChangeAutonomyMode, Traverse, TakeSample, LeaveSample, TakePictureAt, GoingTo, MoveRarm, PickSample, DropSample, TakeImage, Scan, Recharge, Telecommand, Telemetry FROM ERGO-DATAVIEW
    T-Int32, T-UInt32, T-Int8, T-UInt8, T-Boolean, T-Null-Record FROM TASTE-BasicTypes;
-
+   
 Agent-States ::= ENUMERATED {wait-0-guidancereactor-0-goingto, wait-0-camerareactor-0-wait-0-scicamops, wait-0-guidancereactor-0-fault, wait-0-rarmreactor-0-fault, wait-0-gcireactor, wait-0-gcireactor-0-wait, wait-0-camerareactor, wait-0-batteryreactor-0-rechargebat12, wait-0-camerareactor-0-wait-0-scicamops-0-fault, wait-0-plannerreactor-0-idle, wait-0-plannerreactor-0-takingpic, wait-0-rarmreactor-0-picking, wait-0-rarmreactor-0-moving, wait-0-rarmreactor-0-cancel, wait-0-camerareactor-0-wait-0-camops-0-cancel, wait-0-guidancereactor-0-cancel, wait-0-plannerreactor-0-picking, wait-0-batteryreactor-0-cancel21, wait-0-camerareactor-0-wait-0-camops-0-idle, wait-0-plannerreactor-0-goingtodrop, wait-0-batteryreactor-0-cancel1, wait-0-guidancereactor, wait-0-plannerreactor-0-goingto, wait-0-batteryreactor-0-cancel12, state-0-end, wait-0-rarmreactor-0-picked, wait-0-guidancereactor-0-idleat, wait-0-camerareactor-0-wait-0-scicamops-0-scanning, wait-0-batteryreactor-0-cancel2, wait-0-camerareactor-0-wait-0-scicamops-0-cancel, wait-0-rarmreactor, wait-0-plannerreactor-0-dropping, wait-0-batteryreactor-0-idle, wait-0-batteryreactor, wait-0-camerareactor-0-wait, wait-0-plannerreactor, wait-0-rarmreactor-0-dropping, wait-0-batteryreactor-0-rechargebat2, wait-0-camerareactor-0-wait-0-camops, wait-0-batteryreactor-0-rechargebat1, wait-0-camerareactor-0-wait-0-scicamops-0-idle, wait, wait-0-camerareactor-0-wait-0-camops-0-takingpicture, wait-0-plannerreactor-0-trav, wait-0-rarmreactor-0-idleat, wait-0-batteryreactor-0-rechargebat21, wait-0-plannerreactor-0-goingtopick, wait-0-camerareactor-0-wait-0-camops-0-fault}
 
 Agent-Context ::= SEQUENCE {
@@ -117,6 +117,25 @@ Pose2D ::= SEQUENCE {
     pos     Position2D,
     orient  T-Double
 }
+
+-- Definition of textual types
+
+MySequenceIA5String ::= SEQUENCE
+{
+    ia5stringMember IA5String (SIZE(1..20))
+}
+MySequenceOfMySequenceIA5String ::= SEQUENCE (SIZE (5..6)) OF MySequenceIA5String
+MySequenceOfSequenceOfMySequenceOfMySequenceIA5String ::= SEQUENCE (SIZE (5..6)) OF MySequenceOfMySequenceIA5String
+
+MySequenceInteger ::= SEQUENCE
+{
+    intMember INTEGER (0 .. 20)
+}
+MySequenceOfMySequenceInteger ::= SEQUENCE (SIZE (5..6)) OF MySequenceInteger
+MySequenceOfMySequenceOfMySequenceInteger ::= SEQUENCE (SIZE (5..6)) OF MySequenceOfMySequenceInteger
+
+MySequenceOfIA5String ::= SEQUENCE (SIZE (5..6)) OF IA5String (SIZE(1..20))
+MySequenceOfMySequenceOfIA5String ::= SEQUENCE (SIZE (5..6)) OF MySequenceOfIA5String
 
 -- Definition of Agent-Functional types
 

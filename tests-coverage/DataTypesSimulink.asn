@@ -1,5 +1,22 @@
 MY-MODULE DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 
+MySequenceIA5String ::= SEQUENCE
+{
+    ia5stringMember IA5String (SIZE(1..20))
+}
+MySequenceOfMySequenceIA5String ::= SEQUENCE (SIZE (5..6)) OF MySequenceIA5String
+MySequenceOfSequenceOfMySequenceOfMySequenceIA5String ::= SEQUENCE (SIZE (5..6)) OF MySequenceOfMySequenceIA5String
+
+MySequenceInteger ::= SEQUENCE
+{
+    intMember INTEGER (0 .. 20)
+}
+MySequenceOfMySequenceInteger ::= SEQUENCE (SIZE (5..6)) OF MySequenceInteger
+MySequenceOfMySequenceOfMySequenceInteger ::= SEQUENCE (SIZE (5..6)) OF MySequenceOfMySequenceInteger
+
+MySequenceOfIA5String ::= SEQUENCE (SIZE (5..6)) OF IA5String (SIZE(1..20))
+MySequenceOfMySequenceOfIA5String ::= SEQUENCE (SIZE (5..6)) OF MySequenceOfIA5String
+
 -- Original definition by Alain
 --T-POS ::= BOOLEAN
 
