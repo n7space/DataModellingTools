@@ -247,9 +247,11 @@ def getSyncBackend(modelingLanguage: str) -> Sync_B_Mapper:
 
 
 def isTypeForbidden(backend, typename, forbiddenTypes):
-    if backend in ('QGenC', 'C'):
+    if backend in ('QGenC', 'C', 'Ada'):
         return False
     else:
+        if typename in forbiddenTypes:
+            inform(f"ignoring {typename} because {backend} does not support IA5Strings")
         return typename in forbiddenTypes
 
 
@@ -289,6 +291,7 @@ def ProcessSync(
 
         # Check if this type must be skipped
         if isTypeForbidden(modelingLanguage, nodeTypename, badTypes):
+            inform("This type is skipped: %s", nodeTypename)
             continue
 
         node = names[nodeTypename]
@@ -365,6 +368,7 @@ def ProcessAsync(  # pylint: disable=dangerous-default-value
         for nodeTypename, node in names.items():
             # Check if this type must be skipped
             if isTypeForbidden(modelingLanguage, nodeTypename, badTypes):
+                inform("This type is skipped: %s", nodeTypename)
                 continue
 
             inform("ASN.1 node is %s", nodeTypename)
