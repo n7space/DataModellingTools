@@ -191,6 +191,26 @@ Members:
         return ret
 
 
+class AsnNull(AsnInt):
+    ''' NULL type is implemented as a char in C, so it behaves like an int with 8-bit range
+    '''
+    def __init__(self, **args: Any) -> None:
+        super().__init__(**args)
+        self._name = "NULL" 
+        self._leafType = "NULL"
+        self._lineno = args.get('lineno', None)
+        self._range = [0, 255]
+        self._iDefaultValue = None
+        for i in args:
+            assert i in AsnInt.validOptions
+
+    def __repr__(self) -> str:
+        return self._leafType
+
+    def AsASN1(self, _: Lookup) -> str:
+        return 'NULL'
+
+
 class AsnReal(AsnBasicNode):
     '''
 This class stores the semantic content of an ASN.1 REAL.

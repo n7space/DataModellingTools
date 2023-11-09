@@ -15,7 +15,7 @@ from ..commonPy.utility import panic, inform
 from ..commonPy.asnAST import (
     AsnBool, AsnInt, AsnReal, AsnString, isSequenceVariable, AsnEnumerated,
     AsnSequence, AsnSet, AsnChoice, AsnMetaMember, AsnSequenceOf, AsnSetOf,
-    AsnBasicNode, AsnNode, AsnSequenceOrSet, AsnSequenceOrSetOf,
+    AsnBasicNode, AsnNode, AsnSequenceOrSet, AsnSequenceOrSetOf, AsnNull,
     AsnAsciiString)
 from ..commonPy.asnParser import AST_Lookup, AST_Leaftypes
 from ..commonPy.cleanupNodes import SetOfBadTypenames
@@ -392,6 +392,9 @@ def CreateGettersAndSetters(
 
     if isinstance(node, AsnBool):
         CommonBaseImpl("BOOLEAN", "flag", path, params, accessPathInC)
+    elif isinstance(node, AsnNull):
+        # no Getter and Setter for NULL type since it carries no data
+        pass
     elif isinstance(node, AsnInt):
         # Signed or unsigned integer as per asn1scc output
         # Warning, this is not compatible with the -slim option, that generates
@@ -472,6 +475,12 @@ def DumpTypeDumper(
         lines.append(
             codeIndent +
             'lines.append("%s"+str(%s.Get()!=0).upper())' % (outputIndent, variableName))
+        if variableName.startswith("path[i]"):
+            lines.append(codeIndent + 'path.Reset(state)')
+    elif isinstance(node, AsnNull):
+        lines.append(
+            codeIndent +
+            'lines.append("%sNULL")' % (outputIndent))
         if variableName.startswith("path[i]"):
             lines.append(codeIndent + 'path.Reset(state)')
     elif isinstance(node, AsnInt):

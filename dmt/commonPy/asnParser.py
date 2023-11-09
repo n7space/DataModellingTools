@@ -31,7 +31,7 @@ from . import utility
 from .asnAST import (
     AsnBasicNode, AsnEnumerated, AsnSequence, AsnChoice, AsnSequenceOf,
     AsnSet, AsnSetOf, AsnMetaMember, AsnMetaType, AsnInt, AsnReal, AsnNode,
-    AsnComplexNode, AsnBool, AsnOctetString, AsnAsciiString
+    AsnComplexNode, AsnBool, AsnOctetString, AsnAsciiString, AsnNull
 )
 from .lockResource import lock_filename
 
@@ -257,6 +257,7 @@ def VerifyAndFixAST() -> Dict[str, str]:
                 setattr(node, i, cast(getattr(node, i)))
 
     knownTypes['INTEGER'] = 'INTEGER'
+    knownTypes['NULL'] = 'NULL'
     knownTypes['REAL'] = 'REAL'
     knownTypes['BOOLEAN'] = 'BOOLEAN'
     knownTypes['OCTET STRING'] = 'OCTET STRING'
@@ -587,6 +588,12 @@ def CreateInteger(newModule: Module, lineNo: int, xmlIntegerNode: Element) -> As
         range=GetRange(newModule, lineNo, xmlIntegerNode, int))
 
 
+def CreateNull(newModule: Module, lineNo: int, xmlIntegerNode: Element) -> AsnInt:
+    return AsnNull(
+        asnFilename=newModule._asnFilename,
+        lineno=lineNo)
+
+
 def CreateReal(newModule: Module, lineNo: int, xmlRealNode: Element) -> AsnReal:
     return AsnReal(
         asnFilename=newModule._asnFilename,
@@ -767,7 +774,8 @@ def GenericFactory(newModule: Module, xmlType: Element) -> AsnNode:
         "SetOfType": CreateSetOf,
         "SequenceType": CreateSequence,
         "SetType": CreateSet,
-        "ChoiceType": CreateChoice
+        "ChoiceType": CreateChoice,
+        "NullType": CreateNull
     }  # type: Dict[str, Callable[[Module, int, Element], AsnNode]]
     lineNo = GetAttrCertainly(xmlType, "Line")
     global g_lineno
@@ -885,6 +893,8 @@ def PrintType(f: IO[Any], xmlType: Element, indent: str, nameCleaner: Callable[[
     realType = xmlType._children[0]
     if realType._name == "BooleanType":
         f.write('BOOLEAN')
+    elif realType._name == "NullType":
+        f.write('NULL')
     elif realType._name == "IntegerType":
         f.write('INTEGER')
         mmin = GetAttrCertainly(realType, "Min")

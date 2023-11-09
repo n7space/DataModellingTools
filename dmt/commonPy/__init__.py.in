@@ -16,7 +16,7 @@ from . import recursiveMapper
 from . import cleanupNodes
 
 import pkg_resources  # pragma: no cover
-__version__ = "3.0-@SCM_REVISION@"
+__version__ = "3.1-@SCM_REVISION@"
 
 
 def print_version() -> None:

@@ -349,9 +349,14 @@ grep for the errorcode value inside ASN1SCC generated headers."""
     def IsConstraintValid(self):
         # Allocate temp space to store error code (avoid race condition that _pErr would cause)
         pErr = c_void_p(CreateInstanceOf_int())
-        validatorFunc = getattr(JMP, Clean(self._nodeTypeName) + "_IsConstraintValid")
-        isValid = validatorFunc(self._ptr, pErr)
-        errorCode = COMMON.getErrCode(pErr)
+        try:
+            validatorFunc = getattr(JMP, Clean(self._nodeTypeName) + "_IsConstraintValid")
+            isValid = validatorFunc(self._ptr, pErr)
+            errorCode = COMMON.getErrCode(pErr)
+        except AttributeError:
+            # Some types (e.g. NULL) may not have an IsConstraintValid function, ignore
+            isValid=True
+            errorCode = 0
         DestroyInstanceOf_int(pErr)
         return isValid, errorCode
 

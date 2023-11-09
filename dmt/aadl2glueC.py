@@ -302,7 +302,7 @@ def ProcessSync(
             continue  # artificially created (inner) type
 
         leafType = leafTypeDict[nodeTypename]
-        if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'AsciiString']:
+        if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'AsciiString', 'NULL']:
             processor = backend.OnBasic
         elif leafType == 'SEQUENCE':
             processor = backend.OnSequence
@@ -378,7 +378,7 @@ def ProcessAsync(  # pylint: disable=dangerous-default-value
                 continue  # artificially created (inner) type
 
             leafType = leafTypeDict[nodeTypename]
-            if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'AsciiString']:
+            if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'AsciiString', 'NULL']:
                 processor = backend.OnBasic
             elif leafType == 'SEQUENCE':
                 processor = backend.OnSequence
@@ -465,7 +465,7 @@ def ProcessCustomBackends(
             # if node._isArtificial:
             #     continue # artificially created (inner) type pragma: no cover
             leafType = leafTypeDict[nodeTypename]
-            if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'AsciiString']:
+            if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'AsciiString', 'NULL']:
                 for backend in getCustomBackends(lang):
                     backend.OnBasic(nodeTypename, node, sp, sp_impl, param, leafTypeDict, names)
             elif leafType in ['SEQUENCE', 'SET', 'CHOICE', 'SEQUENCEOF', 'SETOF', 'ENUMERATED']:
