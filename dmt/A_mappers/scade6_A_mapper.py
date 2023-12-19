@@ -27,7 +27,8 @@ from ..commonPy.asnParser import AST_Leaftypes
 g_lookup = {
     "INTEGER": "int",
     "REAL": "real",
-    "BOOLEAN": "bool"
+    "BOOLEAN": "bool",
+    "NULL": "int"
 }
 
 # The file written to
