@@ -57,7 +57,7 @@ TypeNested ::= SEQUENCE {
     bBeta	BOOLEAN,
     sString	T-STRING,
     arr		T-ARR,
-    arr2	T-ARR2
+    arr2	T-ARR2,
     arr3	SEQUENCE (SIZE(100)) OF NULL
 }
 
