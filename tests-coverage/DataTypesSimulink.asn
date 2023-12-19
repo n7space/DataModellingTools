@@ -58,6 +58,7 @@ TypeNested ::= SEQUENCE {
     sString	T-STRING,
     arr		T-ARR,
     arr2	T-ARR2
+    arr3	SEQUENCE (SIZE(100)) OF NULL
 }
 
 My2ndTypeNested ::= TypeNested
