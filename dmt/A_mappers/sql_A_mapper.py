@@ -172,6 +172,7 @@ def CreateBasic(nodeTypename: str, node: AsnBasicNode, leafTypeDict: AST_Leaftyp
     baseType = leafTypeDict[node._leafType]
     baseSqlType = {
         'INTEGER': 'int',
+        'NULL': 'int',
         'REAL': 'float',
         'BOOLEAN': 'boolean',
         'OCTET STRING': 'VARCHAR',
