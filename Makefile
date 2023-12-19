@@ -31,7 +31,7 @@ coverage:
 
 testDB:
 	@echo Installing DMT for local user...
-	@python3 -m pip install --break-system-packages .
+	@python3 -m pip install .
 	@echo Performing database tests...
 	@$(MAKE) -C tests-sqlalchemy  || exit 1
 
