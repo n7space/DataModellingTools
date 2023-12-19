@@ -588,7 +588,8 @@ def CreateInteger(newModule: Module, lineNo: int, xmlIntegerNode: Element) -> As
         range=GetRange(newModule, lineNo, xmlIntegerNode, int))
 
 
-def CreateNull(newModule: Module, lineNo: int, xmlIntegerNode: Element) -> AsnInt:
+def CreateNull(newModule: Module, lineNo: int, xmlNullNode: Element) -> AsnInt:
+    _ = xmlNullNode
     return AsnNull(
         asnFilename=newModule._asnFilename,
         lineno=lineNo)

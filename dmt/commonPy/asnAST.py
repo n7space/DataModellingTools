@@ -196,7 +196,7 @@ class AsnNull(AsnInt):
     '''
     def __init__(self, **args: Any) -> None:
         super().__init__(**args)
-        self._name = "NULL" 
+        self._name = "NULL"
         self._leafType = "NULL"
         self._lineno = args.get('lineno', None)
         self._range = [0, 255]
