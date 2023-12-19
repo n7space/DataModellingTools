@@ -116,6 +116,8 @@ My2ndReal ::= T-REAL
 T-STRING ::= OCTET STRING (SIZE(10..15))
 My2ndString ::= T-STRING
 T-FIXEDSTRING ::= OCTET STRING (SIZE(15))
+T-NULL ::= NULL
+
 
 T-META ::= T-POS
 
@@ -138,7 +140,8 @@ TypeWithOptional ::= SEQUENCE {
    a BOOLEAN OPTIONAL,
    b INTEGER (0..255|1299),
    c INTEGER (0..255),
-   d T-TypeThatMustNotBeMappedExceptInPython DEFAULT {config "Config", moreConfigs {"a", "b"}, param 5, fixstr "World"}
+   d T-TypeThatMustNotBeMappedExceptInPython DEFAULT {config "Config", moreConfigs {"a", "b"}, param 5, fixstr "World"},
+   e NULL
 }
 
 push-it T-TypeThatMustNotBeMappedExceptInPython ::= {config "Config", moreConfigs {"a", "b"}, param 5, fixstr "World"}
@@ -148,7 +151,8 @@ SubTypeWithOptional ::= TypeWithOptional (WITH COMPONENTS {a ABSENT, c (42), b (
 SuperChoice ::= CHOICE {
    first-choice BOOLEAN,
    second-choice INTEGER (0..255),
-   third-choice TypeWithOptional
+   third-choice TypeWithOptional,
+   fourth-choice NULL
 }
 
 -- Choice items can be removed in subtypes
