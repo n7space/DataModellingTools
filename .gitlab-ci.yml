@@ -11,7 +11,7 @@ stages:
 build:
   stage: build
   script:
-    - ./configure ; pip3 install -r requirements.txt ; cd / ; wget -q -O - https://github.com/maxime-esa/asn1scc/releases/download/4.3.0.0/asn1scc-bin-4.5.0.12.tar.bz2 | tar jxpvf - ; cd - ; LANG=C LC_ALL=C PATH=$PATH:/asn1scc:/root/.local/bin/ make
+    - ./configure ; pip3 install -r requirements.txt ; cd / ; wget -q -O - https://github.com/maxime-esa/asn1scc/releases/download/4.5.0.12/asn1scc-bin-4.5.0.12.tar.bz2 | tar jxpvf - ; cd - ; LANG=C LC_ALL=C PATH=$PATH:/asn1scc:/root/.local/bin/ make
   # artifacts:
     # paths:
     #   - 'test/logs/*.err.txt'
