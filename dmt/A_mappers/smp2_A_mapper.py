@@ -143,7 +143,8 @@ def CreateBasic(nodeTypename: str, node: AsnBasicNode, leafTypeDict: AST_Leaftyp
         'INTEGER': 'Types:Integer',
         'REAL': 'Types:Float',
         'BOOLEAN': 'Types:Integer',
-        'OCTET STRING': 'Types:Array'
+        'OCTET STRING': 'Types:Array',
+        'NULL': 'Types:Integer'
     }[baseType]
     span = ""
     if isinstance(node, AsnBool):
@@ -162,7 +163,8 @@ def CreateBasic(nodeTypename: str, node: AsnBasicNode, leafTypeDict: AST_Leaftyp
         'INTEGER': "Int64",
         'REAL': "Float64",
         'BOOLEAN': "UInt8",
-        'OCTET STRING': 'UInt8'
+        'OCTET STRING': 'UInt8',
+        'NULL': "IUint8"
     }[baseType]
     element = "ItemType" if baseType == "OCTET STRING" else "PrimitiveType"
     g_catalogueXML.write('      <%s xlink:title="PrimitiveType %s" xlink:href="http://www.esa.int/2005/10/Smp#%s" />\n' %
@@ -363,12 +365,13 @@ def OnShutdown(badTypes: SetOfBadTypenames) -> None:
         node = g_names[nodeTypename]
         uid = getUID(nodeTypename)
         leafType = g_leafTypeDict[nodeTypename]
-        if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING']:
+        if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'NULL']:
             baseType = g_leafTypeDict[node._leafType]
             xsitype = {
                 'INTEGER': 'Integer',
                 'REAL': 'Float',
                 'BOOLEAN': 'Integer',
+                'NULL': 'Integer',
                 'OCTET STRING': 'Array'
             }[baseType]
         elif leafType in ['SEQUENCE', 'SET', 'CHOICE']:
