@@ -248,16 +248,28 @@ class C_GlueGenerator(ASynchronousToolGlueGenerator):
             self.CleanNameAsToolWants(nodeTypename),
             encoding.upper())
         self.C_HeaderFile.write(needDefine)
-        self.C_HeaderFile.write(
-            "int %s(void *pBuffer, size_t iMaxBufferSize, %sasn1Scc%s *pSrc);\n" %
-            (tmpSpName, "" if encoding.lower() == "acn" else "const ",
-             self.CleanNameAsToolWants(nodeTypename)))
+        if encoding.lower() in ["uper", "acn"]:
+            self.C_HeaderFile.write(
+                "int %s(void *pBuffer, size_t iMaxBufferSize, %sasn1Scc%s *pSrc, int *errorCode);\n" %
+                (tmpSpName, "" if encoding.lower() == "acn" else "const ",
+                 self.CleanNameAsToolWants(nodeTypename)))
+        elif encoding.lower() == "native":
+            self.C_HeaderFile.write(
+                "int %s(void *pBuffer, size_t iMaxBufferSize, %sasn1Scc%s *pSrc);\n" %
+                (tmpSpName, "" if encoding.lower() == "acn" else "const ",
+                 self.CleanNameAsToolWants(nodeTypename)))
         self.C_HeaderFile.write("#endif\n\n")
         self.C_SourceFile.write(needDefine)
-        self.C_SourceFile.write(
-            "int %s(void *pBuffer, size_t iMaxBufferSize, %sasn1Scc%s *pSrc)\n{\n    (void)iMaxBufferSize;\n" %
-            (tmpSpName, "" if encoding.lower() == "acn" else "const ",
-             self.CleanNameAsToolWants(nodeTypename)))
+        if encoding.lower() in ["uper", "acn"]:
+            self.C_SourceFile.write(
+                "int %s(void *pBuffer, size_t iMaxBufferSize, %sasn1Scc%s *pSrc, int *errorCode)\n{\n    (void)iMaxBufferSize;\n" %
+                (tmpSpName, "" if encoding.lower() == "acn" else "const ",
+                 self.CleanNameAsToolWants(nodeTypename)))
+        elif encoding.lower() == "native":
+            self.C_SourceFile.write(
+                "int %s(void *pBuffer, size_t iMaxBufferSize, %sasn1Scc%s *pSrc)\n{\n    (void)iMaxBufferSize;\n" %
+                (tmpSpName, "" if encoding.lower() == "acn" else "const ",
+                 self.CleanNameAsToolWants(nodeTypename)))
 
         if self.useOSS and encoding.lower() == "uper":
             self.C_SourceFile.write("    STATIC OSS_%s var_%s;\n\n" %
@@ -268,7 +280,7 @@ class C_GlueGenerator(ASynchronousToolGlueGenerator):
             if self.useOSS:
                 self.C_SourceFile.write("    STATIC OssBuf strm;\n")
             else:
-                self.C_SourceFile.write("    int errorCode;\n")
+                self.C_SourceFile.write("    int outErrorCode;\n")
                 self.C_SourceFile.write("    STATIC BitStream strm;\n\n")
                 self.C_SourceFile.write("    BitStream_Init(&strm, pBuffer, iMaxBufferSize);\n")
 
@@ -304,12 +316,15 @@ class C_GlueGenerator(ASynchronousToolGlueGenerator):
             self.C_SourceFile.write("}\n")
             self.C_SourceFile.write("#endif\n\n")
         elif encoding.lower() in ["uper", "acn"]:
-            self.C_SourceFile.write("    if (asn1Scc%s_%sEncode(pSrc, &strm, &errorCode, TRUE) == FALSE) {\n" %
+            self.C_SourceFile.write("    if (asn1Scc%s_%sEncode(pSrc, &strm, &outErrorCode, TRUE) == FALSE) {\n" %
                                     (self.CleanNameAsToolWants(nodeTypename),
                                      ("ACN_" if encoding.lower() == "acn" else "")))
+            self.C_SourceFile.write("       if (errorCode != NULL) {\n")
+            self.C_SourceFile.write("           *errorCode = outErrorCode;\n")
+            self.C_SourceFile.write("       }\n")
             self.C_SourceFile.write("#ifdef __unix__\n")
             self.C_SourceFile.write(
-                '\tfprintf(stderr, "Could not encode %s (at %%s, %%d), errorCode was %%d\\n", __FILE__, __LINE__, errorCode);\n' % nodeTypename)
+                '\tfprintf(stderr, "Could not encode %s (at %%s, %%d), errorCode was %%d\\n", __FILE__, __LINE__, outErrorCode);\n' % nodeTypename)
             self.C_SourceFile.write("#endif\n")
             self.C_SourceFile.write("        return -1;\n")
             self.C_SourceFile.write("    } else {\n")
@@ -338,14 +353,24 @@ class C_GlueGenerator(ASynchronousToolGlueGenerator):
             self.CleanNameAsToolWants(nodeTypename),
             encoding.upper())
         self.C_HeaderFile.write(needDefine)
-        self.C_HeaderFile.write(
-            "int %s(asn1Scc%s *pDst, void *pBuffer, size_t iBufferSize);\n" %
-            (tmpSpName, self.CleanNameAsToolWants(nodeTypename)))
+        if encoding.lower() in ["uper", "acn"]:
+            self.C_HeaderFile.write(
+                "int %s(asn1Scc%s *pDst, void *pBuffer, size_t iBufferSize, int *errorCode);\n" %
+                (tmpSpName, self.CleanNameAsToolWants(nodeTypename)))
+        elif encoding.lower() == "native":
+            self.C_HeaderFile.write(
+                "int %s(asn1Scc%s *pDst, void *pBuffer, size_t iBufferSize);\n" %
+                (tmpSpName, self.CleanNameAsToolWants(nodeTypename)))
         self.C_HeaderFile.write("#endif\n\n")
         self.C_SourceFile.write(needDefine)
-        self.C_SourceFile.write(
-            "int %s(asn1Scc%s *pDst, void *pBuffer, size_t iBufferSize)\n{\n    (void)iBufferSize;\n" %
-            (tmpSpName, self.CleanNameAsToolWants(nodeTypename)))
+        if encoding.lower() in ["uper", "acn"]:
+            self.C_SourceFile.write(
+                "int %s(asn1Scc%s *pDst, void *pBuffer, size_t iBufferSize, int *errorCode)\n{\n    (void)iBufferSize;\n" %
+                (tmpSpName, self.CleanNameAsToolWants(nodeTypename)))
+        elif encoding.lower() == "native":
+            self.C_SourceFile.write(
+                "int %s(asn1Scc%s *pDst, void *pBuffer, size_t iBufferSize)\n{\n    (void)iBufferSize;\n" %
+                (tmpSpName, self.CleanNameAsToolWants(nodeTypename)))
 
         if self.useOSS and encoding.lower() == "uper":
             self.C_SourceFile.write("    int pdutype = OSS_%s_PDU;\n" %
@@ -361,10 +386,10 @@ class C_GlueGenerator(ASynchronousToolGlueGenerator):
             self.C_SourceFile.write("        /* Decoding succeeded */\n")
         else:
             if encoding.lower() in ["uper", "acn"]:
-                self.C_SourceFile.write("    int errorCode;\n\n")
+                self.C_SourceFile.write("    int outErrorCode;\n\n")
                 self.C_SourceFile.write("    STATIC BitStream strm;\n\n")
                 self.C_SourceFile.write("    BitStream_AttachBuffer(&strm, pBuffer, iBufferSize);\n\n")
-                self.C_SourceFile.write("    if (asn1Scc%s_%sDecode(pDst, &strm, &errorCode)) {\n" %
+                self.C_SourceFile.write("    if (asn1Scc%s_%sDecode(pDst, &strm, &outErrorCode)) {\n" %
                                         (self.CleanNameAsToolWants(nodeTypename),
                                          "ACN_" if encoding.lower() == "acn" else ""))
                 self.C_SourceFile.write("        /* Decoding succeeded */\n")
@@ -402,9 +427,12 @@ class C_GlueGenerator(ASynchronousToolGlueGenerator):
         elif encoding.lower() in ["uper", "acn"]:
             self.C_SourceFile.write("        return 0;\n")
             self.C_SourceFile.write("    } else {\n")
+            self.C_SourceFile.write("       if (errorCode != NULL) {\n")
+            self.C_SourceFile.write("           *errorCode = outErrorCode;\n")
+            self.C_SourceFile.write("       }\n")
             self.C_SourceFile.write("#ifdef __unix__\n")
             self.C_SourceFile.write(
-                '\tfprintf(stderr, "Could not decode %s (at %%s, %%d), error code was %%d\\n", __FILE__, __LINE__, errorCode);\n' % nodeTypename)
+                '\tfprintf(stderr, "Could not decode %s (at %%s, %%d), error code was %%d\\n", __FILE__, __LINE__, outErrorCode);\n' % nodeTypename)
             self.C_SourceFile.write("#endif\n")
             self.C_SourceFile.write("        return -1;\n")
             self.C_SourceFile.write("    }\n")
