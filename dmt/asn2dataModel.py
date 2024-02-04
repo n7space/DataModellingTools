@@ -212,7 +212,7 @@ def main() -> None:
                 assert nodeTypename in leafTypeDict
 
                 leafType = leafTypeDict[nodeTypename]
-                if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'AsciiString', 'NULL']:
+                if leafType in ['BOOLEAN', 'INTEGER', 'REAL', 'OCTET STRING', 'AsciiString', 'NULL', 'BIT STRING']:
                     processor = backend.OnBasic
                 elif leafType == 'SEQUENCE':
                     processor = backend.OnSequence

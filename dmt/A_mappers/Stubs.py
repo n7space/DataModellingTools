@@ -254,6 +254,7 @@ An example for SetLength:
                 'byte': c_ubyte,
                 'double': c_double,
                 'flag': c_bool,
+                'bool': c_bool,
                 'int': c_int,
                 'long': c_long,
                 'char': c_ubyte # char
@@ -452,3 +453,52 @@ grep for the errorcode value inside ASN1SCC generated headers."""
                 self._params.pop()
             self.Reset()
             return retval
+
+    def GetBitStringAsArray(self):
+        ''' From a BIT STRING, return an array of boolean '''
+        retval = []
+        strLength = self.GetLength(False)
+        self._Caccessor += "_iDx"
+        accessPath = self._accessPath
+        for idx in range(0, strLength):
+            self._params.append(idx)
+            self._accessPath = accessPath + "[" + str(idx) + "]"
+            retval.append(bool(self.Get(reset=False)))
+            self._params.pop()
+        self.Reset()
+        return retval
+
+    def GetAsciiBitString(self, convention="msb0"):
+        ''' Returns a string representing a BIT STRING, e.g "01001" '''
+        retval = ''
+        array_of_bool = self.GetBitStringAsArray()
+        for each in array_of_bool:
+            if convention == "msb0":
+                # ASN.1 and ECSS-E-ST-70 default convention:
+                # bit 0 is on the LEFT (i.e. bit 0 is NOT 2^0)
+                retval += each and '1' or '0'
+            elif convention == "lsb0":
+                retval = (each and "1" or "0") + retval
+        return retval
+
+    def SetBitSrtringFromArray(self, src):
+        ''' This function takes as input an array of booleans
+            and sets the BIT STRING elements accordingly (MSB0) '''
+        strLength = len(src)
+        self.SetLength(strLength, False)
+        self._Caccessor += "_iDx"
+        accessPath = self._accessPath
+        for idx in range(0, strLength):
+            self._params.append(idx)
+            self._accessPath = accessPath + "[" + str(idx) + "]"
+            self.Set(src[idx], reset=False)
+            self._params.pop()
+        self.Reset()
+
+    def SetBitStringFromString(self, src):
+        ''' This function takes a textual bit string in the form '00010'
+        and sets the BIT STRING elements accordingly (MSB0) '''
+        array_of_bool = []
+        for each in src:
+            array_of_bool.append(each == "1")
+        self.SetBitSrtringFromArray(array_of_bool)

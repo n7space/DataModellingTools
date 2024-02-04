@@ -16,7 +16,7 @@ from ..commonPy.asnAST import (
     AsnBool, AsnInt, AsnReal, AsnString, isSequenceVariable, AsnEnumerated,
     AsnSequence, AsnSet, AsnChoice, AsnMetaMember, AsnSequenceOf, AsnSetOf,
     AsnBasicNode, AsnNode, AsnSequenceOrSet, AsnSequenceOrSetOf, AsnNull,
-    AsnAsciiString)
+    AsnAsciiString, AsnBitString)
 from ..commonPy.asnParser import AST_Lookup, AST_Leaftypes
 from ..commonPy.cleanupNodes import SetOfBadTypenames
 
@@ -40,12 +40,12 @@ def CleanNameAsPythonWants(name: str) -> str:
 
 
 def OnStartup(unused_modelingLanguage: str, asnFile: str, outputDir: str, badTypes: SetOfBadTypenames) -> None:
-    os.system("cp -u \"" + asnFile + "\" \"" + outputDir + "\"")
+    os.system(f'cp -u "{asnFile}" "{outputDir}" 2>/dev/null')
     this_path = os.path.dirname(__file__)
     stubs = this_path + os.sep + 'Stubs.py'
-    os.system('cp "{}" "{}"'.format(stubs, outputDir))
+    os.system(f'cp -u "{stubs}" "{outputDir}"')
     enum_learner = this_path + os.sep + 'learn_CHOICE_enums.py'
-    os.system('cp "{}" "{}"'.format(enum_learner, outputDir))
+    os.system(f'cp -u "{enum_learner}" "{outputDir}"')
     global g_bHasStartupRunOnce
     if g_bHasStartupRunOnce:
         # Don't rerun, it has already done all the work
@@ -84,8 +84,10 @@ def OnStartup(unused_modelingLanguage: str, asnFile: str, outputDir: str, badTyp
     g_outputGetSetC.write('#include <stdio.h>\n')
     g_outputGetSetC.write('#include <stdlib.h>\n')
     g_outputGetSetC.write('#include <assert.h>\n')
+    g_outputGetSetC.write('#include <stdbool.h>\n')
     g_outputGetSetC.write('#include <string.h>\n')
     g_outputGetSetC.write('#include "%s_getset.h"\n\n' % base)
+    g_outputGetSetC.write('#include "asn1crt_encoding.h"\n')
     g_outputGetSetC.write('size_t GetStreamCurrentLength(BitStream *pBitStrm) {\n')
     g_outputGetSetC.write('    return pBitStrm->currentByte + ((pBitStrm->currentBit+7)/8);\n')
     g_outputGetSetC.write('}\n\n')
@@ -264,14 +266,6 @@ def OnShutdown(unused_badTypes: SetOfBadTypenames) -> None:
 
 
 class Params:
-    cTypes = {
-        "BOOLEAN": "flag",
-        "INTEGER": "asn1SccSint",
-        "REAL": "double",
-        "ENUMERATED": "int",
-        "OCTET STRING": "byte*",
-    }
-
     def __init__(self, nodeTypename: str) -> None:
         self._vars = []  # type: List[str]
         self._types = []  # type: List[str]
@@ -287,20 +281,6 @@ class Params:
         self._vars.append(varName)
         self._types.append("int")
         return True
-        # For others, lookup the C type
-        # try:
-        #     realLeafType = leafTypeDict[node._leafType]
-        # except:
-        #     #panic("Python_A_mapper: Only primitive types can be C params, not %s" % node.Location())
-        #     # the lookup will fail for non-primitives, which we ignore
-        #     return False
-
-        # self._vars.append(varName)
-        # try:
-        #     self._types.append(self.cTypes[realLeafType])
-        # except:
-        #     panic("Python_A_mapper: Can't map (%s,%s) to C type\n" % (varName, realLeafType))
-        # return True
 
     def Pop(self) -> None:
         self._vars.pop()
@@ -318,7 +298,7 @@ def CommonBaseImpl(comment: str,
                    path: str,
                    params: Params,
                    accessPathInC: str,
-                   postfix: str = "",
+                   postfix: str = "",   #  can be "Length"
                    returnPointer: bool = False) -> None:
     takeAddr = '&' if returnPointer else ''
     g_outputGetSetH.write("\n/* %s */\n%s %s_Get%s(%s);\n" % (comment, ctype, path, postfix, params.GetDecl()))
@@ -378,6 +358,22 @@ def CommonBaseImplIA5String(comment: str,
     g_outputGetSetC.write("}\n")
 
 
+def CommonBaseImplBitString(path: str,
+                            params: Params) -> None:
+    # BIT STRING: Getter and Setter for invividual bits in the string
+    g_outputGetSetH.write(f"\n/* BIT STRING */\nbool {path}_Get({params.GetDecl()});\n")
+    g_outputGetSetC.write(f"\n/* BIT STRING */\nbool {path}_Get({params.GetDecl()})\n")
+    g_outputGetSetC.write("{\n")
+    g_outputGetSetC.write(f"   return (*root).arr[iDx / 8] & (1 << (7 - (iDx % 8)));\n")
+    g_outputGetSetC.write("}\n")
+    g_outputGetSetH.write(f"\n/* BIT STRING */\nvoid {path}_Set({params.GetDecl()}, bool value);\n")
+    g_outputGetSetC.write(f"\n/* BIT STRING */\nvoid {path}_Set({params.GetDecl()}, bool value)\n")
+    g_outputGetSetC.write("{\n")
+    g_outputGetSetC.write(f"   if (value) (*root).arr[iDx / 8] |= (1 << (7 - (iDx % 8)));\n");
+    g_outputGetSetC.write(f"   else (*root).arr[iDx / 8] &= ~(1 << (7 - (iDx % 8)));\n");
+    g_outputGetSetC.write("}\n")
+
+
 def CreateGettersAndSetters(
         path: str,
         params: Params,
@@ -413,6 +409,16 @@ def CreateGettersAndSetters(
         CommonBaseImplIA5String("IA5String", "long", path, params, accessPathInC, node)
         params.AddParam('int', "iDx", leafTypeDict)
         CommonBaseImpl("IA5String_bytes", "char", path + "_iDx", params, accessPathInC + ("[" + params._vars[-1] + "]"), "")
+        params.Pop()
+    elif isinstance(node, AsnBitString):
+        if not node._range:
+            panic("Python_A_mapper: string (in %s) must have a SIZE constraint!\n" % node.Location())  # pragma: no cover
+        if isSequenceVariable(node):
+            CommonBaseImpl("BITSTRING", "long", path, params, accessPathInC + ".nCount", "Length")
+        else:
+            CommonBaseImplSequenceFixed("BITSTRING", "long", path, params, accessPathInC + ".nCount", node, "Length")
+        params.AddParam('int', "iDx", leafTypeDict)
+        CommonBaseImplBitString(path + "_iDx", params)
         params.Pop()
     elif isinstance(node, AsnString):
         if not node._range:
@@ -491,6 +497,13 @@ def DumpTypeDumper(
     elif isinstance(node, AsnReal):
         lines.append(
             codeIndent + 'lines.append("%s"+str(%s.Get()))' % (outputIndent, variableName))
+        if variableName.startswith("path[i]"):
+            lines.append(codeIndent + 'path.Reset(state)')
+    elif isinstance(node, AsnBitString):
+        # BIT STRING
+        lines.append(f"{codeIndent}value = {variableName}.GetAsciiBitString()")
+        lines.append(f'''{codeIndent}value = "'" + value + "'B"''')
+        lines.append(codeIndent + 'lines.append("%s"+value)' % (outputIndent))
         if variableName.startswith("path[i]"):
             lines.append(codeIndent + 'path.Reset(state)')
     elif isinstance(node, AsnAsciiString):

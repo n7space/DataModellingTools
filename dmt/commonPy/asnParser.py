@@ -31,7 +31,8 @@ from . import utility
 from .asnAST import (
     AsnBasicNode, AsnEnumerated, AsnSequence, AsnChoice, AsnSequenceOf,
     AsnSet, AsnSetOf, AsnMetaMember, AsnMetaType, AsnInt, AsnReal, AsnNode,
-    AsnComplexNode, AsnBool, AsnOctetString, AsnAsciiString, AsnNull
+    AsnComplexNode, AsnBool, AsnOctetString, AsnAsciiString, AsnNull,
+    AsnBitString
 )
 from .lockResource import lock_filename
 
@@ -618,9 +619,11 @@ def CreateEnumerated(newModule: Module, lineNo: int, xmlEnumeratedNode: Element)
 
 
 # def CreateBitString(newModule, lineNo, xmlBitString):
-def CreateBitString(_, __, ___):  # type: ignore
-    utility.panic("BitString type is not supported by the toolchain. "  # pragma: no cover
-                  "Please use SEQUENCE OF BOOLEAN")  # pragma: no cover
+def CreateBitString(newModule: Module, lineNo: int, xmlBitString: Element) -> AsnBitString:
+    return AsnBitString(
+        asnFilename=newModule._asnFilename,
+        lineno=lineNo,
+        range=GetRange(newModule, lineNo, xmlBitString, int))
 
 
 def CreateOctetString(newModule: Module, lineNo: int, xmlOctetString: Element) -> AsnOctetString:

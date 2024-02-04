@@ -321,12 +321,13 @@ class AsnOctetString(AsnString):
         self._name = "OCTET STRING"  # default in case of SEQUENCE_OF OCTET STRING
         self._leafType = "OCTET STRING"
 
-# class AsnBitString(AsnString):
-#     '''This class stores the semantic content of an ASN.1 BIT STRING.'''
-#     def __init__(self, **args):
-#        apply(AsnString.__init__, (self,), args)
-#        self._name = "BIT STRING" # default in case of SEQUENCE_OF BIT STRING
-#        self._leafType = "BIT STRING"
+
+class AsnBitString(AsnString):
+    '''This class stores the semantic content of an ASN.1 BIT STRING.'''
+    def __init__(self, **args: Any) -> None:
+        AsnString.__init__(self, **args)
+        self._name = "BIT STRING" # default in case of SEQUENCE_OF BIT STRING
+        self._leafType = "BIT STRING"
 
 
 class AsnUTF8String(AsnString):
