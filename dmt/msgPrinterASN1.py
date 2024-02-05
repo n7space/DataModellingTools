@@ -90,18 +90,12 @@ class Printer(RecursiveMapper):
         limit = sourceSequenceLimit(node, srcCVariable)
         lines = [
                 "{",
-               f"    int rem = {limit} % 8;",
-               f"    int nbOfBytes = {limit}>0?({limit} / 8 + (rem?1:0)):0;",
-               f"    int currBit = 0;",
+               f"    int nCount = {limit};",
                 '    printf("\'");',
-                "    for(int i=0; i<nbOfBytes; i++)",
-                "        for(int bitPos=7; bitPos>=0; bitPos--) // BIT STRING is MSB0",
-                "        {",
-               f"            if (currBit >= {limit}) break;",
-               f'            printf("%c", (({srcCVariable}.arr[i] & (1 << bitPos)))?\'1\':\'0\');',
-                "            currBit++;",
-                "        }",
-                '    printf("\'B");',
+                '    for (int i = 0; i < nCount; i++) {',
+               f'        printf("%c", (({srcCVariable}.arr[i / 8] >> (7 - i % 8)) & 1) ? \'1\' : \'0\');',
+                "    }",
+                '    printf("\'B");'
                 "}\n"
         ]
         return lines
