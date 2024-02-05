@@ -84,6 +84,27 @@ class Printer(RecursiveMapper):
         lines.append("}\n")
         return lines
 
+    def MapBitString(self, srcCVariable, unused, node, __, ___):
+        ''' in BIT STRING types, the nCount indicates the number of bits
+        (if size is variable), but the bits are packed in bytes '''
+        limit = sourceSequenceLimit(node, srcCVariable)
+        lines = [
+                "{",
+               f"    int nbOfBytes = {limit} / 8;",
+               f"    int currBit = 0;",
+                '    printf("\'");',
+                "    for(int i=0; i<nbOfBytes; i++)",
+                "        for(int bitPos=7; bitPos>=0; i--) // BIT STRING is MSB0",
+                "        {",
+               f"            if (currBit >= {limit}) break;",
+               f'            printf("%d", ({srcCVariable}.arr[i] << bitPos));',
+                "            currBit++;",
+                "        }",
+                '    printf("\'B");',
+                "}\n"
+        ]
+        return lines
+
     def MapIA5String(self, srcCVariable, unused, node, __, ___):
         return ['printf("\\"%%s\\"", %s);' % srcCVariable]
 

@@ -9,7 +9,7 @@ from typing import Union, List, Dict, TypeVar, Generic
 from .utility import panicWithCallStack
 from .asnAST import (
     AsnAsciiString, AsnSequence, AsnSet, AsnChoice, AsnSequenceOf, AsnSetOf, AsnEnumerated,
-    AsnMetaMember, AsnNode, AsnInt, AsnReal, AsnBool, AsnOctetString)
+    AsnMetaMember, AsnNode, AsnInt, AsnReal, AsnBool, AsnOctetString, AsnBitString)
 from .asnParser import AST_Leaftypes, AST_Lookup
 
 
@@ -43,6 +43,9 @@ class RecursiveMapperGeneric(Generic[TSrc, TDest]):
 
     def MapOctetString(self, unused_srcVar: TSrc, unused_destVar: TDest, unused_node: AsnOctetString, unused_leafTypeDict: AST_Leaftypes, unused_names: AST_Lookup) -> List[str]:  # pylint: disable=no-self-use,invalid-sequence-index
         panicWithCallStack("Method undefined in a RecursiveMapper...")
+
+    def MapBitString(self, unused_srcVar: TSrc, unused_destVar: TDest, unused_node: AsnBitString, unused_leafTypeDict: AST_Leaftypes, unused_names: AST_Lookup) -> List[str]:  # pylint: disable=no-self-use,invalid-sequence-index
+        panicWithCallStack("Support for BIT STRING not implemented in a RecursiveMapper...")
 
     def MapIA5String(self, unused_srcVar: TSrc, unused_destVar: TDest, unused_node: AsnAsciiString, unused_leafTypeDict: AST_Leaftypes, unused_names: AST_Lookup) -> List[str]:  # pylint: disable=no-self-use,invalid-sequence-index
         print("Error: AsnAsciiString is not supported for this generator.")
@@ -85,6 +88,8 @@ class RecursiveMapperGeneric(Generic[TSrc, TDest]):
             lines.extend(self.MapBoolean(srcVar, destVar, node, leafTypeDict, names))
         elif isinstance(node, AsnOctetString):
             lines.extend(self.MapOctetString(srcVar, destVar, node, leafTypeDict, names))
+        elif isinstance(node, AsnBitString):
+            lines.extend(self.MapBitString(srcVar, destVar, node, leafTypeDict, names))
         elif isinstance(node, AsnSequence):
             lines.extend(self.MapSequence(srcVar, destVar, node, leafTypeDict, names))
         elif isinstance(node, AsnSet):
@@ -102,7 +107,7 @@ class RecursiveMapperGeneric(Generic[TSrc, TDest]):
         elif isinstance(node, AsnMetaMember):
             lines.extend(self.Map(srcVar, destVar, names[node._containedType], leafTypeDict, names))
         else:
-            panicWithCallStack("unsupported %s (%s)" % (str(node.__class__), node.Location()))
+            panicWithCallStack("[recursiveMapper.py] unsupported %s (%s)" % (str(node.__class__), node.Location()))
         return lines
 
 

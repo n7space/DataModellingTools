@@ -7,7 +7,7 @@ from typing import List, IO, Any
 
 from ..commonPy.asnAST import (
     AsnInt, AsnBool, AsnReal, AsnEnumerated,
-    AsnOctetString, AsnChoice, AsnSequence, AsnSet,
+    AsnOctetString, AsnChoice, AsnSequence, AsnSet, AsnBitString,
     AsnAsciiString, AsnSequenceOf, AsnSetOf, AsnMetaMember, AsnNode)
 
 from ..commonPy.utility import panic
@@ -589,7 +589,7 @@ def WriteCodeForGUIControls(prefixes: List[str],  # pylint: disable=invalid-sequ
             if item:
                 pyStr += '''["{prefixKey}"]'''.format(prefixKey=item)
 
-    if isinstance(node, (AsnInt, AsnReal, AsnOctetString, AsnAsciiString)):
+    if isinstance(node, (AsnInt, AsnReal, AsnOctetString, AsnAsciiString, AsnBitString)):
         if isinstance(node, AsnInt):
             if g_onceOnly:
                 g_PyDataModel.write(
@@ -604,10 +604,14 @@ def WriteCodeForGUIControls(prefixes: List[str],  # pylint: disable=invalid-sequ
                         nodeTypename, node._name, txtPrefix, isOptional, alwaysPresent, alwaysAbsent,
                         node._range[0], node._range[1]))
 
-        elif isinstance(node, (AsnOctetString, AsnAsciiString)):
+        elif isinstance(node, (AsnOctetString, AsnAsciiString, AsnBitString)):
             if g_onceOnly:
-                stringKind = "IA5String" if isinstance(node, AsnAsciiString)\
-                    else "OCTET STRING"
+                if isinstance(node, AsnAsciiString):
+                    stringKind = "IA5String"
+                elif isinstance(node, AsnBitString):
+                    stringKind = "BIT STRING"
+                else:
+                    stringKind = "OCTET STRING"
                 g_PyDataModel.write(
                     f"{{'nodeTypename': '{nodeTypename}', \
                        'type': '{stringKind}', \
