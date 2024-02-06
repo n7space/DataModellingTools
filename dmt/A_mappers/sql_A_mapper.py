@@ -14,7 +14,7 @@ from typing import List, Union, Set, IO, Any, Dict  # NOQA pylint: disable=unuse
 from ..commonPy.asnAST import (
     AsnMetaMember, AsnChoice, AsnSet, AsnSequence, AsnSequenceOf, AsnSetOf,
     AsnBasicNode, AsnSequenceOrSet, AsnSequenceOrSetOf, AsnEnumerated,
-    AsnOctetString, AsnInt, AsnReal)
+    AsnOctetString, AsnInt, AsnReal, AsnBitString)
 from ..commonPy.asnParser import g_names, g_leafTypeDict, CleanNameForAST
 from ..commonPy.utility import panic, warn
 from ..commonPy.cleanupNodes import SetOfBadTypenames
@@ -176,10 +176,11 @@ def CreateBasic(nodeTypename: str, node: AsnBasicNode, leafTypeDict: AST_Leaftyp
         'REAL': 'float',
         'BOOLEAN': 'boolean',
         'OCTET STRING': 'VARCHAR',
+        'BIT STRING': 'VARCHAR',
         'AsciiString': 'VARCHAR'
     }[baseType]
     constraint = ""
-    if isinstance(node, AsnOctetString):
+    if isinstance(node, (AsnOctetString, AsnBitString)):
         constraint += "(" + str(node._range[-1]) + ") "
     constraint += "NOT NULL"
     if isinstance(node, (AsnInt, AsnReal)) and node._range:

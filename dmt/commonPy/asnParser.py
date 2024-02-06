@@ -262,6 +262,7 @@ def VerifyAndFixAST() -> Dict[str, str]:
     knownTypes['REAL'] = 'REAL'
     knownTypes['BOOLEAN'] = 'BOOLEAN'
     knownTypes['OCTET STRING'] = 'OCTET STRING'
+    knownTypes['BIT STRING'] = 'BIT STRING'
     knownTypes['AsciiString'] = 'OCTET STRING'
     knownTypes['NumberString'] = 'OCTET STRING'
     knownTypes['VisibleString'] = 'OCTET STRING'
@@ -910,7 +911,11 @@ def PrintType(f: IO[Any], xmlType: Element, indent: str, nameCleaner: Callable[[
         mmax = GetAttr(realType, "Max")
         f.write(' (%s .. %s)' % (mmin, mmax))
     elif realType._name == "BitStringType":
-        utility.panic("BIT STRINGs are not supported, use SEQUENCE OF BOOLEAN")  # pragma: no cover
+        #utility.panic("BIT STRINGs are not supported, use SEQUENCE OF BOOLEAN")  # pragma: no cover
+        f.write('BIT STRING')
+        mmin = GetAttrCertainly(realType, "Min")
+        mmax = GetAttrCertainly(realType, "Max")
+        f.write(' (SIZE (%s .. %s))' % (mmin, mmax))
     elif realType._name in ["OctetStringType", "IA5StringType", "NumericStringType"]:
         f.write('OCTET STRING')
         mmin = GetAttrCertainly(realType, "Min")

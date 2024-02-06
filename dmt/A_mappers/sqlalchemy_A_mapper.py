@@ -164,6 +164,7 @@ def CreateBasic(nodeTypename: str, node: AsnBasicNode, leafTypeDict: AST_Leaftyp
         'REAL': 'Float',
         'BOOLEAN': 'Boolean',
         'OCTET STRING': 'String',
+        'BIT STRING': 'String',
         'AsciiString': 'String'
     }[baseType]
     constraint = ""

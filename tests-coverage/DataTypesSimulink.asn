@@ -58,7 +58,9 @@ TypeNested ::= SEQUENCE {
     sString	T-STRING,
     arr		T-ARR,
     arr2	T-ARR2,
-    arr3	SEQUENCE (SIZE(100)) OF NULL
+    arr3	SEQUENCE (SIZE(100)) OF NULL,
+    bs1         BIT STRING (SIZE (5)),
+    bs2         BIT STRING (SIZE (1..80))
 }
 
 My2ndTypeNested ::= TypeNested
@@ -161,5 +163,9 @@ SuperRestrictedChoice ::= SuperChoice (WITH COMPONENTS {second-choice ABSENT})
 
 MaximeNeedsEmptySequences ::= SEQUENCE {
 }
+
+Fixed-Size-Bit-String ::= BIT STRING (SIZE (100))
+Variable-Size-Bit-String ::= BIT STRING (SIZE (0..100))
+
 
 END
