@@ -71,7 +71,7 @@ class FromSimulinkToASN1SCC(RecursiveMapper):
             panicWithCallStack("BIT STRING (in %s) must have a SIZE constraint inside ASN.1,\nor else we can't generate C code!" % node.Location())  # pragma: no cover
         # for i in range(0, node._range[-1]):
         #    lines.append(f"{destVar}.arr[{i}] = {srcSimulink}.element_data[{i}];\n")
-        lines.append(f"// Simulink B mapper does NOT support BIT STRING yet\n")
+        lines.append("// Simulink B mapper does NOT support BIT STRING yet\n")
         if isSequenceVariable(node):
             lines.append("%s.nCount = 0; // %s.length;\n" % (destVar, srcSimulink))
         # No nCount anymore
@@ -162,7 +162,7 @@ class FromASN1SCCtoSimulink(RecursiveMapper):
             lines.append("%s.length = %s;\n" % (dstSimulink, limit))
         return lines
 
-    def MapBitString(self, srcVar: str, dstSimulink: str, node: AsnBitString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
+    def MapBitString(self, _: str, _: str, node: AsnBitString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         if not node._range:
             panicWithCallStack("BIT STRING (in %s) must have a SIZE constraint inside ASN.1,\nor else we can't generate C code!" % node.Location())  # pragma: no cover
 
@@ -257,7 +257,7 @@ class FromSimulinkToOSS(RecursiveMapper):
             lines.append("%s.length = %s;\n" % (destVar, node._range[-1]))
         return lines
 
-    def MapBitString(self, srcSimulink: str, destVar: str, node: AsnBitString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
+    def MapBitString(self, _: str, _: str, _: AsnBitString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return []
 
     def MapEnumerated(self, srcSimulink: str, destVar: str, _: AsnEnumerated, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
@@ -340,7 +340,7 @@ class FromOSStoSimulink(RecursiveMapper):
             lines.append("%s.length = %s.length;" % (dstSimulink, srcVar))
         return lines
 
-    def MapBitString(self, srcVar: str, dstSimulink: str, node: AsnBitString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
+    def MapBitString(self, _: str, _: str, _: AsnBitString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return []
 
     def MapEnumerated(self, srcVar: str, dstSimulink: str, node: AsnEnumerated, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
