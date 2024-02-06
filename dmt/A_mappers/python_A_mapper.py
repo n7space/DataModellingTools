@@ -364,13 +364,13 @@ def CommonBaseImplBitString(path: str,
     g_outputGetSetH.write(f"\n/* BIT STRING */\nbool {path}_Get({params.GetDecl()});\n")
     g_outputGetSetC.write(f"\n/* BIT STRING */\nbool {path}_Get({params.GetDecl()})\n")
     g_outputGetSetC.write("{\n")
-    g_outputGetSetC.write(f"   return (*root).arr[iDx / 8] & (1 << (7 - (iDx % 8)));\n")
+    g_outputGetSetC.write("   return (*root).arr[iDx / 8] & (1 << (7 - (iDx % 8)));\n")
     g_outputGetSetC.write("}\n")
     g_outputGetSetH.write(f"\n/* BIT STRING */\nvoid {path}_Set({params.GetDecl()}, bool value);\n")
     g_outputGetSetC.write(f"\n/* BIT STRING */\nvoid {path}_Set({params.GetDecl()}, bool value)\n")
     g_outputGetSetC.write("{\n")
-    g_outputGetSetC.write(f"   if (value) (*root).arr[iDx / 8] |= (1 << (7 - (iDx % 8)));\n")
-    g_outputGetSetC.write(f"   else (*root).arr[iDx / 8] &= ~(1 << (7 - (iDx % 8)));\n")
+    g_outputGetSetC.write("   if (value) (*root).arr[iDx / 8] |= (1 << (7 - (iDx % 8)));\n")
+    g_outputGetSetC.write("   else (*root).arr[iDx / 8] &= ~(1 << (7 - (iDx % 8)));\n")
     g_outputGetSetC.write("}\n")
 
 
