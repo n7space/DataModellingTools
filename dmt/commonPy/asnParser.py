@@ -911,7 +911,6 @@ def PrintType(f: IO[Any], xmlType: Element, indent: str, nameCleaner: Callable[[
         mmax = GetAttr(realType, "Max")
         f.write(' (%s .. %s)' % (mmin, mmax))
     elif realType._name == "BitStringType":
-        #utility.panic("BIT STRINGs are not supported, use SEQUENCE OF BOOLEAN")  # pragma: no cover
         f.write('BIT STRING')
         mmin = GetAttrCertainly(realType, "Min")
         mmax = GetAttrCertainly(realType, "Max")
