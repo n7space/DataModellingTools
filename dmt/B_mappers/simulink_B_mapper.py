@@ -162,12 +162,12 @@ class FromASN1SCCtoSimulink(RecursiveMapper):
             lines.append("%s.length = %s;\n" % (dstSimulink, limit))
         return lines
 
-    def MapBitString(self, srcVar: str, dstSimulink: str, node: AsnBittString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
+    def MapBitString(self, srcVar: str, dstSimulink: str, node: AsnBitString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         if not node._range:
             panicWithCallStack("BIT STRING (in %s) must have a SIZE constraint inside ASN.1,\nor else we can't generate C code!" % node.Location())  # pragma: no cover
 
         lines = []  # type: List[str]
-        limit = sourceSequenceLimit(node, srcVar)
+        # limit = sourceSequenceLimit(node, srcVar)
         lines.append("// Simulink B mapper does NOT support BIT STRING yet !\n")
         #  lines.append("unsigned int i=0;\n")
         #  lines.append("for(i=0; i<%s; i++)\n        %s.element_data[i] = %s.arr[i];\n" % (limit, dstSimulink, srcVar))
@@ -175,6 +175,7 @@ class FromASN1SCCtoSimulink(RecursiveMapper):
         #  if len(node._range) > 1 and node._range[0] != node._range[1]:
         #    lines.append("%s.length = %s;\n" % (dstSimulink, limit))
         return lines
+
     def MapEnumerated(self, srcVar: str, dstSimulink: str, node: AsnEnumerated, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         if None in [x[1] for x in node._members]:
             panicWithCallStack("an ENUMERATED must have integer values! (%s)" % node.Location())  # pragma: no cover
@@ -255,7 +256,7 @@ class FromSimulinkToOSS(RecursiveMapper):
         else:
             lines.append("%s.length = %s;\n" % (destVar, node._range[-1]))
         return lines
-    
+
     def MapBitString(self, srcSimulink: str, destVar: str, node: AsnBitString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
         return []
 
