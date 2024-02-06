@@ -326,7 +326,7 @@ class AsnBitString(AsnString):
     '''This class stores the semantic content of an ASN.1 BIT STRING.'''
     def __init__(self, **args: Any) -> None:
         AsnString.__init__(self, **args)
-        self._name = "BIT STRING" # default in case of SEQUENCE_OF BIT STRING
+        self._name = "BIT STRING"
         self._leafType = "BIT STRING"
 
 

@@ -298,7 +298,7 @@ def CommonBaseImpl(comment: str,
                    path: str,
                    params: Params,
                    accessPathInC: str,
-                   postfix: str = "",   #  can be "Length"
+                   postfix: str = "",   # can be "Length"
                    returnPointer: bool = False) -> None:
     takeAddr = '&' if returnPointer else ''
     g_outputGetSetH.write("\n/* %s */\n%s %s_Get%s(%s);\n" % (comment, ctype, path, postfix, params.GetDecl()))
@@ -369,8 +369,8 @@ def CommonBaseImplBitString(path: str,
     g_outputGetSetH.write(f"\n/* BIT STRING */\nvoid {path}_Set({params.GetDecl()}, bool value);\n")
     g_outputGetSetC.write(f"\n/* BIT STRING */\nvoid {path}_Set({params.GetDecl()}, bool value)\n")
     g_outputGetSetC.write("{\n")
-    g_outputGetSetC.write(f"   if (value) (*root).arr[iDx / 8] |= (1 << (7 - (iDx % 8)));\n");
-    g_outputGetSetC.write(f"   else (*root).arr[iDx / 8] &= ~(1 << (7 - (iDx % 8)));\n");
+    g_outputGetSetC.write(f"   if (value) (*root).arr[iDx / 8] |= (1 << (7 - (iDx % 8)));\n")
+    g_outputGetSetC.write(f"   else (*root).arr[iDx / 8] &= ~(1 << (7 - (iDx % 8)));\n")
     g_outputGetSetC.write("}\n")
 
 
