@@ -21,7 +21,6 @@ To that end, this backend creates "glue" functions for input and
 output parameters, which have C callable interfaces.
 '''
 
-from typing import List
 
 from ..commonPy.utility import panic
 from ..commonPy.asnAST import (
