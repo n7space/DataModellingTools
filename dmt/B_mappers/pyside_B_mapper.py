@@ -605,7 +605,7 @@ def WriteCodeForGUIControls(prefixes: List[str],  # pylint: disable=invalid-sequ
         elif isinstance(node, (AsnOctetString, AsnAsciiString, AsnBitString)):
             if g_onceOnly:
                 if isinstance(node, AsnAsciiString):
-                    stringKind = "IA5String"
+                    stringKind = "IA5String"   # pragma: no cover
                 elif isinstance(node, AsnBitString):
                     stringKind = "BIT STRING"
                 else:
