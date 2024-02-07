@@ -7,12 +7,6 @@ PROPERTIES
 	Source_Language => Simulink;
 END mytestsubsystemEmpty.Simulink;
 
-SUBPROGRAM IMPLEMENTATION mytestsubsystemEmpty.SDL
-PROPERTIES
-	FV_Name => "mytestsubsystemEmpty_fv_SDL";
-	Source_Language => SDL;
-END mytestsubsystemEmpty.SDL;
-
 SUBPROGRAM IMPLEMENTATION mytestsubsystemEmpty.C
 PROPERTIES
 	FV_Name => "mytestsubsystemEmpty_fv_C";
@@ -103,11 +97,6 @@ PROPERTIES
         Simulink_Interface_Type => full;
 END mytestsubsystem.Simulink;
 
-SUBPROGRAM IMPLEMENTATION mytestsubsystem.SDL
-PROPERTIES
-	FV_Name => "mytestsubsystem_fv_SDL";
-	Source_Language => SDL;
-END mytestsubsystem.SDL;
 
 SUBPROGRAM IMPLEMENTATION mytestsubsystem.C
 PROPERTIES
