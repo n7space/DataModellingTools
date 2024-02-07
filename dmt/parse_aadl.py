@@ -75,7 +75,7 @@ def main():
 
     # No other options must remain in the cmd line...
     if astFile is None or len(sys.argv) < 2:
-        panic('Usage: %s [-verbose] [-useOSS] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
+        panic('Usage: %s [-verbose] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
     commonPy2.configMT.showCode = True
     for f in sys.argv[1:]:
         if not os.path.isfile(f):

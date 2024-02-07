@@ -127,110 +127,6 @@ class FromRTDSToASN1SCC(RecursiveMapper):
 
 # noinspection PyListCreation
 # pylint: disable=no-self-use
-class FromRTDSToOSS(RecursiveMapper):
-    def __init__(self) -> None:
-        self.uniqueID = 0
-
-    def UniqueID(self) -> int:
-        self.uniqueID += 1
-        return self.uniqueID
-
-    def DecreaseUniqueID(self) -> None:
-        self.uniqueID -= 1
-
-    def MapInteger(self, srcSDLVariable: str, destVar: str, _: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (destVar, srcSDLVariable)]
-
-    def MapReal(self, srcSDLVariable: str, destVar: str, _: AsnReal, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (destVar, srcSDLVariable)]
-
-    def MapBoolean(self, srcSDLVariable: str, destVar: str, _: AsnBool, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = (%s==SDL_TRUE)?0xff:0;\n" % (destVar, srcSDLVariable)]
-
-    def MapOctetString(self, srcSDLVariable: str, destVar: str, _: AsnOctetString, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        lines.append("{\n")
-        lines.append("    int i;\n")
-        lines.append("    for(i=0; i<%s.length; i++) {\n" % srcSDLVariable)
-        lines.append("        unsigned char value;\n")
-        lines.append("        if(%s.cont[i].cont[0]) value |= 128;\n" % srcSDLVariable)
-        lines.append("        if(%s.cont[i].cont[1]) value |= 64;\n" % srcSDLVariable)
-        lines.append("        if(%s.cont[i].cont[2]) value |= 32;\n" % srcSDLVariable)
-        lines.append("        if(%s.cont[i].cont[3]) value |= 16;\n" % srcSDLVariable)
-        lines.append("        if(%s.cont[i].cont[4]) value |= 8;\n" % srcSDLVariable)
-        lines.append("        if(%s.cont[i].cont[5]) value |= 4;\n" % srcSDLVariable)
-        lines.append("        if(%s.cont[i].cont[6]) value |= 2;\n" % srcSDLVariable)
-        lines.append("        if(%s.cont[i].cont[7]) value |= 1;\n" % srcSDLVariable)
-        lines.append("        %s.value[i] = value;\n" % destVar)
-        lines.append("    }\n")
-        # for i in xrange(0, node._range[-1]):
-        #     lines.append("    placeHolder[%d] = %s[%d];\n" % (i, srcSDLVariable, i))
-        lines.append("    %s.length = %s.length;\n" % (destVar, srcSDLVariable))
-        lines.append("}\n")
-        return lines
-
-    def MapEnumerated(self, srcSDLVariable: str, destVar: str, _: AsnEnumerated, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (destVar, srcSDLVariable)]
-
-    def MapSequence(self, srcSDLVariable: str, destVar: str, node: AsnSequenceOrSet, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        for child in node._members:
-            lines.extend(
-                self.Map(
-                    "%s.%s" % (srcSDLVariable, self.CleanName(child[0])),
-                    destVar + "." + self.CleanName(child[0]),
-                    child[1],
-                    leafTypeDict,
-                    names))
-        return lines
-
-    def MapSet(self, srcSDLVariable: str, destVar: str, node: AsnSequenceOrSet, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return self.MapSequence(srcSDLVariable, destVar, node, leafTypeDict, names)  # pragma: nocover
-
-    def MapChoice(self, srcSDLVariable: str, destVar: str, node: AsnChoice, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        childNo = 0
-        for child in node._members:
-            childNo += 1
-            lines.append("%sif (%s.present == %d) {\n" % (self.maybeElse(childNo), srcSDLVariable, childNo))
-            lines.extend(
-                ["    " + x
-                 for x in self.Map(
-                     "%s.u.u%d.%s" % (srcSDLVariable, childNo, self.CleanName(child[0])),
-                     destVar + (".u.%s" % self.CleanName(child[0])),
-                     child[1],
-                     leafTypeDict,
-                     names)])
-            lines.append("    %s.choice = OSS_%s_chosen;\n" % (destVar, self.CleanName(child[0])))
-            lines.append("}\n")
-        return lines
-
-    def MapSequenceOf(self, srcSDLVariable: str, destVar: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        lines.append("{\n")
-        uniqueId = self.UniqueID()
-        lines.append("    int i%s;\n" % uniqueId)
-        lines.append("    for(i%s=0; i%s<%s.length; i%s++) {\n" % (uniqueId, uniqueId, srcSDLVariable, uniqueId))
-        lines.extend(
-            ["        " + x
-             for x in self.Map(
-                 "%s.cont[i%s]" % (srcSDLVariable, uniqueId),
-                 "%s.value[i%s]" % (destVar, uniqueId),
-                 node._containedType,
-                 leafTypeDict,
-                 names)])
-        lines.append("    }\n")
-        lines.append("    %s.count = %s.length;\n" % (destVar, srcSDLVariable))
-        lines.append("}\n")
-        self.DecreaseUniqueID()
-        return lines
-
-    def MapSetOf(self, unused_srcSDLVariable: str, unused_destVar: str, node: AsnSequenceOrSetOf, unused_leafTypeDict: AST_Leaftypes, unused_names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        panic("The PragmaDev mapper does not support SETOF. Please use SEQUENCEOF instead (%s)" % node.Location())  # pragma: nocover
-
-
-# noinspection PyListCreation
-# pylint: disable=no-self-use
 class FromASN1SCCtoRTDS(RecursiveMapper):
     def __init__(self) -> None:
         self.uniqueID = 0
@@ -331,130 +227,11 @@ class FromASN1SCCtoRTDS(RecursiveMapper):
         panic("The PragmaDev mapper does not support SETOF. Please use SEQUENCEOF instead (%s)" % node.Location())  # pragma: nocover
 
 
-# noinspection PyListCreation
-# pylint: disable=no-self-use
-class FromOSStoRTDS(RecursiveMapper):
-    def __init__(self) -> None:
-        self.uniqueID = 0
-
-    def UniqueID(self) -> int:
-        self.uniqueID += 1
-        return self.uniqueID
-
-    def DecreaseUniqueID(self) -> None:
-        self.uniqueID -= 1
-
-    def MapInteger(self, srcVar: str, dstSDLVariable: str, _: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (dstSDLVariable, srcVar)]
-
-    def MapReal(self, srcVar: str, dstSDLVariable: str, _: AsnReal, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (dstSDLVariable, srcVar)]
-
-    def MapBoolean(self, srcVar: str, dstSDLVariable: str, _: AsnBool, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = (%s)?SDL_TRUE:SDL_FALSE;\n" % (dstSDLVariable, srcVar)]
-
-    def MapOctetString(self, srcVar: str, dstSDLVariable: str, node: AsnOctetString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        # for i in xrange(0, node._range[-1]):
-        #     lines.append("%s[%d] = %s->buf[%d];\n" % (dstSDLVariable, i, srcVar, i))
-        lines.append("{\n")
-        lines.append("    int i;\n")
-        lines.append("    for(i=0; i<%s.length; i++) {\n" % srcVar)
-        lines.append("        unsigned char value = %s.value[i];\n" % srcVar)
-        lines.append("        %s.cont[i].cont[0] = value & 128;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[1] = value & 64;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[2] = value & 32;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[3] = value & 16;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[4] = value & 8;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[5] = value & 4;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[6] = value & 2;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[7] = value & 1;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].length = 8;\n" % dstSDLVariable)
-        lines.append("    }\n")
-        lines.append("    while(i<%d) {\n" % node._range[-1])
-        lines.append("        %s.cont[i].cont[0]=0;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[1]=0;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[2]=0;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[3]=0;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[4]=0;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[5]=0;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[6]=0;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].cont[7]=0;\n" % dstSDLVariable)
-        lines.append("        %s.cont[i].length=0;\n" % dstSDLVariable)
-        lines.append("        i++;\n")
-        lines.append("    };\n")
-        lines.append("    %s.length = %s.length;\n" % (dstSDLVariable, srcVar))
-        lines.append("}\n")
-        return lines
-
-    def MapEnumerated(self, srcVar: str, dstSDLVariable: str, _: AsnEnumerated, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (dstSDLVariable, srcVar)]
-
-    def MapSequence(self, srcVar: str, dstSDLVariable: str, node: AsnSequenceOrSet, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        for child in node._members:
-            lines.extend(
-                self.Map(
-                    srcVar + "." + self.CleanName(child[0]),
-                    "%s.%s" % (dstSDLVariable, self.CleanName(child[0])),
-                    child[1],
-                    leafTypeDict,
-                    names))
-        return lines
-
-    def MapSet(self, srcVar: str, dstSDLVariable: str, node: AsnSequenceOrSet, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return self.MapSequence(srcVar, dstSDLVariable, node, leafTypeDict, names)  # pragma: nocover
-
-    def MapChoice(self, srcVar: str, dstSDLVariable: str, node: AsnChoice, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        childNo = 0
-        for child in node._members:
-            childNo += 1
-            lines.append("%sif (%s.choice == OSS_%s_chosen) {\n" %
-                         (self.maybeElse(childNo), srcVar, self.CleanName(child[0])))
-            lines.extend(
-                ['    ' + x
-                 for x in self.Map(
-                     srcVar + ".u." + self.CleanName(child[0]),
-                     "%s.u.u%d.%s" % (dstSDLVariable, childNo, self.CleanName(child[0])),
-                     child[1],
-                     leafTypeDict,
-                     names)])
-            lines.append("    %s.present = %d;\n" % (dstSDLVariable, childNo))
-            lines.append("}\n")
-        return lines
-
-    def MapSequenceOf(self, srcVar: str, dstSDLVariable: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        lines.append("{\n")
-        uniqueId = self.UniqueID()
-        lines.append("    int i%s;\n" % uniqueId)
-        lines.append("    %s.length = %s.count;\n" % (dstSDLVariable, srcVar))
-        lines.append("    for(i%s=0; i%s<%s.count; i%s++) {\n" % (uniqueId, uniqueId, srcVar, uniqueId))
-        lines.extend(
-            ["        " + x
-             for x in self.Map(
-                 srcVar + ".value[i%s]" % uniqueId,
-                 "%s.cont[i%s]" % (dstSDLVariable, uniqueId),
-                 node._containedType,
-                 leafTypeDict,
-                 names)])
-        lines.append("    }\n")
-        lines.append("}\n")
-        self.DecreaseUniqueID()
-        return lines
-
-    def MapSetOf(self, unused_srcVar: str, unused_dstSDLVariable: str, node: AsnSequenceOrSetOf, unused_leafTypeDict: AST_Leaftypes, unused_names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        panic("The PragmaDev mapper does not support SETOF. Please use SEQUENCEOF instead (%s)" % node.Location())  # pragma: nocover
-
-
 class RTDS_GlueGenerator(ASynchronousToolGlueGenerator):
     def __init__(self) -> None:
         ASynchronousToolGlueGenerator.__init__(self)
         self.FromRTDSToASN1SCC = FromRTDSToASN1SCC()
-        self.FromRTDSToOSS = FromRTDSToOSS()
         self.FromASN1SCCtoRTDS = FromASN1SCCtoRTDS()
-        self.FromOSStoRTDS = FromOSStoRTDS()
 
     def Version(self) -> None:
         print("Code generator: " + "$Id: rtds_B_mapper.py 2390 2012-07-19 12:39:17Z ttsiodras $")
@@ -481,21 +258,12 @@ class RTDS_GlueGenerator(ASynchronousToolGlueGenerator):
             "void Convert_%s_from_RTDS_to_ASN1SCC(asn1Scc%s *ptrASN1SCC, %s %sRTDS)\n{\n" %
             (cleaned, cleaned, cleaned, "*" if isPointer else ""))
 
-        # Write the mapping code for the message
-        if self.useOSS:
-            lines = self.FromRTDSToOSS.Map(
-                "(%sRTDS)" % ("*" if isPointer else ""),
-                "(*ptrASN1SCC)",
-                node,
-                leafTypeDict,
-                names)
-        else:
-            lines = self.FromRTDSToASN1SCC.Map(
-                "(%sRTDS)" % ("*" if isPointer else ""),
-                "(*ptrASN1SCC)",
-                node,
-                leafTypeDict,
-                names)
+        lines = self.FromRTDSToASN1SCC.Map(
+            "(%sRTDS)" % ("*" if isPointer else ""),
+            "(*ptrASN1SCC)",
+            node,
+            leafTypeDict,
+            names)
 
         lines = ["    " + x.rstrip() for x in lines]
         fileOutSource.write("\n".join(lines))
@@ -515,20 +283,12 @@ class RTDS_GlueGenerator(ASynchronousToolGlueGenerator):
             "void Convert_%s_from_ASN1SCC_to_RTDS(%s *ptrRTDS, const asn1Scc%s *ptrASN1SCC)\n{\n" %
             (cleaned, cleaned, cleaned))
 
-        if self.useOSS:
-            lines = self.FromOSStoRTDS.Map(
-                "(*ptrASN1SCC)",
-                "(*ptrRTDS)",
-                node,
-                leafTypeDict,
-                names)
-        else:
-            lines = self.FromASN1SCCtoRTDS.Map(
-                "(*ptrASN1SCC)",
-                "(*ptrRTDS)",
-                node,
-                leafTypeDict,
-                names)
+        lines = self.FromASN1SCCtoRTDS.Map(
+            "(*ptrASN1SCC)",
+            "(*ptrRTDS)",
+            node,
+            leafTypeDict,
+            names)
 
         lines = ["    " + x.rstrip() for x in lines]
         fileOutSource.write("\n".join(lines))
@@ -539,13 +299,13 @@ rtdsBackend: RTDS_GlueGenerator
 cBackend: c_B_mapper.C_GlueGenerator
 
 
-def OnStartup(modelingLanguage: str, asnFile: str, outputDir: str, maybeFVname: str, useOSS: bool) -> None:
+def OnStartup(modelingLanguage: str, asnFile: str, outputDir: str, maybeFVname: str) -> None:
     global rtdsBackend
     rtdsBackend = RTDS_GlueGenerator()
-    rtdsBackend.OnStartup(modelingLanguage, asnFile, outputDir, maybeFVname, useOSS)
+    rtdsBackend.OnStartup(modelingLanguage, asnFile, outputDir, maybeFVname)
     global cBackend
     cBackend = c_B_mapper.C_GlueGenerator()
-    cBackend.OnStartup("C", asnFile, outputDir, maybeFVname, useOSS)
+    cBackend.OnStartup("C", asnFile, outputDir, maybeFVname)
 
 
 def OnBasic(nodeTypename: str, node: AsnBasicNode, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> None:

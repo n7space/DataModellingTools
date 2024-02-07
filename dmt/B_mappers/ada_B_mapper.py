@@ -33,12 +33,12 @@ isAsynchronous = True
 cBackend: c_B_mapper.C_GlueGenerator
 
 
-def OnStartup(unused_modelingLanguage: str, asnFile: str, outputDir: str, maybeFVname: str, useOSS: bool) -> None:
+def OnStartup(unused_modelingLanguage: str, asnFile: str, outputDir: str, maybeFVname: str) -> None:
     global cBackend
     # 2009-02-10: Since we now use ASN1SCC structures as dumpables (even for Ada)
     # we no longer need Ada-specific Dumpable structures.
     cBackend = c_B_mapper.C_GlueGenerator()
-    cBackend.OnStartup("C", asnFile, outputDir, maybeFVname, useOSS)
+    cBackend.OnStartup("C", asnFile, outputDir, maybeFVname)
 
 
 def OnBasic(nodeTypename: str, node: AsnNode, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> None:

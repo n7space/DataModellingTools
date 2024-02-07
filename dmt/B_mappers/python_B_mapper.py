@@ -38,8 +38,7 @@ def OnStartup(modelingLanguage: str,
               subProgram: ApLevelContainer,
               unused_subProgramImplementation: str,
               outputDir: str,
-              maybeFVname: str,
-              unused_useOSS: bool) -> None:
+              maybeFVname: str) -> None:
     g_langPerSP[subProgram] = modelingLanguage
     CleanSP = CleanName(subProgram._id)
 

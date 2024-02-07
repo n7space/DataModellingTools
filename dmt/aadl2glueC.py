@@ -248,7 +248,6 @@ def ProcessSync(
         sp: ApLevelContainer,
         sp_impl: str,
         maybeFVname: str,
-        useOSS: bool,
         badTypes: SetOfBadTypenames) -> Sync_B_Mapper:
     backend = getSyncBackend(modelingLanguage)
 
@@ -263,7 +262,7 @@ def ProcessSync(
     # can only call OnStartup once (when the backend is first loaded)
 
     # In synchronous tools, always call OnStartup and OnShutdown for each SystemsAndImplementation
-    backend.OnStartup(modelingLanguage, asnFile, sp, sp_impl, commonPy.configMT.outputDir, maybeFVname, useOSS)
+    backend.OnStartup(modelingLanguage, asnFile, sp, sp_impl, commonPy.configMT.outputDir, maybeFVname)
 
     for param in sp._params:
         inform("Creating glue for param %s...", param._id)
@@ -321,7 +320,6 @@ def ProcessAsync(  # pylint: disable=dangerous-default-value
         asnFile: str,
         sp: ApLevelContainer,
         maybeFVname: str,
-        useOSS: bool,
         badTypes: SetOfBadTypenames,
         loaded_languages_cache: List[str] = []) -> Async_B_Mapper:  # pylint: disable=invalid-sequence-index
 
@@ -341,7 +339,7 @@ def ProcessAsync(  # pylint: disable=dangerous-default-value
         # Only call OnStartup ONCE for asynchronous backends
         # Also notice, no SP or SPIMPL are passed. We are asynchronous, so
         # we only generate "generic" encoders and decoders, not SP-specific ones.
-        backend.OnStartup(modelingLanguage, asnFile, commonPy.configMT.outputDir, maybeFVname, useOSS)
+        backend.OnStartup(modelingLanguage, asnFile, commonPy.configMT.outputDir, maybeFVname)
 
     for param in sp._params:
         inform("Creating glue for param %s...", param._id)
@@ -386,7 +384,6 @@ def ProcessAsync(  # pylint: disable=dangerous-default-value
 def ProcessCustomBackends(
         # Taking list of tuples made of (spName, sp_impl, language, maybeFVname)
         asnFile: Optional[str],
-        useOSS: bool,
         SystemsAndImplementations: List[Tuple[str, str, str, str, str]]) -> None:
 
     # The code generators for GUIs, Python mappers and VHDL mappers are different: they need access to
@@ -438,7 +435,7 @@ def ProcessCustomBackends(
         assert asnFile is not None
 
         for backend in getCustomBackends(lang):
-            backend.OnStartup(lang, asnFile, sp, sp_impl, commonPy.configMT.outputDir, maybeFVname, useOSS)
+            backend.OnStartup(lang, asnFile, sp, sp_impl, commonPy.configMT.outputDir, maybeFVname)
         for param in sp._params:
             inform("Processing param %s...", param._id)
             assert asnFile == param._signal._asnFilename
@@ -525,7 +522,7 @@ def main() -> None:
         try:
             commonPy.configMT.outputDir = os.path.normpath(sys.argv[idx + 1]) + os.sep
         except:  # pragma: no cover
-            panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
+            panic('Usage: %s [-v] [-verbose] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
         del sys.argv[idx]
         del sys.argv[idx]
         if not os.path.isdir(commonPy.configMT.outputDir):
@@ -536,24 +533,21 @@ def main() -> None:
     if "-verbose" in sys.argv:
         commonPy.configMT.verbose = True
         sys.argv.remove("-verbose")
-    useOSS = "-useOSS" in sys.argv
-    if useOSS:
-        sys.argv.remove("-useOSS")
 
     if "-fpga" in sys.argv:  # pragma: no cover
         idx = sys.argv.index("-fpga")
         try:
             commonPy.configMT.fpga_mapper = os.path.normpath(sys.argv[idx + 1])
         except:  # pragma: no cover
-            panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
+            panic('Usage: %s [-v] [-verbose] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
         if commonPy.configMT.fpga_mapper == '' or commonPy.configMT.fpga_mapper not in ['BRAVE', 'ZESTSC1', 'ZYNQZC706', 'NGLARGE']:
-            panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
+            panic('Usage: %s [-v] [-verbose] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
         del sys.argv[idx]
         del sys.argv[idx]
 
     # No other options must remain in the cmd line...
     if len(sys.argv) < 2:
-        panic('Usage: %s [-v] [-verbose] [-useOSS] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
+        panic('Usage: %s [-v] [-verbose] [-fpga <BRAVE|ZESTSC1|ZYNQZC706|NGLARGE>] [-o dirname] input1.aadl [input2.aadl] ...\n' % sys.argv[0])  # pragma: no cover
     commonPy.configMT.showCode = True
     for f in sys.argv[1:]:
         if not os.path.isfile(f):
@@ -637,10 +631,10 @@ def main() -> None:
         assert asnFile is not None
 
         if modelingLanguage in async_languages:
-            m = ProcessAsync(modelingLanguage, asnFile, sp, maybeFVname, useOSS, badTypes)
+            m = ProcessAsync(modelingLanguage, asnFile, sp, maybeFVname, badTypes)
             asynchronousBackends.add(m)
         else:
-            ProcessSync(modelingLanguage, asnFile, sp, sp_impl, maybeFVname, useOSS, badTypes)
+            ProcessSync(modelingLanguage, asnFile, sp, sp_impl, maybeFVname, badTypes)
 
     # SystemsAndImplementation loop completed - time to call OnShutdown ONCE for each async backend that we loaded
     for asyncBackend in asynchronousBackends:
@@ -648,7 +642,7 @@ def main() -> None:
         # B mappers - no-one depends on a None value for the asnFile.
         asyncBackend.OnShutdown(modelingLanguage, '' if not asnFile else asnFile, maybeFVname)
 
-    ProcessCustomBackends(asnFile, useOSS, SystemsAndImplementations)
+    ProcessCustomBackends(asnFile, SystemsAndImplementations)
 
 
 if __name__ == "__main__":

@@ -1500,10 +1500,10 @@ def Common(nodeTypename: str, node: AsnNode, subProgram: ApLevelContainer, unuse
     VHDL_Circuit.currentCircuit.AddParam(nodeTypename, node, param, leafTypeDict, names)
 
 
-def OnStartup(modelingLanguage: str, asnFile: str, subProgram: ApLevelContainer, subProgramImplementation: str, outputDir: str, maybeFVname: str, useOSS: bool) -> None:
+def OnStartup(modelingLanguage: str, asnFile: str, subProgram: ApLevelContainer, subProgramImplementation: str, outputDir: str, maybeFVname: str) -> None:
     global vhdlBackend
     vhdlBackend = VHDLGlueGenerator()
-    vhdlBackend.OnStartup(modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname, useOSS)
+    vhdlBackend.OnStartup(modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname)
 
 
 def OnBasic(nodeTypename: str, node: AsnBasicNode, subProgram: ApLevelContainer, subProgramImplementation: str, param: Param, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> None:

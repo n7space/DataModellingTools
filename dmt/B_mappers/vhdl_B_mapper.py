@@ -419,12 +419,6 @@ class VHDLGlueGenerator(SynchronousToolGlueGeneratorGeneric[List[int], List[int]
     def FromASN1SCCtoTool(self) -> RecursiveMapperGeneric[str, List[int]]:  # pylint: disable=invalid-sequence-index
         return FromASN1SCCtoVHDL()
 
-#    def FromOSStoTool(self) -> None:
-#        pass  # pragma: no cover
-#
-#    def FromToolToOSS(self) -> None:
-#        pass  # pragma: no cover
-
     def HeadersOnStartup(self, unused_modelingLanguage: str, unused_asnFile: str, subProgram: ApLevelContainer, unused_subProgramImplementation: str, unused_outputDir: str, unused_maybeFVname: str) -> None:
         self.C_SourceFile.write("#include \"%s.h\" // Space certified compiler generated\n" % self.asn_name)
         self.C_SourceFile.write('''
@@ -956,10 +950,10 @@ def Common(nodeTypename: str, node: AsnNode, subProgram: ApLevelContainer, unuse
 vhdlBackend: VHDLGlueGenerator
 
 
-def OnStartup(modelingLanguage: str, asnFile: str, subProgram: ApLevelContainer, subProgramImplementation: str, outputDir: str, maybeFVname: str, useOSS: bool) -> None:
+def OnStartup(modelingLanguage: str, asnFile: str, subProgram: ApLevelContainer, subProgramImplementation: str, outputDir: str, maybeFVname: str) -> None:
     global vhdlBackend
     vhdlBackend = VHDLGlueGenerator()
-    vhdlBackend.OnStartup(modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname, useOSS)
+    vhdlBackend.OnStartup(modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname)
 
 
 def OnBasic(nodeTypename: str, node: AsnBasicNode, subProgram: ApLevelContainer, subProgramImplementation: str, param: Param, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> None:

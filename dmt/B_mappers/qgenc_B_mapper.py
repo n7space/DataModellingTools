@@ -252,167 +252,6 @@ class FromASN1SCCtoQGenC(RecursiveMapper):
         return lines
 
 
-# pylint: disable=no-self-use
-class FromQGenCToOSS(RecursiveMapper):
-    def MapInteger(self, srcQGenC: str, destVar: str, _: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (destVar, srcQGenC)]
-
-    def MapReal(self, srcQGenC: str, destVar: str, _: AsnReal, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (destVar, srcQGenC)]
-
-    def MapBoolean(self, srcQGenC: str, destVar: str, _: AsnBool, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = (char) %s;\n" % (destVar, srcQGenC)]
-
-    def MapOctetString(self, srcQGenC: str, destVar: str, node: AsnOctetString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        if not node._range:
-            panicWithCallStack("OCTET STRING (in %s) must have a SIZE constraint inside ASN.1,\nor else we can't generate C code!" % node.Location())  # pragma: no cover
-        for i in range(0, node._range[-1]):
-            lines.append("%s.value[%d] = %s.element_data[%d];\n" % (destVar, i, srcQGenC, i))
-        if len(node._range) > 1 and node._range[0] != node._range[1]:
-            lines.append("%s.length = %s.length;\n" % (destVar, srcQGenC))
-        else:
-            lines.append("%s.length = %s;\n" % (destVar, node._range[-1]))
-        return lines
-
-    def MapEnumerated(self, srcQGenC: str, destVar: str, _: AsnEnumerated, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (destVar, srcQGenC)]
-
-    def MapSequence(self, srcQGenC: str, destVar: str, node: AsnSequenceOrSet, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        for child in node._members:
-            lines.extend(
-                self.Map(
-                    "%s.%s" % (srcQGenC, self.CleanName(child[0])),
-                    destVar + "." + self.CleanName(child[0]),
-                    child[1],
-                    leafTypeDict,
-                    names))
-        return lines
-
-    def MapSet(self, srcQGenC: str, destVar: str, node: AsnSequenceOrSet, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return self.MapSequence(srcQGenC, destVar, node, leafTypeDict, names)  # pragma: nocover
-
-    def MapChoice(self, srcQGenC: str, destVar: str, node: AsnChoice, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        childNo = 0
-        for child in node._members:
-            childNo += 1
-            lines.append("%sif (%s.choiceIdx == %d) {\n" % (self.maybeElse(childNo), srcQGenC, childNo))
-            lines.extend(
-                ['    ' + x
-                 for x in self.Map(
-                     "%s.%s" % (srcQGenC, self.CleanName(child[0])),
-                     destVar + ".u." + self.CleanName(child[0]),
-                     child[1],
-                     leafTypeDict,
-                     names)])
-            lines.append("    %s.choice = OSS_%s_chosen;\n" % (destVar, self.CleanName(child[0])))
-            lines.append("}\n")
-        return lines
-
-    def MapSequenceOf(self, srcQGenC: str, destVar: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        if not node._range:
-            panicWithCallStack("(%s) needs a SIZE constraint or else we can't generate C code!\n" % node.Location())  # pragma: no cover
-        isMappedToPrimitive = IsElementMappedToPrimitive(node, names)
-        lines = []  # type: List[str]
-        for i in range(0, node._range[-1]):
-            lines.extend(
-                self.Map(("%s.arr[%d]" % (srcQGenC, i)) if isMappedToPrimitive else ("%s.element_%02d" % (srcQGenC, i)),
-                         destVar + ".value[%d]" % i,
-                         node._containedType,
-                         leafTypeDict,
-                         names))
-        if len(node._range) > 1 and node._range[0] != node._range[1]:
-            lines.append("%s.count = %s.length;\n" % (destVar, srcQGenC))
-        else:
-            lines.append("%s.count = %s;\n" % (destVar, node._range[-1]))
-        return lines
-
-    def MapSetOf(self, srcQGenC: str, destVar: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return self.MapSequenceOf(srcQGenC, destVar, node, leafTypeDict, names)  # pragma: nocover
-
-
-# pylint: disable=no-self-use
-class FromOSStoQGenC(RecursiveMapper):
-    def MapInteger(self, srcVar: str, dstQGenC: str, _: AsnInt, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (dstQGenC, srcVar)]
-
-    def MapReal(self, srcVar: str, dstQGenC: str, _: AsnReal, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (dstQGenC, srcVar)]
-
-    def MapBoolean(self, srcVar: str, dstQGenC: str, _: AsnBool, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return ["%s = %s;\n" % (dstQGenC, srcVar)]
-
-    def MapOctetString(self, srcVar: str, dstQGenC: str, node: AsnOctetString, _: AST_Leaftypes, __: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        if not node._range:
-            panicWithCallStack("OCTET STRING (in %s) must have a SIZE constraint inside ASN.1,\nor else we can't generate C code!" % node.Location())  # pragma: no cover
-        lines = []  # type: List[str]
-        for i in range(0, node._range[-1]):
-            lines.append("if (%s.length >= %d) %s.element_data[%d] = %s.value[%d]; else %s.element_data[%d] = 0;\n" %
-                         (srcVar, i + 1, dstQGenC, i, srcVar, i, dstQGenC, i))
-        if len(node._range) > 1 and node._range[0] != node._range[1]:
-            lines.append("%s.length = %s.length;" % (dstQGenC, srcVar))
-        return lines
-
-    def MapEnumerated(self, srcVar: str, dstQGenC: str, node: AsnEnumerated, __: AST_Leaftypes, ___: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        if None in [x[1] for x in node._members]:
-            panicWithCallStack("an ENUMERATED must have integer values! (%s)" % node.Location())  # pragma: no cover
-        return ["%s = %s;\n" % (dstQGenC, srcVar)]
-
-    def MapSequence(self, srcVar: str, dstQGenC: str, node: AsnSequenceOrSet, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        for child in node._members:
-            lines.extend(
-                self.Map(
-                    srcVar + "." + self.CleanName(child[0]),
-                    "%s.%s" % (dstQGenC, self.CleanName(child[0])),
-                    child[1],
-                    leafTypeDict,
-                    names))
-        return lines
-
-    def MapSet(self, srcVar: str, dstQGenC: str, node: AsnSequenceOrSet, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return self.MapSequence(srcVar, dstQGenC, node, leafTypeDict, names)  # pragma: nocover
-
-    def MapChoice(self, srcVar: str, dstQGenC: str, node: AsnChoice, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        lines = []  # type: List[str]
-        childNo = 0
-        for child in node._members:
-            childNo += 1
-            lines.append("%sif (%s.choice == OSS_%s_chosen) {\n" % (self.maybeElse(childNo), srcVar, self.CleanName(child[0])))
-            lines.extend(
-                ['    ' + x
-                 for x in self.Map(
-                     srcVar + ".u." + self.CleanName(child[0]),
-                     "%s.%s" % (dstQGenC, self.CleanName(child[0])),
-                     child[1],
-                     leafTypeDict,
-                     names)])
-            lines.append("    %s.choiceIdx = %d;\n" % (dstQGenC, childNo))
-            lines.append("}\n")
-        return lines
-
-    def MapSequenceOf(self, srcVar: str, dstQGenC: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        if not node._range:
-            panicWithCallStack("(%s) needs a SIZE constraint or else we can't generate C code!\n" % node.Location())  # pragma: no cover
-        isMappedToPrimitive = IsElementMappedToPrimitive(node, names)
-        lines = []  # type: List[str]
-        for i in range(0, node._range[-1]):
-            lines.extend(self.Map(
-                srcVar + ".value[%d]" % i,
-                ("%s.arr[%d]" % (dstQGenC, i)) if isMappedToPrimitive else ("%s.element_%02d" % (dstQGenC, i)),
-                node._containedType,
-                leafTypeDict,
-                names))
-        if len(node._range) > 1 and node._range[0] != node._range[1]:
-            lines.append("%s.length = %s.count;\n" % (dstQGenC, srcVar))
-        return lines
-
-    def MapSetOf(self, srcVar: str, dstQGenC: str, node: AsnSequenceOrSetOf, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> List[str]:  # pylint: disable=invalid-sequence-index
-        return self.MapSequenceOf(srcVar, dstQGenC, node, leafTypeDict, names)  # pragma: nocover
-
-
 class QGenCGlueGenerator(SynchronousToolGlueGenerator):
     g_FVname = None  # type: str
 
@@ -422,20 +261,10 @@ class QGenCGlueGenerator(SynchronousToolGlueGenerator):
     def FromToolToASN1SCC(self) -> RecursiveMapper:
         return FromQGenCToASN1SCC()
 
-    def FromToolToOSS(self) -> RecursiveMapper:
-        return FromQGenCToOSS()
-
     def FromASN1SCCtoTool(self) -> RecursiveMapper:
         return FromASN1SCCtoQGenC()
 
-    def FromOSStoTool(self) -> RecursiveMapper:
-        return FromOSStoQGenC()
-
     def HeadersOnStartup(self, unused_modelingLanguage: str, unused_asnFile: str, subProgram: ApLevelContainer, unused_subProgramImplementation: str, unused_outputDir: str, unused_maybeFVname: str) -> None:
-        if self.useOSS:
-            self.C_SourceFile.write(
-                "#include \"%s.oss.h\" // OSS generated\n" % self.asn_name)
-            self.C_SourceFile.write("extern OssGlobal *g_world;\n\n")
         self.C_SourceFile.write("#include \"%s.h\" // Space certified compiler generated\n" % self.asn_name)
         if subProgram._simulinkInterfaceType == "full":
             self.C_SourceFile.write("#include \"qgen_entry_%s.h\"\n\n" % self.CleanNameAsToolWants(subProgram._id).lower())
@@ -508,10 +337,10 @@ class QGenCGlueGenerator(SynchronousToolGlueGenerator):
 qgencBackend: QGenCGlueGenerator
 
 
-def OnStartup(modelingLanguage: str, asnFile: str, subProgram: ApLevelContainer, subProgramImplementation: str, outputDir: str, maybeFVname: str, useOSS: bool) -> None:
+def OnStartup(modelingLanguage: str, asnFile: str, subProgram: ApLevelContainer, subProgramImplementation: str, outputDir: str, maybeFVname: str) -> None:
     global qgencBackend
     qgencBackend = QGenCGlueGenerator()
-    qgencBackend.OnStartup(modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname, useOSS)
+    qgencBackend.OnStartup(modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname)
 
 
 def OnBasic(nodeTypename: str, node: AsnNode, subProgram: ApLevelContainer, subProgramImplementation: str, param: Param, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> None:

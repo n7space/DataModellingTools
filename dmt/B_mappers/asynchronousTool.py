@@ -60,11 +60,9 @@ class ASynchronousToolGlueGenerator:
         # The files written to
         self.asn_name = ""
         self.supportedEncodings = ['native', 'uper', 'acn']
-        self.useOSS = False
         self.typesToWorkOn = {}  # type: Dict[str, Tuple[AsnNode, AST_Leaftypes, AST_Lookup]]
 
-    def OnStartup(self, modelingLanguage: str, asnFile: str, outputDir: str, maybeFVname: str, useOSS: bool) -> None:
-        self.useOSS = useOSS
+    def OnStartup(self, modelingLanguage: str, asnFile: str, outputDir: str, maybeFVname: str) -> None:
         prefix = modelingLanguage
         outputCheaderFilename = self.CleanNameAsToolWants(prefix) + "_ASN1_Types.h"
         outputCsourceFilename = self.CleanNameAsToolWants(prefix) + "_ASN1_Types.c"

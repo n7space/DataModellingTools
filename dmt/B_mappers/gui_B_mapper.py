@@ -196,8 +196,7 @@ def OneTimeOnly(
         subProgram: ApLevelContainer,
         subProgramImplementation: str,
         outputDir: str,
-        maybeFVname: str,
-        unused_useOSS: bool) -> None:
+        maybeFVname: str) -> None:
     for node in asnParser.g_names.values():
         VerifySingleFieldEnums(node)
 
@@ -346,14 +345,13 @@ def OnStartup(
         subProgram: ApLevelContainer,
         subProgramImplementation: str,
         outputDir: str,
-        maybeFVname: str,
-        useOSS: bool) -> None:
+        maybeFVname: str) -> None:
     # print modelingLanguage, subProgram, subProgramImplementation, maybeFVname
     g_langPerSP[subProgram] = modelingLanguage
     global g_bStarted
     if not g_bStarted:
         g_bStarted = True
-        OneTimeOnly(modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname, useOSS)
+        OneTimeOnly(modelingLanguage, asnFile, subProgram, subProgramImplementation, outputDir, maybeFVname)
     global g_IDs
     CleanSP = CleanName(subProgram._id)
     g_HeaderFile.write("#define ID_SCROLWND_" + CleanSP + " " + str(g_IDs) + "\n")

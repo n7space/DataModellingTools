@@ -8,7 +8,7 @@ from ..commonPy.asnParser import Filename, Typename, AST_Lookup, AST_TypesOfFile
 class Sync_B_Mapper(ModuleType):
     def OnStartup(
             self, modelingLanguage: str, asnFile: str, sp: ApLevelContainer,
-            sp_impl: str, outputDir: str, maybeFVname: str, useOSS: bool) -> None:
+            sp_impl: str, outputDir: str, maybeFVname: str) -> None:
         pass
 
     def OnBasic(
@@ -66,7 +66,7 @@ class Sync_B_Mapper(ModuleType):
 class Async_B_Mapper(ModuleType):
     def OnStartup(
             self, modelingLanguage: str, asnFile: str, outputDir: str,
-            maybeFVname: str, useOSS: bool) -> None:
+            maybeFVname: str) -> None:
         pass
 
     def OnBasic(

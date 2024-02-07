@@ -45,13 +45,7 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
     def FromToolToASN1SCC(self) -> RecursiveMapperGeneric:  # pylint: disable=no-self-use
         panicWithCallStack("Method undefined in a SynchronousToolGlueGenerator...")  # pragma: no cover
 
-    def FromToolToOSS(self) -> RecursiveMapperGeneric:  # pylint: disable=no-self-use
-        panicWithCallStack("Method undefined in a SynchronousToolGlueGenerator...")  # pragma: no cover
-
     def FromASN1SCCtoTool(self) -> RecursiveMapperGeneric:  # pylint: disable=no-self-use
-        panicWithCallStack("Method undefined in a SynchronousToolGlueGenerator...")  # pragma: no cover
-
-    def FromOSStoTool(self) -> RecursiveMapperGeneric:  # pylint: disable=no-self-use
         panicWithCallStack("Method undefined in a SynchronousToolGlueGenerator...")  # pragma: no cover
 
     def HeadersOnStartup(self, unused_modelingLanguage: str, unused_asnFile: str, unused_subProgram: ApLevelContainer, unused_subProgramImplementation: str, unused_outputDir: str, unused_maybeFVname: str) -> None:  # pylint: disable=no-self-use
@@ -92,7 +86,6 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
         self.asn_name = ""
         self.supportedEncodings = ['native', 'uper', 'acn']
         self.dir: str
-        self.useOSS: bool
 
     def OnStartup(self,
                   modelingLanguage: str,
@@ -100,8 +93,7 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
                   subProgram: ApLevelContainer,
                   subProgramImplementation: str,
                   outputDir: str,
-                  maybeFVname: str,
-                  useOSS: bool) -> None:
+                  maybeFVname: str) -> None:
         # FPGA/HW device driver is being generated (also) when Function Block will exist both as SW and HW, that is, when
         # 1) language defined is C or Simulink but on this autogen pass is "seen" as VHDL (so that respective B-mapper is invoked),
         # and 2) there are FPGA configurations defined
@@ -117,7 +109,6 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
 
         if modelingLanguage == "QGenAda":
             self.dir = outputDir
-            self.useOSS = useOSS
 
             ada_pkg_name = self.CleanNameAsADAWants(maybeFVname)
 
@@ -158,7 +149,6 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
             self.ADA_SourceFile.write('package body %s is\n\n' % ada_pkg_name)
         else:
             self.dir = outputDir
-            self.useOSS = useOSS
 
             outputCheaderFilename = \
                 self.CleanNameAsToolWants(subProgram._id + "_" + subProgramImplementation) + "." + self.CleanNameAsToolWants(modelingLanguage) + ".h"
@@ -320,32 +310,21 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
             self.C_SourceFile.write(
                 "int %s%s(void *pBuffer, size_t iMaxBufferSize)\n{\n" % (tmpSpName, fpgaSuffix))
 
-            if self.useOSS and encoding.lower() == "uper":
-                self.C_SourceFile.write(
-                    "    STATIC OSS_%s var_%s;\n" %
-                    (self.CleanNameAsToolWants(nodeTypename), self.CleanNameAsToolWants(nodeTypename)))
-            else:
-                self.C_SourceFile.write(
-                    "    STATIC asn1Scc%s var_%s;\n" %
-                    (self.CleanNameAsToolWants(nodeTypename), self.CleanNameAsToolWants(nodeTypename)))
+            self.C_SourceFile.write(
+                "    STATIC asn1Scc%s var_%s;\n" %
+                (self.CleanNameAsToolWants(nodeTypename), self.CleanNameAsToolWants(nodeTypename)))
 
             if encoding.lower() in ["uper", "acn"]:
-                if self.useOSS:
-                    self.C_SourceFile.write("    STATIC OssBuf strm;\n")
-                else:
-                    self.C_SourceFile.write("    int errorCode;\n")
-                    self.C_SourceFile.write("    STATIC BitStream strm;\n\n")
-                    # setup the asn1c encoder
-                    self.C_SourceFile.write("    (void)iMaxBufferSize;\n")
-                    self.C_SourceFile.write("    BitStream_Init(&strm, pBuffer, iMaxBufferSize);\n")
+                self.C_SourceFile.write("    int errorCode;\n")
+                self.C_SourceFile.write("    STATIC BitStream strm;\n\n")
+                # setup the asn1c encoder
+                self.C_SourceFile.write("    (void)iMaxBufferSize;\n")
+                self.C_SourceFile.write("    BitStream_Init(&strm, pBuffer, iMaxBufferSize);\n")
             else:
                 self.C_SourceFile.write("    (void)iMaxBufferSize;\n")
 
             # Write the mapping code for the message
-            if self.useOSS and encoding.lower() == "uper":
-                toolToAsn1 = self.FromToolToOSS()  # pylint: disable=assignment-from-no-return
-            else:
-                toolToAsn1 = self.FromToolToASN1SCC()  # pylint: disable=assignment-from-no-return
+            toolToAsn1 = self.FromToolToASN1SCC()  # pylint: disable=assignment-from-no-return
             lines = toolToAsn1.Map(
                 srcVar,
                 "var_" + self.CleanNameAsToolWants(nodeTypename),
@@ -356,26 +335,7 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
             lines = ["    " + x for x in lines]
             self.C_SourceFile.write("".join(lines))
 
-            if self.useOSS and encoding.lower() == "uper":
-                # setup the OSS encoder
-                self.C_SourceFile.write("\n    strm.value = NULL;\n")
-                self.C_SourceFile.write("    strm.length = 0;\n")
-                self.C_SourceFile.write(
-                    "    if (ossEncode(g_world, OSS_%s_PDU, &var_%s, &strm) != 0) {\n" %
-                    (self.CleanNameAsToolWants(nodeTypename), self.CleanNameAsToolWants(nodeTypename)))
-                self.C_SourceFile.write("#ifdef __unix__\n")
-                self.C_SourceFile.write(
-                    '        fprintf(stderr, "Could not encode %s (at %%s, %%d), errorMessage was %%s\\n", __FILE__, __LINE__, ossGetErrMsg(g_world));\n' % nodeTypename)
-                self.C_SourceFile.write("#endif\n")
-                self.C_SourceFile.write("        return -1;\n")
-                self.C_SourceFile.write("    } else {\n")
-                self.C_SourceFile.write("        assert(strm.length <= iMaxBufferSize);\n")
-                self.C_SourceFile.write("        memcpy(pBuffer, strm.value, strm.length);\n")
-                self.C_SourceFile.write("        ossFreeBuf(g_world, strm.value);\n")
-                self.C_SourceFile.write("        return strm.length;\n")
-                self.C_SourceFile.write("    }\n")
-                self.C_SourceFile.write("}\n\n")
-            elif encoding.lower() in ["uper", "acn"]:
+            if encoding.lower() in ["uper", "acn"]:
                 self.C_SourceFile.write(
                     "    if (asn1Scc%s_%sEncode(&var_%s, &strm, &errorCode, TRUE) == FALSE) {\n" %
                     (self.CleanNameAsToolWants(nodeTypename),
@@ -505,67 +465,35 @@ class SynchronousToolGlueGeneratorGeneric(Generic[TSource, TDestin]):
             self.C_SourceFile.write(
                 "int %s%s(void *pBuffer, size_t iBufferSize)\n{\n" % (tmpSpName, fpgaSuffix))
 
-            if self.useOSS and encoding.lower() == "uper":
-                self.C_SourceFile.write("    int pdutype = OSS_%s_PDU;\n" % self.CleanNameAsToolWants(nodeTypename))
-                self.C_SourceFile.write("    STATIC OssBuf strm;\n")
-                self.C_SourceFile.write("    OSS_%s *pVar_%s = NULL;\n\n" %
+            self.C_SourceFile.write("    STATIC asn1Scc%s var_%s;\n" %
+                                    (self.CleanNameAsToolWants(nodeTypename), self.CleanNameAsToolWants(nodeTypename)))
+            if encoding.lower() in ["uper", "acn"]:
+                self.C_SourceFile.write("    int errorCode;\n")
+                self.C_SourceFile.write("    STATIC BitStream strm;\n")
+                self.C_SourceFile.write("    (void) iBufferSize;\n")
+                self.C_SourceFile.write("    BitStream_AttachBuffer(&strm, pBuffer, iBufferSize);\n\n")
+                self.C_SourceFile.write("    if (asn1Scc%s_%sDecode(&var_%s, &strm, &errorCode)) {\n" %
+                                        (self.CleanNameAsToolWants(nodeTypename),
+                                         "ACN_" if encoding.lower() == "acn" else "",
+                                         self.CleanNameAsToolWants(nodeTypename)))
+                self.C_SourceFile.write("        /* Decoding succeeded */\n")
+            elif encoding.lower() == "native":
+                self.C_SourceFile.write("    (void) iBufferSize;\n")
+                self.C_SourceFile.write("    var_%s = *(asn1Scc%s *) pBuffer;\n    {\n" %
                                         (self.CleanNameAsToolWants(nodeTypename),
                                          self.CleanNameAsToolWants(nodeTypename)))
-                self.C_SourceFile.write("    strm.value = pBuffer;\n")
-                self.C_SourceFile.write("    strm.length = iBufferSize;\n")
-                self.C_SourceFile.write("    if (0 == ossDecode(g_world, &pdutype, &strm, (void**)&pVar_%s)) {\n" %
-                                        self.CleanNameAsToolWants(nodeTypename))
-                self.C_SourceFile.write("        /* Decoding succeeded */\n")
-            else:
-                self.C_SourceFile.write("    STATIC asn1Scc%s var_%s;\n" %
-                                        (self.CleanNameAsToolWants(nodeTypename), self.CleanNameAsToolWants(nodeTypename)))
-                if encoding.lower() in ["uper", "acn"]:
-                    self.C_SourceFile.write("    int errorCode;\n")
-                    self.C_SourceFile.write("    STATIC BitStream strm;\n")
-                    self.C_SourceFile.write("    (void) iBufferSize;\n")
-                    self.C_SourceFile.write("    BitStream_AttachBuffer(&strm, pBuffer, iBufferSize);\n\n")
-                    self.C_SourceFile.write("    if (asn1Scc%s_%sDecode(&var_%s, &strm, &errorCode)) {\n" %
-                                            (self.CleanNameAsToolWants(nodeTypename),
-                                             "ACN_" if encoding.lower() == "acn" else "",
-                                             self.CleanNameAsToolWants(nodeTypename)))
-                    self.C_SourceFile.write("        /* Decoding succeeded */\n")
-                elif encoding.lower() == "native":
-                    self.C_SourceFile.write("    (void) iBufferSize;\n")
-                    self.C_SourceFile.write("    var_%s = *(asn1Scc%s *) pBuffer;\n    {\n" %
-                                            (self.CleanNameAsToolWants(nodeTypename),
-                                             self.CleanNameAsToolWants(nodeTypename)))
 
-            if self.useOSS and encoding.lower() == "uper":
-                asn1ToTool = self.FromOSStoTool()  # pylint: disable=assignment-from-no-return
-                lines = asn1ToTool.Map(
-                    "(*pVar_" + self.CleanNameAsToolWants(nodeTypename) + ")",
-                    targetVar,
-                    node,
-                    leafTypeDict,
-                    names) if asn1ToTool else []
-            else:
-                asn1ToTool = self.FromASN1SCCtoTool()  # pylint: disable=assignment-from-no-return
-                lines = asn1ToTool.Map(
-                    "var_" + self.CleanNameAsToolWants(nodeTypename),
-                    targetVar,
-                    node,
-                    leafTypeDict,
-                    names) if asn1ToTool else []
+            asn1ToTool = self.FromASN1SCCtoTool()  # pylint: disable=assignment-from-no-return
+            lines = asn1ToTool.Map(
+                "var_" + self.CleanNameAsToolWants(nodeTypename),
+                targetVar,
+                node,
+                leafTypeDict,
+                names) if asn1ToTool else []
             lines = ["        " + x for x in lines]
             self.C_SourceFile.write("".join(lines))
 
-            if self.useOSS and encoding.lower() == "uper":
-                self.C_SourceFile.write("        ossFreeBuf(g_world, pVar_%s);\n" % self.CleanNameAsToolWants(nodeTypename))
-                self.C_SourceFile.write("        return 0;\n")
-                self.C_SourceFile.write("    } else {\n")
-                self.C_SourceFile.write("#ifdef __unix__\n")
-                self.C_SourceFile.write(
-                    '        fprintf(stderr, "Could not decode %s (at %%s, %%d), error message was %%s\\n", __FILE__, __LINE__, ossGetErrMsg(g_world));\n' % nodeTypename)
-                self.C_SourceFile.write("#endif\n")
-                self.C_SourceFile.write("        return -1;\n")
-                self.C_SourceFile.write("    }\n")
-                self.C_SourceFile.write("}\n\n")
-            elif encoding.lower() in ["uper", "acn"]:
+            if encoding.lower() in ["uper", "acn"]:
                 self.C_SourceFile.write("        return 0;\n")
                 self.C_SourceFile.write("    } else {\n")
                 self.C_SourceFile.write("#ifdef __unix__\n")

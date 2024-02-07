@@ -38,8 +38,7 @@ def OneTimeOnly(
         subProgram: ApLevelContainer,
         subProgramImplementation: str,
         outputDir: str,
-        FVname: str,
-        unused_useOSS: bool) -> None:
+        FVname: str) -> None:
     global g_PyDataModel
     g_PyDataModel = open(outputDir + 'datamodel.py', 'w')
     g_PyDataModel.write('''#!/usr/bin/python
@@ -135,8 +134,7 @@ def OnStartup(
         subProgram: ApLevelContainer,
         subProgramImplementation: str,
         outputDir: str,
-        FVname: str,
-        useOSS: bool) -> None:
+        FVname: str) -> None:
     '''
         Called once per interface (PI or RI)
         (SUBPROGRAM IMPLEMENTATION in mini_cv.aadl)
@@ -145,7 +143,7 @@ def OnStartup(
     if not g_bStarted:
         g_bStarted = True
         OneTimeOnly(modelingLanguage, asnFile, subProgram,
-                    subProgramImplementation, outputDir, FVname, useOSS)
+                    subProgramImplementation, outputDir, FVname)
 
     CleanSP = CleanName(subProgram._id)
 

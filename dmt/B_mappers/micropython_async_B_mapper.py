@@ -622,13 +622,13 @@ class MicroPython_GlueGenerator(ASynchronousToolGlueGenerator):
         self.C_SourceFile.close()
 
 
-def OnStartup(modelingLanguage: str, asnFile: str, outputDir: str, maybeFVname: str, useOSS: bool) -> None:
+def OnStartup(modelingLanguage: str, asnFile: str, outputDir: str, maybeFVname: str) -> None:
     global backend_C, backend_uPy, backends
     backend_C = C_GlueGenerator()
     backend_uPy = MicroPython_GlueGenerator()
     backends = [backend_C, backend_uPy]
-    backend_C.OnStartup("C", asnFile, outputDir, maybeFVname, useOSS)
-    backend_uPy.OnStartup("MicroPython", asnFile, outputDir, maybeFVname, useOSS)
+    backend_C.OnStartup("C", asnFile, outputDir, maybeFVname)
+    backend_uPy.OnStartup("MicroPython", asnFile, outputDir, maybeFVname)
 
 
 def OnBasic(nodeTypename: str, node: AsnNode, leafTypeDict: AST_Leaftypes, names: AST_Lookup) -> None:
