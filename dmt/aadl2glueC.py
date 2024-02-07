@@ -72,18 +72,12 @@ from distutils import spawn
 
 from typing import cast, Optional, Dict, List, Tuple, Set, Any  # NOQA pylint: disable=unused-import
 
-# from importlib import import_module
 from .B_mappers import ada_B_mapper
 from .B_mappers import c_B_mapper
-from .B_mappers import gui_B_mapper
-# from .B_mappers import og_B_mapper
 from .B_mappers import sdl_B_mapper
 from .B_mappers import pyside_B_mapper
 from .B_mappers import python_B_mapper
-# from .B_mappers import qgenada_B_mapper
-# from .B_mappers import qgenc_B_mapper
 from .B_mappers import rtds_B_mapper
-# from .B_mappers import scade6_B_mapper
 from .B_mappers import simulink_B_mapper
 from .B_mappers import micropython_async_B_mapper
 from .B_mappers import vhdl_B_mapper
@@ -116,18 +110,13 @@ g_async_mappers = {
     'MicroPython': micropython_async_B_mapper,
     'Ada': ada_B_mapper,
     'SDL': sdl_B_mapper,
-    'OG': og_B_mapper,
     'RTDS': rtds_B_mapper,
 }
 
 
 g_sync_mappers = {
-#    'Scade6': scade6_B_mapper,
     'Simulink': simulink_B_mapper,
-#    'gui': gui_B_mapper,
     'python': python_B_mapper,
-#    'QGenC': qgenc_B_mapper,
-#    'QGenAda': qgenada_B_mapper,
     'vhdl': vhdl_B_mapper,
 }
 
@@ -194,8 +183,6 @@ of each SUBPROGRAM param.'''
             patchMe(param)
             patchMe(param._signal)
             patchMe(param._sourceElement)
-        # for c in sp._calls:
-        #     patchMe(c)
         for cn in sp._connections:
             patchMe(cn)
     try:
