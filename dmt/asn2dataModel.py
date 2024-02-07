@@ -33,17 +33,17 @@ from . import A_mappers  # NOQA pylint:disable=unused-import
 
 from .A_mappers import ada_A_mapper
 from .A_mappers import c_A_mapper
-from .A_mappers import og_A_mapper
+# from .A_mappers import og_A_mapper
 from .A_mappers import python_A_mapper
-from .A_mappers import qgenada_A_mapper
-from .A_mappers import qgenc_A_mapper
+# from .A_mappers import qgenada_A_mapper
+# from .A_mappers import qgenc_A_mapper
 from .A_mappers import rtds_A_mapper
-from .A_mappers import scade6_A_mapper
+# from .A_mappers import scade6_A_mapper
 from .A_mappers import simulink_A_mapper
-from .A_mappers import smp2_A_mapper
+# from .A_mappers import smp2_A_mapper
 from .A_mappers import sqlalchemy_A_mapper
 from .A_mappers import sql_A_mapper
-from .A_mappers import vdm_A_mapper
+# from .A_mappers import vdm_A_mapper
 
 from .A_mappers.module_protos import A_Mapper
 
@@ -60,20 +60,20 @@ def usage(argsToTools: Dict[str, str]) -> None:
 
 def getBackend(modelingLanguage: str) -> A_Mapper:
     backends = {
-        'OG': og_A_mapper,
-        'SCADE5': scade6_A_mapper,
-        'SCADE6': scade6_A_mapper,
+#        'OG': og_A_mapper,
+#        'SCADE5': scade6_A_mapper,
+#        'SCADE6': scade6_A_mapper,
         'Simulink': simulink_A_mapper,
         'C': c_A_mapper,
         'RTDS': rtds_A_mapper,
         'ada': ada_A_mapper,
         'python': python_A_mapper,
-        'smp2': smp2_A_mapper,
-        'qgenada': qgenada_A_mapper,
-        'qgenc': qgenc_A_mapper,
+#        'smp2': smp2_A_mapper,
+#        'qgenada': qgenada_A_mapper,
+#        'qgenc': qgenc_A_mapper,
         'sql': sql_A_mapper,
         'sqlalchemy': sqlalchemy_A_mapper,
-        'vdm': vdm_A_mapper,
+#        'vdm': vdm_A_mapper,
     }
     if modelingLanguage not in backends:
         panic("Modeling language '%s' not supported" % modelingLanguage)  # pragma: no cover
@@ -100,18 +100,18 @@ def main() -> None:
         sys.exit(1)  # pragma: no cover
 
     argsToTools = {
-        'toOG': 'OG',
-        'toSCADE5': 'SCADE5',
-        'toSCADE6': 'SCADE6',
+#        'toOG': 'OG',
+#        'toSCADE5': 'SCADE5',
+#        'toSCADE6': 'SCADE6',
         'toSIMULINK': 'Simulink',
         'toC': 'C',
         'toCPP': 'C',
         'toRTDS': 'RTDS',
         'toAda': 'ada',
         'toPython': 'python',
-        'toSMP2': 'smp2',
-        'toQGenAda': 'qgenada',
-        'toQGenC': 'qgenc',
+#        'toSMP2': 'smp2',
+#        'toQGenAda': 'qgenada',
+#        'toQGenC': 'qgenc',
         'toSQL': 'sql',
         'toSqlalchemy': 'sqlalchemy'
     }
