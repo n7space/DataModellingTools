@@ -66,8 +66,6 @@ class ASynchronousToolGlueGenerator:
     def OnStartup(self, modelingLanguage: str, asnFile: str, outputDir: str, maybeFVname: str, useOSS: bool) -> None:
         self.useOSS = useOSS
         prefix = modelingLanguage
-        if prefix == "SDL":
-            prefix = "OG"
         outputCheaderFilename = self.CleanNameAsToolWants(prefix) + "_ASN1_Types.h"
         outputCsourceFilename = self.CleanNameAsToolWants(prefix) + "_ASN1_Types.c"
 

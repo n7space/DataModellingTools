@@ -74,7 +74,6 @@ from typing import cast, Optional, Dict, List, Tuple, Set, Any  # NOQA pylint: d
 
 from .B_mappers import ada_B_mapper
 from .B_mappers import c_B_mapper
-from .B_mappers import sdl_B_mapper
 from .B_mappers import pyside_B_mapper
 from .B_mappers import python_B_mapper
 from .B_mappers import rtds_B_mapper
@@ -109,7 +108,6 @@ g_async_mappers = {
     'C': c_B_mapper,
     'MicroPython': micropython_async_B_mapper,
     'Ada': ada_B_mapper,
-    'SDL': sdl_B_mapper,
     'RTDS': rtds_B_mapper,
 }
 
