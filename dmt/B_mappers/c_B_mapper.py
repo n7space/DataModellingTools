@@ -44,7 +44,7 @@ class C_GlueGenerator(ASynchronousToolGlueGenerator):
                                 self.asn_name)
         self.C_HeaderFile.write("#include \"../../system_config.h\" // Choose ASN.1 Types to use\n\n")
 
-    def Encoder(self, nodeTypename: str, node: AsnNode, leafTypeDict: AST_Leaftypes, names: AST_Lookup, encoding: str) -> None:
+    def Encoder(self, nodeTypename: str, _: AsnNode, __: AST_Leaftypes, ___: AST_Lookup, encoding: str) -> None:
         if encoding.lower() not in self.supportedEncodings:
             panic(str(self.__class__) + ": in (%s), encoding can be one of %s (not '%s')" %  # pragma: no cover
                   (nodeTypename, self.supportedEncodings, encoding))  # pragma: no cover
@@ -109,7 +109,7 @@ class C_GlueGenerator(ASynchronousToolGlueGenerator):
             self.C_SourceFile.write("}\n")
             self.C_SourceFile.write("#endif\n\n")
 
-    def Decoder(self, nodeTypename: str, node: AsnNode, leafTypeDict: AST_Leaftypes, names: AST_Lookup, encoding: str) -> None:
+    def Decoder(self, nodeTypename: str, node: AsnNode, _: AST_Leaftypes, __: AST_Lookup, encoding: str) -> None:
         if encoding.lower() not in self.supportedEncodings:
             panic(str(self.__class__) + ": in (%s), encoding can be one of %s (not '%s')" %  # pragma: no cover
                   (nodeTypename, self.supportedEncodings, encoding))  # pragma: no cover
