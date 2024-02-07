@@ -25,11 +25,9 @@ from typing import List
 
 from ..commonPy.utility import panic
 from ..commonPy.asnAST import (
-    AsnAsciiString, sourceSequenceLimit, isSequenceVariable, targetSequenceLimit,
-    AsnInt, AsnReal, AsnBool, AsnSequenceOrSet, AsnSequenceOrSetOf,
-    AsnChoice, AsnOctetString, AsnEnumerated, AsnNode)
+    AsnAsciiString, AsnNode)
 from ..commonPy.asnParser import AST_Lookup, AST_Leaftypes
-from ..commonPy.recursiveMapper import RecursiveMapper
+# from ..commonPy.recursiveMapper import RecursiveMapper
 from .asynchronousTool import ASynchronousToolGlueGenerator
 
 isAsynchronous = True
