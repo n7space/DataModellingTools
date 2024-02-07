@@ -25,18 +25,6 @@ PROPERTIES
 	Source_Language => Ada;
 END mytestsubsystemEmpty.Ada;
 
-SUBPROGRAM IMPLEMENTATION mytestsubsystemEmpty.Scade
-PROPERTIES
-	FV_Name => "mytestsubsystemEmpty_fv_Scade";
-	Source_Language => Scade6;
-END mytestsubsystemEmpty.Scade;
-
-SUBPROGRAM IMPLEMENTATION mytestsubsystemEmpty.QGenAda
-PROPERTIES
-	FV_Name => "mytestsubsystemEmpty_fv_QGenAda";
-	Source_Language => QGenAda;
-END mytestsubsystemEmpty.QGenAda;
-
 -- GUIs can't tolerate empty param set
 
 SUBPROGRAM mytestsubsystem
@@ -132,31 +120,6 @@ PROPERTIES
 	FV_Name => "mytestsubsystem_fv_Ada";
 	Source_Language => Ada;
 END mytestsubsystem.Ada;
-
-SUBPROGRAM IMPLEMENTATION mytestsubsystem.Scade
-PROPERTIES
-	FV_Name => "mytestsubsystem_fv_Scade";
-	Source_Language => Scade6;
-END mytestsubsystem.Scade;
-
-SUBPROGRAM IMPLEMENTATION mytestsubsystem.QGenAda
-PROPERTIES
-	FV_Name => "mytestsubsystemEmpty_fv_QGenAda";
-	Source_Language => QGenAda;
-END mytestsubsystem.QGenAda;
-
--- SUBPROGRAM IMPLEMENTATION mytestsubsystem.GUIPI
--- PROPERTIES
--- 	FV_Name => "mytestsubsystem_fv_GUIPI";
--- 	Source_Language => GUI_PI;
--- END mytestsubsystem.GUIPI;
--- 
--- SUBPROGRAM IMPLEMENTATION mytestsubsystem.GUIRI
--- PROPERTIES
--- 	FV_Name => "mytestsubsystem_fv_GUIRI";
--- 	Source_Language => GUI_RI;
--- END mytestsubsystem.GUIRI;
-
 
 
 SUBPROGRAM mytestsubsystemAType_PI
