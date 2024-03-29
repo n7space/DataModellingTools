@@ -224,7 +224,7 @@ clean:
 
     retTypes = {}
     for line in open(outputDir + "%s_getset.c" % base):
-        if any(x in line for x in ['_Get(', '_GetLength']):
+        if any(x in line for x in ['_Get(', '_GetLength', '_GetPointer']):
             retType, funcName = line.split()[0:2]
             funcName = funcName.split('(')[0]
             retTypes[funcName] = retType
@@ -421,6 +421,7 @@ def CreateGettersAndSetters(
         CommonBaseImplBitString(path + "_iDx", params)
         params.Pop()
     elif isinstance(node, AsnString):
+        # OCTET STRINGs
         if not node._range:
             panic("Python_A_mapper: string (in %s) must have a SIZE constraint!\n" % node.Location())  # pragma: no cover
         if isSequenceVariable(node):
@@ -430,6 +431,8 @@ def CreateGettersAndSetters(
         params.AddParam('int', "iDx", leafTypeDict)
         CommonBaseImpl("OCTETSTRING_bytes", "byte", path + "_iDx", params, accessPathInC + (".arr[" + params._vars[-1] + "]"), "")
         params.Pop()
+        # Generate a function that return a pointer to the octet string
+        CommonBaseImpl("OCTETSTRING_Pointer", "byte*", path, params, accessPathInC + ".arr[0]", "Pointer", returnPointer=True)
     elif isinstance(node, AsnEnumerated):
         CommonBaseImpl("ENUMERATED", "int", path, params, accessPathInC)
     elif isinstance(node, (AsnSequence, AsnSet, AsnChoice)):

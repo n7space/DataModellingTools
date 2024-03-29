@@ -11,7 +11,8 @@ import sys
 import DV_Types  # pylint: disable=import-error
 from ctypes import (
     cdll, c_void_p, c_ubyte, c_double, c_uint,
-    c_longlong, c_bool, c_int, c_long, c_char, c_ulonglong
+    c_longlong, c_bool, c_int, c_long, c_char, c_ulonglong,
+    cast, POINTER
 )
 
 if sys.version_info > (3,):
@@ -93,11 +94,15 @@ class DataStream(object):
         if sys.version_info > (3,):
             msg = b""
             pData = c_void_p(GetBitstreamBuffer(self._bs))
-            for i in range(0, GetStreamCurrentLength(self._bs)):
-                b = GetBufferByte(pData, i)
-                msg += bytes([b])
-                # print b, ",",
+            size = GetStreamCurrentLength(self._bs)
+            arr = c_ubyte * size
+            arr_inst = cast(pData, POINTER(arr)).contents
+            msg = bytearray(arr_inst)
         else:
+            # deprecated - Python2 support
+            # this method to copy byte by byte is extremely slow
+            # if Python2 is still used, consider updating this code
+            # (see Python3 snippet above)
             msg = ""
             pData = c_void_p(GetBitstreamBuffer(self._bs))
             for i in range(0, GetStreamCurrentLength(self._bs)):
@@ -305,6 +310,9 @@ An example for SetLength:
     def SetLength(self, value, reset=True):
         self.Set(value, postfix="Length", reset=reset)
 
+    def GetPointer(self, reset=True):
+        return self.Get(postfix="Pointer", reset=reset)
+
     @staticmethod
     def getErrCode(pErr):
         errCode = 0
@@ -399,14 +407,11 @@ grep for the errorcode value inside ASN1SCC generated headers."""
         '''
         if sys.version_info > (3,):
             retval = b""
-            strLength = self.GetLength(False)
-            self._Caccessor += "_iDx"
-            accessPath = self._accessPath
-            for idx in range(0, strLength):
-                self._params.append(idx)
-                self._accessPath = accessPath + "[" + str(idx) + "]"
-                retval += bytes([self.Get(reset=False)])
-                self._params.pop()
+            size = self.GetLength(False)
+            pData = self.GetPointer()
+            arr = c_ubyte * size
+            arr_inst = cast(pData, POINTER(arr)).contents
+            retval = bytearray(arr_inst)
             self.Reset()
             if tryToDecodeAscii:
                 try:
@@ -415,6 +420,7 @@ grep for the errorcode value inside ASN1SCC generated headers."""
                     pass
             return retval
         else:
+            # python2 (very slow, deprecated)
             retval = ""
             strLength = self.GetLength(False)
             self._Caccessor += "_iDx"
