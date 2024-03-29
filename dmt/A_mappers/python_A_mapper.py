@@ -168,7 +168,7 @@ $(BDIR)/$(GRAMMAR).c $(BDIR)/asn1crt_encoding.c $(BDIR)/asn1crt_encoding_uper.c 
 
 $(BDIR)/DV.py:       $(GRAMMAR).asn $(BDIR)/$(GRAMMAR).h
 %(tab)sgrep 'REQUIRED_BYTES_FOR_.*ENCODING' $(BDIR)/$(GRAMMAR).h | awk '{print $$2 " = " $$3}' > $@
-%(tab)spython learn_CHOICE_enums.py %(base)s >> $@ || rm $@
+%(tab)spython3 learn_CHOICE_enums.py %(base)s >> $@ || rm $@
 
 $(BDIR)/%%.o:       $(BDIR)/%%.c $(BDIR)/$(GRAMMAR).h
 %(tab)sgcc -g -fPIC -c -o $@ $<

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 import os
 import sys
 choices = []
@@ -13,7 +13,8 @@ There is no name clash thanks to the rename policy of the ASN.1 compiler
 '''
 
 for line in open(sys.argv[1] + '.h', 'r'):
-    if '_PRESENT' in line and not line.startswith('#define'):
+    cut = line.strip().split()
+    if len(cut) == 1 and '_PRESENT' in cut[0]:
         choices.append(line.strip().replace(",", ""))
         bEnum = False
     elif line.strip().startswith('typedef enum {'):
