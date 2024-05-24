@@ -155,14 +155,16 @@ of each SUBPROGRAM param.'''
         parserUtility = os.path.join(
             os.path.abspath(os.path.dirname(__file__)), "parse_aadl.py")
         cmd = "python2 " + parserUtility + " -o " + astFile + ' ' + \
-            ' '.join(sys.argv[1:])
-        if os.system(cmd) != 0:
+            ' '.join(sys.argv[1:-1])
+        if len(sys.argv) > 2 and os.system(cmd) != 0:
             if os.path.exists(astFile):
                 os.unlink(astFile)
             panic("AADL parsing failed. Aborting...")
-        astInfo = pickle.load(open(astFile, 'rb'), fix_imports=False)
-        if aadlASTcache:
-            pickle.dump(astInfo, open(aadlASTcache, 'wb'), fix_imports=False)
+        if os.path.exists(astFile):
+            astInfo = pickle.load(open(astFile, 'rb'), fix_imports=False)
+            if aadlASTcache:
+                pickle.dump(astInfo, open(aadlASTcache, 'wb'),
+                        fix_imports=False)
 
     def FixMetaClasses(sp: ApLevelContainer) -> None:
         def patchMe(o: Any) -> None:
@@ -183,11 +185,26 @@ of each SUBPROGRAM param.'''
             patchMe(param._sourceElement)
         for cn in sp._connections:
             patchMe(cn)
+    if "aadlv1" in sys.argv[-1]:
+        #  asn2aadlPlus now generates directly a Python file containing all
+        #  datatypes, so there is no need to parse the aadl file with python2
+        #  however this feature cannot be used yet until the mini-cv is also
+        #  replaced with a similar approach, as currently when parsing the
+        #  aadl file, there is a reference made to the data types, that have
+        #  to be visible in python2....
+        print('[DMT] importing data types from asn2aadlPlus')
+        modPath = sys.argv[-1] + '.py'
+        import importlib.util
+        spec = importlib.util.spec_from_file_location('asn1', modPath)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules['asn1'] = module
+        spec.loader.exec_module(module)
     try:
         for k in ['g_processImplementations', 'g_apLevelContainers',
                   'g_signals', 'g_systems', 'g_subProgramImplementations',
                   'g_threadImplementations']:
             setattr(commonPy.aadlAST, k, astInfo[k])
+        # Data types are imported directly
         for k in ['g_processImplementations',
                   'g_subProgramImplementations', 'g_threadImplementations']:
             for si in astInfo[k]:
