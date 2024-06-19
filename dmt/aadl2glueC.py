@@ -164,7 +164,7 @@ of each SUBPROGRAM param.'''
             astInfo = pickle.load(open(astFile, 'rb'), fix_imports=False)
             if aadlASTcache:
                 pickle.dump(astInfo, open(aadlASTcache, 'wb'),
-                        fix_imports=False)
+                            fix_imports=False)
 
     def FixMetaClasses(sp: ApLevelContainer) -> None:
         def patchMe(o: Any) -> None:
