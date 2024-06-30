@@ -167,7 +167,7 @@ class ApLevelContainer:
         self._params = []  # type: List[Param]
         self._connections = []  # type: List[Connection]
         self._language: str
-        self._fpgaConfigurations: str
+        self._fpgaConfigurations: str = ''
         self._simulinkInterfaceType = "full"
         self._simulinkFullInterfaceRef = ''
 
