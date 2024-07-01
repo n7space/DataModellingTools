@@ -65,9 +65,6 @@ but with an extra call to OnFinal at the end.
 
 import os
 import sys
-import hashlib
-import pickle
-import tempfile
 from distutils import spawn
 import importlib.util
 
