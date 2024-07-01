@@ -69,6 +69,7 @@ import hashlib
 import pickle
 import tempfile
 from distutils import spawn
+import importlib.util
 
 from typing import cast, Optional, Dict, List, Tuple, Set, Any  # NOQA pylint: disable=unused-import
 
@@ -123,99 +124,32 @@ def ParseAADLfilesAndResolveSignals() -> None:
     '''Invokes the ANTLR generated AADL parser, and resolves
 all references to AADL Data types into the param._signal member
 of each SUBPROGRAM param.'''
-    projectCache = os.getenv("PROJECT_CACHE")
-    if projectCache is not None:
-        if not os.path.isdir(projectCache):
-            try:
-                os.mkdir(projectCache)
-            except:
-                panic("The configured cache folder:\n\n\t" + projectCache +
-                      "\n\n...is not there!\n")
-    aadlASTcache = None
-    astInfo = None
-    if projectCache is not None:
-        filehash = hashlib.md5()
-        for each in sorted(sys.argv[1:]):
-            filehash.update(open(each).read().encode('utf-8'))
-        newHash = filehash.hexdigest()
-        # set the name of the Pickle files containing the dumped AST
-        aadlASTcache = projectCache + os.sep + newHash + "_aadl_ast.pickle"
-        if not os.path.exists(aadlASTcache):
-            print("[DMT] No cached AADL model found for",
-                  ",".join(sys.argv[1:]))
-        else:
-            print("[DMT] Reusing cached AADL model for",
-                  ",".join(sys.argv[1:]))
-            astInfo = pickle.load(open(aadlASTcache, 'rb'), fix_imports=False)
-    if astInfo is None:
-        f = tempfile.NamedTemporaryFile(delete=False)
-        astFile = f.name
-        f.close()
-        os.unlink(astFile)
-        parserUtility = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)), "parse_aadl.py")
-        cmd = "python2 " + parserUtility + " -o " + astFile + ' ' + \
-            ' '.join(sys.argv[1:-1])
-        if len(sys.argv) > 2 and os.system(cmd) != 0:
-            if os.path.exists(astFile):
-                os.unlink(astFile)
-            panic("AADL parsing failed. Aborting...")
-        if os.path.exists(astFile):
-            astInfo = pickle.load(open(astFile, 'rb'), fix_imports=False)
-            if aadlASTcache:
-                pickle.dump(astInfo, open(aadlASTcache, 'wb'),
-                            fix_imports=False)
-
-    def FixMetaClasses(sp: ApLevelContainer) -> None:
-        def patchMe(o: Any) -> None:
-            try:
-                python2className = str(o.__class__).split("'")[1]
-                if 'commonPy2' in python2className:
-                    klass = commonPy
-                    for step in python2className.split('.')[1:]:
-                        klass = getattr(klass, step)
-                    o.__class__ = klass  # pylint: disable=invalid-class-object
-            except Exception:
-                pass
-
-        patchMe(sp)
-        for param in sp._params:
-            patchMe(param)
-            patchMe(param._signal)
-            patchMe(param._sourceElement)
-        for cn in sp._connections:
-            patchMe(cn)
+#   projectCache = os.getenv("PROJECT_CACHE")
+#   if projectCache is not None:
+#       if not os.path.isdir(projectCache):
+#           try:
+#               os.mkdir(projectCache)
+#           except:
+#               panic("The configured cache folder:\n\n\t" + projectCache +
+#                     "\n\n...is not there!\n")
     if "aadlv1" in sys.argv[-1]:
         #  asn2aadlPlus now generates directly a Python file containing all
-        #  datatypes, so there is no need to parse the aadl file with python2
-        #  however this feature cannot be used yet until the mini-cv is also
-        #  replaced with a similar approach, as currently when parsing the
-        #  aadl file, there is a reference made to the data types, that have
-        #  to be visible in python2....
+        #  datatypes, so there is no need to parse the aadl file with Python2
         print('[DMT] importing data types from asn2aadlPlus')
         modPath = sys.argv[-1] + '.py'
-        import importlib.util
         spec = importlib.util.spec_from_file_location('asn1', modPath)
         module = importlib.util.module_from_spec(spec)
         sys.modules['asn1'] = module
         spec.loader.exec_module(module)
-    try:
-        for k in ['g_processImplementations', 'g_apLevelContainers',
-                  'g_signals', 'g_systems', 'g_subProgramImplementations',
-                  'g_threadImplementations']:
-            setattr(commonPy.aadlAST, k, astInfo[k])
-        # Data types are imported directly
-        for k in ['g_processImplementations',
-                  'g_subProgramImplementations', 'g_threadImplementations']:
-            for si in astInfo[k]:
-                # sp, sp_impl, modelingLanguage, maybeFVname = si[0], si[1], si[2], si[3]
-                sp = si[0]
-                sp = commonPy.aadlAST.g_apLevelContainers[sp]
-                FixMetaClasses(sp)
-    except Exception as e:
-        if os.path.exists(astFile):
-            os.unlink(astFile)
-        panic(str(e))
+
+    # Load mini_cv python-generated modules
+    for minicv in sys.argv[1:-1]:
+        modPath = sys.argv[1].replace('aadl', 'py')  # mini_cv.py file
+        print(f'[DMT] importing interfaces from {modPath}')
+        spec = importlib.util.spec_from_file_location('minicv', modPath)
+        module = importlib.util.module_from_spec(spec)
+        # sys.modules['asn1'] = module
+        spec.loader.exec_module(module)
 
 
 def SpecialCodes(asnFile: Optional[str]) -> None:
