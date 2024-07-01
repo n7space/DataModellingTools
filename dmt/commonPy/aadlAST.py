@@ -11,7 +11,7 @@ g_subProgramImplementations = []  # type: List[Tuple[str,str,str,str,str]]
 g_processImplementations = []  # type: List[Tuple[str,str,str,str,str]]
 g_threadImplementations = []  # type: List[Tuple[str,str,str,str,str]]
 
-g_signals = {}
+g_signals = {}  # type: Dict[str, Signal]
 
 # AST classes
 
