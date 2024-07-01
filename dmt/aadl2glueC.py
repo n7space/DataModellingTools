@@ -141,7 +141,7 @@ of each SUBPROGRAM param.'''
 
     # Load mini_cv python-generated modules
     for minicv in sys.argv[1:-1]:
-        modPath = sys.argv[1].replace('aadl', 'py')  # mini_cv.py file
+        modPath = minicv.replace('aadl', 'py')  # mini_cv.py file
         print(f'[DMT] importing interfaces from {modPath}')
         spec = importlib.util.spec_from_file_location('minicv', modPath)
         module = importlib.util.module_from_spec(spec)
