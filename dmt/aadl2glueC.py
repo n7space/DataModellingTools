@@ -138,6 +138,7 @@ of each SUBPROGRAM param.'''
         if spec is not None:
             module = importlib.util.module_from_spec(spec)
             if module is not None and spec.loader is not None:   # appease mypy
+                assert(isinstance(spec.loader, importlib.abc.Loader))  # due to bug in mypy
                 sys.modules['asn1'] = module
                 spec.loader.exec_module(module)
 
@@ -149,6 +150,7 @@ of each SUBPROGRAM param.'''
         if spec is not None:
             module = importlib.util.module_from_spec(spec)
             if module is not None and spec.loader is not None:  # appease mypy
+                assert(isinstance(spec.loader, importlib.abc.Loader))   # due to bug in mypy
                 spec.loader.exec_module(module)
 
 
