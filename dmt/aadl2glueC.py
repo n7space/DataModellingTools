@@ -135,18 +135,21 @@ of each SUBPROGRAM param.'''
         print('[DMT] importing data types from asn2aadlPlus')
         modPath = sys.argv[-1] + '.py'
         spec = importlib.util.spec_from_file_location('asn1', modPath)
-        module = importlib.util.module_from_spec(spec)
-        sys.modules['asn1'] = module
-        spec.loader.exec_module(module)
+        if spec is not None:
+            module = importlib.util.module_from_spec(spec)
+            if module is not None and spec.loader is not None:   # appease mypy
+                sys.modules['asn1'] = module
+                spec.loader.exec_module(module)
 
     # Load mini_cv python-generated modules
     for minicv in sys.argv[1:-1]:
         modPath = minicv.replace('aadl', 'py')  # mini_cv.py file
         print(f'[DMT] importing interfaces from {modPath}')
         spec = importlib.util.spec_from_file_location('minicv', modPath)
-        module = importlib.util.module_from_spec(spec)
-        # sys.modules['asn1'] = module
-        spec.loader.exec_module(module)
+        if spec is not None:
+            module = importlib.util.module_from_spec(spec)
+            if module is not None and spec.loader is not None:  # appease mypy
+                spec.loader.exec_module(module)
 
 
 def SpecialCodes(asnFile: Optional[str]) -> None:
