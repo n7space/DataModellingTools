@@ -65,10 +65,8 @@ but with an extra call to OnFinal at the end.
 
 import os
 import sys
-import hashlib
-import pickle
-import tempfile
 from distutils import spawn
+import importlib.util
 
 from typing import cast, Optional, Dict, List, Tuple, Set, Any  # NOQA pylint: disable=unused-import
 
@@ -123,82 +121,37 @@ def ParseAADLfilesAndResolveSignals() -> None:
     '''Invokes the ANTLR generated AADL parser, and resolves
 all references to AADL Data types into the param._signal member
 of each SUBPROGRAM param.'''
-    projectCache = os.getenv("PROJECT_CACHE")
-    if projectCache is not None:
-        if not os.path.isdir(projectCache):
-            try:
-                os.mkdir(projectCache)
-            except:
-                panic("The configured cache folder:\n\n\t" + projectCache +
-                      "\n\n...is not there!\n")
-    aadlASTcache = None
-    astInfo = None
-    if projectCache is not None:
-        filehash = hashlib.md5()
-        for each in sorted(sys.argv[1:]):
-            filehash.update(open(each).read().encode('utf-8'))
-        newHash = filehash.hexdigest()
-        # set the name of the Pickle files containing the dumped AST
-        aadlASTcache = projectCache + os.sep + newHash + "_aadl_ast.pickle"
-        if not os.path.exists(aadlASTcache):
-            print("[DMT] No cached AADL model found for",
-                  ",".join(sys.argv[1:]))
-        else:
-            print("[DMT] Reusing cached AADL model for",
-                  ",".join(sys.argv[1:]))
-            astInfo = pickle.load(open(aadlASTcache, 'rb'), fix_imports=False)
-    if astInfo is None:
-        f = tempfile.NamedTemporaryFile(delete=False)
-        astFile = f.name
-        f.close()
-        os.unlink(astFile)
-        parserUtility = os.path.join(
-            os.path.abspath(os.path.dirname(__file__)), "parse_aadl.py")
-        cmd = "python2 " + parserUtility + " -o " + astFile + ' ' + \
-            ' '.join(sys.argv[1:])
-        if os.system(cmd) != 0:
-            if os.path.exists(astFile):
-                os.unlink(astFile)
-            panic("AADL parsing failed. Aborting...")
-        astInfo = pickle.load(open(astFile, 'rb'), fix_imports=False)
-        if aadlASTcache:
-            pickle.dump(astInfo, open(aadlASTcache, 'wb'), fix_imports=False)
+#   projectCache = os.getenv("PROJECT_CACHE")
+#   if projectCache is not None:
+#       if not os.path.isdir(projectCache):
+#           try:
+#               os.mkdir(projectCache)
+#           except:
+#               panic("The configured cache folder:\n\n\t" + projectCache +
+#                     "\n\n...is not there!\n")
+    if "aadlv1" in sys.argv[-1]:
+        #  asn2aadlPlus now generates directly a Python file containing all
+        #  datatypes, so there is no need to parse the aadl file with Python2
+        print('[DMT] importing data types from asn2aadlPlus')
+        modPath = sys.argv[-1] + '.py'
+        spec = importlib.util.spec_from_file_location('asn1', modPath)
+        if spec is not None:
+            module = importlib.util.module_from_spec(spec)
+            if module is not None and spec.loader is not None:   # appease mypy
+                assert isinstance(spec.loader, importlib.abc.Loader)  # due to bug in mypy
+                sys.modules['asn1'] = module
+                spec.loader.exec_module(module)
 
-    def FixMetaClasses(sp: ApLevelContainer) -> None:
-        def patchMe(o: Any) -> None:
-            try:
-                python2className = str(o.__class__).split("'")[1]
-                if 'commonPy2' in python2className:
-                    klass = commonPy
-                    for step in python2className.split('.')[1:]:
-                        klass = getattr(klass, step)
-                    o.__class__ = klass  # pylint: disable=invalid-class-object
-            except Exception:
-                pass
-
-        patchMe(sp)
-        for param in sp._params:
-            patchMe(param)
-            patchMe(param._signal)
-            patchMe(param._sourceElement)
-        for cn in sp._connections:
-            patchMe(cn)
-    try:
-        for k in ['g_processImplementations', 'g_apLevelContainers',
-                  'g_signals', 'g_systems', 'g_subProgramImplementations',
-                  'g_threadImplementations']:
-            setattr(commonPy.aadlAST, k, astInfo[k])
-        for k in ['g_processImplementations',
-                  'g_subProgramImplementations', 'g_threadImplementations']:
-            for si in astInfo[k]:
-                # sp, sp_impl, modelingLanguage, maybeFVname = si[0], si[1], si[2], si[3]
-                sp = si[0]
-                sp = commonPy.aadlAST.g_apLevelContainers[sp]
-                FixMetaClasses(sp)
-    except Exception as e:
-        if os.path.exists(astFile):
-            os.unlink(astFile)
-        panic(str(e))
+    # Load mini_cv python-generated modules
+    for minicv in sys.argv[1:-1]:
+        modPath = minicv.replace('aadl', 'py')  # mini_cv.py file
+        print(f'[DMT] importing interfaces from {modPath}')
+        spec = importlib.util.spec_from_file_location('minicv', modPath)
+        if spec is not None:
+            module = importlib.util.module_from_spec(spec)
+            if module is not None and spec.loader is not None:  # appease mypy
+                assert isinstance(spec.loader, importlib.abc.Loader)   # due to bug in mypy
+                spec.loader.exec_module(module)
 
 
 def SpecialCodes(asnFile: Optional[str]) -> None:

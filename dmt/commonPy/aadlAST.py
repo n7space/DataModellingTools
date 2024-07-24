@@ -11,6 +11,8 @@ g_subProgramImplementations = []  # type: List[Tuple[str,str,str,str,str]]
 g_processImplementations = []  # type: List[Tuple[str,str,str,str,str]]
 g_threadImplementations = []  # type: List[Tuple[str,str,str,str,str]]
 
+g_signals = {}  # type: Dict[str, Signal]
+
 # AST classes
 
 
@@ -165,7 +167,7 @@ class ApLevelContainer:
         self._params = []  # type: List[Param]
         self._connections = []  # type: List[Connection]
         self._language: str
-        self._fpgaConfigurations: str
+        self._fpgaConfigurations: str = ''
         self._simulinkInterfaceType = "full"
         self._simulinkFullInterfaceRef = ''
 
