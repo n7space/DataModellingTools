@@ -64,8 +64,8 @@ class ASynchronousToolGlueGenerator:
 
     def OnStartup(self, modelingLanguage: str, asnFile: str, outputDir: str, maybeFVname: str) -> None:
         prefix = modelingLanguage
-        outputCheaderFilename = self.CleanNameAsToolWants(prefix) + "_ASN1_Types.h"
-        outputCsourceFilename = self.CleanNameAsToolWants(prefix) + "_ASN1_Types.c"
+        outputCheaderFilename = self.CleanNameAsToolWants(prefix) + "_ASN1_Types.h.old"
+        outputCsourceFilename = self.CleanNameAsToolWants(prefix) + "_ASN1_Types.c.old"
 
         inform(str(self.__class__) + ": Creating file '%s'...", outputCheaderFilename)
         self.C_HeaderFile = open(outputDir + outputCheaderFilename, 'w')  # pylint: disable=attribute-defined-outside-init
